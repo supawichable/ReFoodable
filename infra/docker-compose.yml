@@ -1,0 +1,16 @@
+version: "1.0"
+
+services:
+  firebase:
+    image: spine3/firebase-emulator
+    ports:
+      - 4000:4000 # Emulators UI
+      - 8080:8080 # Firestore
+      - 9099:9099 # Auth
+      - 9199:9199 # Storage
+    volumes:
+      - ./firebase:/firebase
+    environment:
+      - GCP_PROJECT=demo-gdsctokyo-793f7
+    container_name: firebase-emulator
+    command: ["firebase", "emulators:start", "--only", "auth,firestore,storage"]

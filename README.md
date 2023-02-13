@@ -4,13 +4,43 @@ A new Flutter project.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### Setting Up Environmental Variables
 
-A few resources to get you started if this is your first Flutter project:
+Please refer to instructions on `.env.example` file.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### Setting Up Firebase Emulators (if needed)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Please refer to instructions on `infra/README.md` file.
+
+## Running the App in Development Mode
+
+Make sure you have Flutter installed and configured.
+Check if there are any problems by running:
+
+```bash
+flutter doctor
+```
+
+Then, if VS Code has Flutter extension installed, you can run
+
+```bash
+flutter run
+```
+
+## Testing
+
+To run tests, run the following command
+
+```bash
+flutter test
+```
+
+To run individual test, run the following command
+
+```bash
+flutter test test/<path_to_test_file>
+```
+
+## Standards and Naming Conventions
+
+Use `snake_case` for JSON and `camelCase` for variable names.

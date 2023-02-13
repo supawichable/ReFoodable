@@ -1,0 +1,30 @@
+{
+  "kind": "identitytoolkit#DownloadAccountResponse",
+  "users": [
+    {
+      "localId": "UmIhfWtGuXejIDLbNy2eVbep5YQf",
+      "createdAt": "1676293478379",
+      "lastLoginAt": "1676293478378",
+      "displayName": "admin",
+      "photoUrl": "https://api.dicebear.com/5.x/bottts/svg?seed=Baby",
+      "emailVerified": false,
+      "email": "atomicative@gmail.com",
+      "salt": "fakeSaltB1nzEu3IT6UySUoaSVj5",
+      "passwordHash": "fakeHash:salt=fakeSaltB1nzEu3IT6UySUoaSVj5:password=admin1029384756_",
+      "passwordUpdatedAt": 1676293478468,
+      "validSince": "1676293478",
+      "providerUserInfo": [
+        {
+          "providerId": "password",
+          "email": "atomicative@gmail.com",
+          "federatedId": "atomicative@gmail.com",
+          "rawId": "atomicative@gmail.com",
+          "displayName": "admin",
+          "photoUrl": "https://api.dicebear.com/5.x/bottts/svg?seed=Baby"
+        }
+      ],
+      "customAttributes": "{\"role\":\"admin\"}",
+      "lastRefreshAt": "2023-02-13T13:04:38.469Z"
+    }
+  ]
+}

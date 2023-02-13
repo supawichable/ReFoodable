@@ -46,3 +46,6 @@ app.*.map.json
 # Generated files
 /*/**/*.g.dart
 /*/**/*.freezed.dart
+
+# Environment variables
+.env
