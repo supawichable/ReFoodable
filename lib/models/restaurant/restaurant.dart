@@ -13,7 +13,8 @@ class Restaurant with _$Restaurant {
       String? address,
       String? email,
       String? phone,
-      FoodCategory? category}) = _Restaurant;
+      String? ownerId,
+      List<FoodCategory>? category}) = _Restaurant;
 
   factory Restaurant.fromJson(Map<String, dynamic> json) =>
       _$RestaurantFromJson(json);

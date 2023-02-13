@@ -1,8 +1,9 @@
 part of '_user.dart';
 
+@Deprecated("Should use Firebase's User class instead")
 @freezed
-class User with _$User {
-  const factory User({
+class AccountUser with _$AccountUser {
+  const factory AccountUser({
     required String id,
     required bool authenticated,
     required bool emailVerified,
@@ -10,7 +11,8 @@ class User with _$User {
     // if not authenticated then these are null
     String? name,
     String? email,
-  }) = _User;
+  }) = _AccountUser;
 
-  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  factory AccountUser.fromJson(Map<String, dynamic> json) =>
+      _$AccountUserFromJson(json);
 }
