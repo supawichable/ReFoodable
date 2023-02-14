@@ -45,6 +45,7 @@ dependencies:
 
   auto_route: ^5.0.4
   flutter_dotenv: ^5.0.2
+  google_fonts: ^4.0.3
 
 dev_dependencies:
   flutter_test:
