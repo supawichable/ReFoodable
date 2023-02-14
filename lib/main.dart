@@ -50,8 +50,8 @@ class MyApp extends StatelessWidget {
         colorScheme: lightColorScheme,
       ),
       darkTheme: baseTheme.copyWith(
-        colorScheme: darkColorScheme,
-      ),
+          colorScheme: darkColorScheme,
+          scaffoldBackgroundColor: darkColorScheme.background),
       routerDelegate: _appRouter.delegate(),
       routeInformationParser: _appRouter.defaultRouteParser(),
     );
