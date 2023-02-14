@@ -44,6 +44,7 @@ dependencies:
   cloud_firestore: ^4.3.2
 
   auto_route: ^5.0.4
+  flutter_dotenv: ^5.0.2
 
 dev_dependencies:
   flutter_test:
