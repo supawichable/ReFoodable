@@ -44,8 +44,8 @@ app.*.map.json
 /android/app/release
 
 # Generated files
-/*/**/*.g.dart
-/*/**/*.freezed.dart
+/lib/models/*/**/*.g.dart
+/lib/models/*/**/*.freezed.dart
 
 # Environment variables
 .env

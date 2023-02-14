@@ -4,6 +4,12 @@ A new Flutter project.
 
 ## Getting Started
 
+### About `debug.dart`
+
+Currently, we don't have an official home page, but to facilitate individual development, I decided to create a debug page that will contain all the routes to the pages that are currently being developed. Therefore, you can watch the changes in hot reload.
+
+Just follow the instructions in the `debug.dart` file.
+
 ### Setting Up Environmental Variables
 
 Please refer to instructions on `.env.example` file.
