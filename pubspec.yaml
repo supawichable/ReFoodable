@@ -45,12 +45,13 @@ dependencies:
 
   auto_route: ^5.0.4
   flutter_dotenv: ^5.0.2
+  google_fonts: ^4.0.3
 
   sliding_up_panel: ^2.0.0+1
   anim_search_bar: ^2.0.3
-  google_maps_flutter: ^2.2.3
+  # google_maps_flutter: ^2.2.3
   flutter_polyline_points: ^1.0.0
-  location: ^4.4.0
+  # location: ^4.4.0
   flutter_svg: ^2.0.1
 
 dev_dependencies:
@@ -67,7 +68,6 @@ dev_dependencies:
   freezed: ^2.3.2
   json_serializable: ^6.6.1
   auto_route_generator: ^5.0.3
-  
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -100,8 +100,8 @@ flutter:
   fonts:
     - family: Poppins
       fonts:
-       - asset: lib/assets/fonts/Poppins/Poppins-Regular.ttf
-       - asset: lib/assets/fonts/Poppins/Poppins-Italic.ttf
+        - asset: lib/assets/fonts/Poppins/Poppins-Regular.ttf
+        - asset: lib/assets/fonts/Poppins/Poppins-Italic.ttf
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf
