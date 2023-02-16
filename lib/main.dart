@@ -17,10 +17,12 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  if (kDebugMode && dotenv.get("USE_EMULATOR") == 'true') {
+  if (kDebugMode) {
     try {
-      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-      await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+      FirebaseFirestore.instance.useFirestoreEmulator(
+          dotenv.get('LOCALHOST_IP', fallback: 'localhost'), 8080);
+      await FirebaseAuth.instance.useAuthEmulator(
+          dotenv.get('LOCALHOST_IP', fallback: 'localhost'), 9099);
     } catch (e) {
       // ignore: avoid_print
       print(e);
