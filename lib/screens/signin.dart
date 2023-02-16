@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gdsctokyo/widgets/or_bar.dart';
 
+import 'package:google_sign_in/google_sign_in.dart';
 // TODO:
 // - validator coverage
 // - google sign in
@@ -29,7 +29,7 @@ class _SignInPageState extends State<SignInPage> {
   late TextEditingController _passwordController;
   late TextEditingController _confirmPasswordController;
 
-  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   AuthMode mode = AuthMode.login;
 
@@ -218,7 +218,7 @@ class _SignInPageState extends State<SignInPage> {
                                   width: double.infinity,
                                   height: 60,
                                   child: ElevatedButton.icon(
-                                    onPressed: () {},
+                                    onPressed: _signInWithGoogle,
                                     icon: const Icon(Icons.g_mobiledata),
                                     label: const Text('Sign In with Google'),
                                   ),
@@ -295,6 +295,25 @@ class _SignInPageState extends State<SignInPage> {
           ),
         );
       }
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    // Trigger the authentication flow
+    final googleUser = await GoogleSignIn().signIn();
+
+    // Obtain the auth details from the request
+    final googleAuth = await googleUser?.authentication;
+
+    if (googleAuth != null) {
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Once signed in, return the UserCredential
+      await FirebaseAuth.instance.signInWithCredential(credential);
     }
   }
 }

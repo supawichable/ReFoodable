@@ -48,6 +48,7 @@ dependencies:
   google_fonts: ^4.0.3
   flutter_hooks: ^0.18.5+1
   hooks_riverpod: ^2.2.0
+  google_sign_in: ^5.4.4
 
 dev_dependencies:
   integration_test:
