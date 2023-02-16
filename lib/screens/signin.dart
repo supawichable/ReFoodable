@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/widgets/or_bar.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
+
 // TODO:
 // - validator coverage
-// - google sign in
 // - redirect to home page after sign in
-// - snackbar for error
 
 enum AuthMode { login, register }
 
