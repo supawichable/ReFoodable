@@ -41,17 +41,37 @@ class MyApp extends StatelessWidget {
     // Define baseTheme here
     final baseTheme = ThemeData(
       useMaterial3: true,
-      textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
+        ),
+      ),
     );
 
     return MaterialApp.router(
       // See `theme/color_schemes.g.dart` for the color schemes.
       theme: baseTheme.copyWith(
         colorScheme: lightColorScheme,
+        textTheme: GoogleFonts.poppinsTextTheme(
+          Theme.of(context).textTheme.apply(
+                bodyColor: lightColorScheme.onBackground,
+                displayColor: lightColorScheme.onBackground,
+              ),
+        ),
       ),
+
       darkTheme: baseTheme.copyWith(
           colorScheme: darkColorScheme,
-          scaffoldBackgroundColor: darkColorScheme.background),
+          scaffoldBackgroundColor: darkColorScheme.background,
+          textTheme: GoogleFonts.poppinsTextTheme(
+            Theme.of(context).textTheme.apply(
+                  bodyColor: darkColorScheme.onBackground,
+                  displayColor: darkColorScheme.onBackground,
+                ),
+          )),
+      themeMode: ThemeMode.light,
       routerDelegate: _appRouter.delegate(),
       routeInformationParser: _appRouter.defaultRouteParser(),
     );

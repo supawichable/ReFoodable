@@ -46,6 +46,8 @@ dependencies:
   auto_route: ^5.0.4
   flutter_dotenv: ^5.0.2
   google_fonts: ^4.0.3
+  flutter_hooks: ^0.18.5+1
+  hooks_riverpod: ^2.2.0
 
 dev_dependencies:
   flutter_test:
