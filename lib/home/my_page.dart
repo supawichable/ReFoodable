@@ -19,7 +19,7 @@ class MyPage extends StatelessWidget {
           final user = snapshot.data;
 
           if (user == null) {
-            return NotLoggedIn();
+            return const NotLoggedIn();
           } else {
             return const LoggedIn();
           }
@@ -60,10 +60,11 @@ class LoggedIn extends StatefulWidget {
 }
 
 class _LoggedInState extends State<LoggedIn> {
+  // query where required field
   final _restaurantRef = FirebaseFirestore.instance
       .collection('restaurants')
       .withConverter<Restaurant>(
-        fromFirestore: (snapshots, _) => Restaurant.fromJson(snapshots.data()!),
+        fromFirestore: (snapshot, _) => Restaurant.fromFirestore(snapshot),
         toFirestore: (restaurant, _) => restaurant.toJson(),
       );
 
@@ -83,13 +84,22 @@ class _LoggedInState extends State<LoggedIn> {
       ),
       StreamBuilder<QuerySnapshot<Restaurant>>(
         stream: _restaurantRef
-            .where('ownerId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+            // .where('ownerId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
             .snapshots(),
         builder: (BuildContext context, snapshot) {
-          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty)
-            return Container(
-                child: Text('${snapshot.data!.docs.first.data().name}'));
-          return Container(child: Text('query error'));
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+            final restaurants = snapshot.data!.docs;
+            return ListView.builder(
+              shrinkWrap: true,
+              itemCount: restaurants.length,
+              itemBuilder: (BuildContext context, int index) {
+                final restaurant = restaurants[index];
+                return ListTile(title: Text(restaurant.data().name));
+              },
+            );
+          } else {
+            return const Text('No data');
+          }
         },
       ),
     ]);
