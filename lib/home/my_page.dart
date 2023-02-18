@@ -8,13 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import '../models/restaurant/_restaurant.dart';
 
 class MyPage extends StatelessWidget {
-  MyPage({super.key});
-  final restaurantRef = FirebaseFirestore.instance
-      .collection('restaurants')
-      .withConverter<Restaurant>(
-        fromFirestore: (snapshots, _) => Restaurant.fromJson(snapshots.data()!),
-        toFirestore: (restaurant, _) => restaurant.toJson(),
-      );
+  const MyPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -58,12 +52,24 @@ class NotLoggedIn extends StatelessWidget {
   }
 }
 
-class LoggedIn extends StatelessWidget {
+class LoggedIn extends StatefulWidget {
   const LoggedIn({super.key});
 
   @override
+  State<LoggedIn> createState() => _LoggedInState();
+}
+
+class _LoggedInState extends State<LoggedIn> {
+  final _restaurantRef = FirebaseFirestore.instance
+      .collection('restaurants')
+      .withConverter<Restaurant>(
+        fromFirestore: (snapshots, _) => Restaurant.fromJson(snapshots.data()!),
+        toFirestore: (restaurant, _) => restaurant.toJson(),
+      );
+
+  @override
   Widget build(BuildContext context) {
-    return Column(children: [
+    return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       // sign in page button
       ElevatedButton(
         onPressed: () {},
@@ -74,6 +80,17 @@ class LoggedIn extends StatelessWidget {
           FirebaseAuth.instance.signOut();
         },
         child: const Text('Sign Out'),
+      ),
+      StreamBuilder<QuerySnapshot<Restaurant>>(
+        stream: _restaurantRef
+            .where('ownerId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+            .snapshots(),
+        builder: (BuildContext context, snapshot) {
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty)
+            return Container(
+                child: Text('${snapshot.data!.docs.first.data().name}'));
+          return Container(child: Text('query error'));
+        },
       ),
     ]);
   }
