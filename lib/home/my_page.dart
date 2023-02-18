@@ -2,9 +2,19 @@ import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+import '../models/restaurant/_restaurant.dart';
 
 class MyPage extends StatelessWidget {
-  const MyPage({super.key});
+  MyPage({super.key});
+  final restaurantRef = FirebaseFirestore.instance
+      .collection('restaurants')
+      .withConverter<Restaurant>(
+        fromFirestore: (snapshots, _) => Restaurant.fromJson(snapshots.data()!),
+        toFirestore: (restaurant, _) => restaurant.toJson(),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +65,10 @@ class LoggedIn extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(children: [
       // sign in page button
+      ElevatedButton(
+        onPressed: () {},
+        child: const Text('Query Restaurant'),
+      ),
       ElevatedButton(
         onPressed: () {
           FirebaseAuth.instance.signOut();
