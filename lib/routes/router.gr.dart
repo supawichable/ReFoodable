@@ -14,8 +14,8 @@
 import 'package:auto_route/auto_route.dart' as _i5;
 import 'package:flutter/material.dart' as _i6;
 
-import '../screens/debug.dart' as _i4;
 import '../screens/forgot.dart' as _i2;
+import '../screens/home.dart' as _i4;
 import '../screens/reset.dart' as _i3;
 import '../screens/signin.dart' as _i1;
 
@@ -43,10 +43,10 @@ class AppRouter extends _i5.RootStackRouter {
         child: const _i3.ResetPasswordPage(),
       );
     },
-    DebugRoute.name: (routeData) {
+    HomeRoute.name: (routeData) {
       return _i5.MaterialPageX<dynamic>(
         routeData: routeData,
-        child: const _i4.DebugPage(),
+        child: const _i4.HomePage(),
       );
     },
   };
@@ -56,7 +56,7 @@ class AppRouter extends _i5.RootStackRouter {
         _i5.RouteConfig(
           '/#redirect',
           path: '/',
-          redirectTo: '/debug',
+          redirectTo: '/home',
           fullMatch: true,
         ),
         _i5.RouteConfig(
@@ -72,8 +72,8 @@ class AppRouter extends _i5.RootStackRouter {
           path: '/reset',
         ),
         _i5.RouteConfig(
-          DebugRoute.name,
-          path: '/debug',
+          HomeRoute.name,
+          path: '/home',
         ),
       ];
 }
@@ -115,13 +115,13 @@ class ResetPasswordRoute extends _i5.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i4.DebugPage]
-class DebugRoute extends _i5.PageRouteInfo<void> {
-  const DebugRoute()
+/// [_i4.HomePage]
+class HomeRoute extends _i5.PageRouteInfo<void> {
+  const HomeRoute()
       : super(
-          DebugRoute.name,
-          path: '/debug',
+          HomeRoute.name,
+          path: '/home',
         );
 
-  static const String name = 'DebugRoute';
+  static const String name = 'HomeRoute';
 }

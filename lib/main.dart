@@ -29,18 +29,16 @@ void main() async {
     }
   }
 
-  runApp(MyApp());
+  runApp(Main());
 }
 
-class MyApp extends StatelessWidget {
-  MyApp({super.key});
+class Main extends StatelessWidget {
+  Main({super.key});
 
   final _appRouter = AppRouter();
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    // Define baseTheme here
     final baseTheme = ThemeData(
       useMaterial3: true,
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -58,6 +56,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp.router(
       // See `theme/color_schemes.g.dart` for the color schemes.
+      debugShowCheckedModeBanner: false,
       theme: baseTheme.copyWith(
         colorScheme: lightColorScheme,
       ),

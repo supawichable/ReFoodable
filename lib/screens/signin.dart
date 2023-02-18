@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +26,14 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
-  bool _isLoading = false;
-
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
   late TextEditingController _confirmPasswordController;
+
+  bool _isLoading = false;
+  bool _redirecting = false;
+
+  late final StreamSubscription<User?> _authStateSubscription;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -40,6 +45,15 @@ class _SignInPageState extends State<SignInPage> {
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
+    _authStateSubscription =
+        FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (_redirecting) return;
+      if (user != null) {
+        _redirecting = true;
+        context.router
+            .pushAndPopUntil(const HomeRoute(), predicate: (route) => false);
+      }
+    });
   }
 
   @override
@@ -47,6 +61,8 @@ class _SignInPageState extends State<SignInPage> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _authStateSubscription.cancel();
+
     super.dispose();
   }
 
@@ -276,11 +292,17 @@ class _SignInPageState extends State<SignInPage> {
               ),
             );
         }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+          ),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
       }
-
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
@@ -300,11 +322,12 @@ class _SignInPageState extends State<SignInPage> {
             content: Text(e.toString()),
           ),
         );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   Future<void> _signInWithGoogle() async {
