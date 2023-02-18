@@ -331,21 +331,107 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Future<void> _signInWithGoogle() async {
-    // Trigger the authentication flow
-    final googleUser = await GoogleSignIn().signIn();
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      // Trigger the authentication flow
+      final googleUser = await GoogleSignIn().signIn();
 
-    // Obtain the auth details from the request
-    final googleAuth = await googleUser?.authentication;
+      // Obtain the auth details from the request
+      final googleAuth = await googleUser?.authentication;
 
-    if (googleAuth != null) {
-      // Create a new credential
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+      if (googleAuth != null) {
+        // Create a new credential
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        // Once signed in, return the UserCredential
+        await FirebaseAuth.instance.signInWithCredential(credential);
+      }
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'account-exists-with-different-credential':
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address.'),
+            ),
+          );
+          break;
+        case 'invalid-credential':
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'Error occurred while accessing credentials. Try again.'),
+            ),
+          );
+          break;
+        case 'operation-not-allowed':
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'This operation is not allowed. You must enable this service in the console.'),
+            ),
+          );
+          break;
+        case 'user-disabled':
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'The user account has been disabled by an administrator.'),
+            ),
+          );
+          break;
+        case 'user-not-found':
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'No user found corresponding to the given identifier. The user may have been deleted.'),
+            ),
+          );
+          break;
+        case 'wrong-password':
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'The password is invalid or the user does not have a password.'),
+            ),
+          );
+          break;
+        case 'invalid-verification-code':
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('The verification code is invalid.'),
+            ),
+          );
+          break;
+        case 'invalid-verification-id':
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('The verification ID is invalid.'),
+            ),
+          );
+          break;
+        default:
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.code),
+            ),
+          );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+        ),
       );
-
-      // Once signed in, return the UserCredential
-      await FirebaseAuth.instance.signInWithCredential(credential);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 }

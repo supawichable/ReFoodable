@@ -79,15 +79,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Future<void> sendPasswordResetEmail() async {
     if (formKey.currentState?.validate() ?? false) {
       try {
-        await FirebaseAuth.instance.sendPasswordResetEmail(
-            email: emailController.text,
-            actionCodeSettings: ActionCodeSettings(
-                url: 'com.example.gdsctokyo://reset',
-                androidPackageName: 'com.example.gdsctokyo'));
+        await FirebaseAuth.instance
+            .sendPasswordResetEmail(email: emailController.text.trim());
         emailController.clear();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Password reset email sent'),
+            content: Text(
+                'Password reset email sent. Please check your email and try logging in again.'),
           ),
         );
         context.router.pop();
