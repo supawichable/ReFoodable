@@ -17,7 +17,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  if (kDebugMode) {
+  if (kDebugMode && dotenv.get('USE_EMULATOR', fallback: 'false') == 'true') {
     try {
       FirebaseFirestore.instance.useFirestoreEmulator(
           dotenv.get('LOCALHOST_IP', fallback: 'localhost'), 8080);
@@ -50,29 +50,22 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
+      // use material 3 font size
+      textTheme: GoogleFonts.poppinsTextTheme(
+        Theme.of(context).textTheme,
+      ),
     );
 
     return MaterialApp.router(
       // See `theme/color_schemes.g.dart` for the color schemes.
       theme: baseTheme.copyWith(
         colorScheme: lightColorScheme,
-        textTheme: GoogleFonts.poppinsTextTheme(
-          Theme.of(context).textTheme.apply(
-                bodyColor: lightColorScheme.onBackground,
-                displayColor: lightColorScheme.onBackground,
-              ),
-        ),
       ),
 
       darkTheme: baseTheme.copyWith(
-          colorScheme: darkColorScheme,
-          scaffoldBackgroundColor: darkColorScheme.background,
-          textTheme: GoogleFonts.poppinsTextTheme(
-            Theme.of(context).textTheme.apply(
-                  bodyColor: darkColorScheme.onBackground,
-                  displayColor: darkColorScheme.onBackground,
-                ),
-          )),
+        colorScheme: darkColorScheme,
+        scaffoldBackgroundColor: darkColorScheme.background,
+      ),
       themeMode: ThemeMode.light,
       routerDelegate: _appRouter.delegate(),
       routeInformationParser: _appRouter.defaultRouteParser(),

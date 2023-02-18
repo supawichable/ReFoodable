@@ -24,7 +24,17 @@ class DebugPage extends StatelessWidget {
               onPressed: () {
                 context.router.push(const SignInRoute());
               },
-              child: const Text('Sign In Page'))
+              child: const Text('Sign In Page')),
+          ElevatedButton(
+              onPressed: () {
+                context.router.push(const ForgotPasswordRoute());
+              },
+              child: const Text('Forgot Password Page')),
+          ElevatedButton(
+              onPressed: () {
+                context.router.push(const ResetPasswordRoute());
+              },
+              child: const Text('Reset Password Page')),
         ],
       )),
     );

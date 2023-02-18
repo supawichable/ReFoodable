@@ -1,5 +1,7 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/widgets/or_bar.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
@@ -59,59 +61,149 @@ class _SignInPageState extends State<SignInPage> {
             title: const Text('Sign In'),
             elevation: 2,
           ),
-          body: Center(
-            child: SingleChildScrollView(
-              child: SafeArea(
-                child: Form(
-                  key: _formKey,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: 400,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        TextFormField(
-                          controller: _emailController,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) =>
-                              value!.isEmpty ? 'Please enter your email' : null,
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Password',
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) => value!.isEmpty
-                              ? 'Please enter your password'
-                              : null,
-                        ),
-                        const SizedBox(height: 16),
-                        if (mode == AuthMode.register)
+          body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+              child: SingleChildScrollView(
+                child: SafeArea(
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: 400,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           TextFormField(
-                            controller: _confirmPasswordController,
+                            controller: _emailController,
+                            decoration: const InputDecoration(
+                              labelText: 'Email',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (value) => value!.isEmpty
+                                ? 'Please enter your email'
+                                : null,
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _passwordController,
                             obscureText: true,
                             decoration: const InputDecoration(
-                              labelText: 'Confirm Password',
+                              labelText: 'Password',
                               border: OutlineInputBorder(),
                             ),
                             validator: (value) => value!.isEmpty
                                 ? 'Please enter your password'
-                                : _passwordController.text !=
-                                        _confirmPasswordController.text
-                                    ? 'Passwords do not match'
-                                    : null,
+                                : null,
                           ),
-                        if (mode == AuthMode.register)
                           const SizedBox(height: 16),
-                        if (mode == AuthMode.login)
+                          if (mode == AuthMode.register)
+                            TextFormField(
+                              controller: _confirmPasswordController,
+                              obscureText: true,
+                              decoration: const InputDecoration(
+                                labelText: 'Confirm Password',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) => value!.isEmpty
+                                  ? 'Please enter your password'
+                                  : _passwordController.text !=
+                                          _confirmPasswordController.text
+                                      ? 'Passwords do not match'
+                                      : null,
+                            ),
+                          if (mode == AuthMode.register)
+                            const SizedBox(height: 16),
+                          if (mode == AuthMode.login)
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: _isLoading
+                                  ? Container(
+                                      height: 60,
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        borderRadius: const BorderRadius.all(
+                                          Radius.circular(8),
+                                        ),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primaryContainer,
+                                      ),
+                                      child: const Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    )
+                                  : SizedBox(
+                                      width: double.infinity,
+                                      height: 60,
+                                      child: ElevatedButton(
+                                        onPressed: _signIn,
+                                        child: const Text('Sign In'),
+                                      ),
+                                    ),
+                            ),
+                          if (mode == AuthMode.register)
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: _isLoading
+                                  ? Container(
+                                      height: 60,
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(8)),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primaryContainer),
+                                      child: const Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    )
+                                  : SizedBox(
+                                      width: double.infinity,
+                                      height: 60,
+                                      child: ElevatedButton(
+                                        onPressed: _signUp,
+                                        child: const Text('Sign Up'),
+                                      ),
+                                    ),
+                            ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    mode = mode == AuthMode.login
+                                        ? AuthMode.register
+                                        : AuthMode.login;
+                                    _emailController.clear();
+                                    _passwordController.clear();
+                                    _confirmPasswordController.clear();
+                                  });
+                                },
+                                child: mode == AuthMode.login
+                                    ? const Text('Don\'t have an account?')
+                                    : const Text('Already have an account?'),
+                              ),
+                              if (mode == AuthMode.login)
+                                TextButton(
+                                  onPressed: () {
+                                    context.router.push(
+                                      const ForgotPasswordRoute(),
+                                    );
+                                  },
+                                  child: const Text('Forgot Password?'),
+                                ),
+                            ],
+                          ),
+                          const OrBar(),
+                          const SizedBox(
+                            height: 16,
+                          ),
                           AnimatedSwitcher(
                             duration: const Duration(milliseconds: 200),
                             child: _isLoading
@@ -133,97 +225,15 @@ class _SignInPageState extends State<SignInPage> {
                                 : SizedBox(
                                     width: double.infinity,
                                     height: 60,
-                                    child: ElevatedButton(
-                                      onPressed: _signIn,
-                                      child: const Text('Sign In'),
+                                    child: ElevatedButton.icon(
+                                      onPressed: _signInWithGoogle,
+                                      icon: const Icon(Icons.g_mobiledata),
+                                      label: const Text('Sign In with Google'),
                                     ),
                                   ),
-                          ),
-                        if (mode == AuthMode.register)
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 200),
-                            child: _isLoading
-                                ? Container(
-                                    height: 60,
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(8)),
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primaryContainer),
-                                    child: const Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  )
-                                : SizedBox(
-                                    width: double.infinity,
-                                    height: 60,
-                                    child: ElevatedButton(
-                                      onPressed: _signUp,
-                                      child: const Text('Sign Up'),
-                                    ),
-                                  ),
-                          ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  mode = mode == AuthMode.login
-                                      ? AuthMode.register
-                                      : AuthMode.login;
-                                  _emailController.clear();
-                                  _passwordController.clear();
-                                  _confirmPasswordController.clear();
-                                });
-                              },
-                              child: mode == AuthMode.login
-                                  ? const Text('Don\'t have an account?')
-                                  : const Text('Already have an account?'),
-                            ),
-                            if (mode == AuthMode.login)
-                              TextButton(
-                                onPressed: () {},
-                                child: const Text('Forgot Password?'),
-                              ),
-                          ],
-                        ),
-                        const OrBar(),
-                        const SizedBox(
-                          height: 16,
-                        ),
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 200),
-                          child: _isLoading
-                              ? Container(
-                                  height: 60,
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(8),
-                                    ),
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .primaryContainer,
-                                  ),
-                                  child: const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                )
-                              : SizedBox(
-                                  width: double.infinity,
-                                  height: 60,
-                                  child: ElevatedButton.icon(
-                                    onPressed: _signInWithGoogle,
-                                    icon: const Icon(Icons.g_mobiledata),
-                                    label: const Text('Sign In with Google'),
-                                  ),
-                                ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -285,9 +295,6 @@ class _SignInPageState extends State<SignInPage> {
           password: _passwordController.text,
         );
       } catch (e) {
-        setState(() {
-          _isLoading = false;
-        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString()),
@@ -295,6 +302,9 @@ class _SignInPageState extends State<SignInPage> {
         );
       }
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> _signInWithGoogle() async {
