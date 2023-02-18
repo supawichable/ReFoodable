@@ -60,11 +60,14 @@ class LoggedIn extends StatefulWidget {
 }
 
 class _LoggedInState extends State<LoggedIn> {
-  // query where required field
   final _restaurantRef = FirebaseFirestore.instance
+      // choose collection
       .collection('restaurants')
+      // snapshot.data() will not contain the id field so we implemented our own version
       .withConverter<Restaurant>(
+        // ctrl + click on fromFirestore to see how it's implemented
         fromFirestore: (snapshot, _) => Restaurant.fromFirestore(snapshot),
+        // might need toFirestore in the future
         toFirestore: (restaurant, _) => restaurant.toJson(),
       );
 
@@ -82,12 +85,18 @@ class _LoggedInState extends State<LoggedIn> {
         },
         child: const Text('Sign Out'),
       ),
+
+      // StreamBuilder with a snapshot of type QuerySnapshot<Restaurant>
       StreamBuilder<QuerySnapshot<Restaurant>>(
         stream: _restaurantRef
-            // .where('ownerId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+            // query
+            .where('owner_id',
+                isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+            // get snapshot
             .snapshots(),
         builder: (BuildContext context, snapshot) {
           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+            // docs = list of documents
             final restaurants = snapshot.data!.docs;
             return ListView.builder(
               shrinkWrap: true,
