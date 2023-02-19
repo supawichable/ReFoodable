@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import '../models/restaurant/_restaurant.dart';
+import '../screens/restaurant_my_page.dart';
 
 class MyPage extends StatelessWidget {
   const MyPage({super.key});
@@ -73,8 +74,11 @@ class _LoggedInState extends State<LoggedIn> {
     return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       // sign in page button
       ElevatedButton(
-        onPressed: () {},
-        child: const Text('Query Restaurant'),
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => RestaurantMyPage()));
+        },
+        child: const Text('Go to Restaurant'),
       ),
       ElevatedButton(
         onPressed: () {
