@@ -41,7 +41,7 @@ dependencies:
   # Firebase
   firebase_core: ^2.5.0
   firebase_auth: ^4.2.6
-  cloud_firestore: ^4.3.2
+  cloud_firestore: ^4.4.2
 
   auto_route: ^5.0.4
   flutter_dotenv: ^5.0.2

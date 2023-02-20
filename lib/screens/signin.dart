@@ -288,7 +288,7 @@ class _SignInPageState extends State<SignInPage> {
           default:
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(e.code),
+                content: Text(e.toString()),
               ),
             );
         }
@@ -418,7 +418,7 @@ class _SignInPageState extends State<SignInPage> {
         default:
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(e.code),
+              content: Text(e.toString()),
             ),
           );
       }
