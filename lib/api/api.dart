@@ -4,6 +4,7 @@ import 'package:gdsctokyo/models/restaurant/_restaurant.dart';
 
 part 'me.dart';
 part 'restaurant.dart';
+part 'auth.dart';
 
 class FirebaseApi {
   final _me = Me();
