@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/home/explore.dart';
-import 'package:gdsctokyo/home/my_page.dart';
-import 'package:gdsctokyo/home/restaurant.dart';
+import 'package:gdsctokyo/widgets/home/explore.dart';
+import 'package:gdsctokyo/widgets/home/my_page.dart';
+import 'package:gdsctokyo/widgets/home/restaurant.dart';
 import 'package:gdsctokyo/theme/color_schemes.g.dart';
 import 'package:gdsctokyo/widgets/big_text.dart';
 
@@ -15,7 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int currentPage = 0;
   List<Widget> pages = [
-    Restaurant(),
+    RestaurantPage(),
     Explore(),
     MyPage(),
   ];
