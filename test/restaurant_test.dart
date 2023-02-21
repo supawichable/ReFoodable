@@ -37,13 +37,7 @@ void main() {
       final snapshot = await ref.get();
       final data = snapshot.data();
 
-      expect(data!.name, restaurant.name);
-      expect(data.location.latitude, restaurant.location.latitude);
-      expect(data.location.longitude, restaurant.location.longitude);
-      expect(data.address, restaurant.address);
-      expect(data.email, restaurant.email);
-      expect(data.phone, restaurant.phone);
-      expect(data.ownerId, currentUser.uid);
+      expect(data == restaurant, true);
     });
 
     test('User gets their owned restaurants', () async {
@@ -66,7 +60,7 @@ void main() {
       final data = snapshots.docs.map((e) => e.data()).toList();
 
       expect(data.length, 2);
-      expect(data[1].name, restaurant2.name);
+      expect(data[1] == restaurant2, true);
     });
   });
 }

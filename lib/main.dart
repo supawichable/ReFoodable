@@ -10,7 +10,7 @@ import 'package:gdsctokyo/theme/color_schemes.g.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: '.env');
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(

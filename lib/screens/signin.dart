@@ -47,7 +47,9 @@ class _SignInPageState extends State<SignInPage> {
     _confirmPasswordController = TextEditingController();
     _authStateSubscription =
         FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (_redirecting) return;
+      if (_redirecting) {
+        return;
+      }
       if (user != null) {
         _redirecting = true;
         context.router
@@ -299,9 +301,11 @@ class _SignInPageState extends State<SignInPage> {
           ),
         );
       } finally {
-        setState(() {
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     }
   }
@@ -316,6 +320,7 @@ class _SignInPageState extends State<SignInPage> {
           email: _emailController.text,
           password: _passwordController.text,
         );
+        await FirebaseAuth.instance.currentUser!.sendEmailVerification();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -323,9 +328,11 @@ class _SignInPageState extends State<SignInPage> {
           ),
         );
       } finally {
-        setState(() {
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     }
   }
@@ -429,9 +436,11 @@ class _SignInPageState extends State<SignInPage> {
         ),
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 }
