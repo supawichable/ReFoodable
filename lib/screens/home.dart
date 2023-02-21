@@ -20,42 +20,55 @@ class _HomePageState extends State<HomePage> {
     MyPage(),
   ];
 
+  List<String> titles = [
+    'Restaurant',
+    'Explore',
+    'My page'
+  ];
+
   // titles = ['Restaurant', 'Explore', 'My Page']
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: BigText(text: 'My Page'),
+        title: BigText(text: titles[currentPage]),
         elevation: 2,
       ),
       body: pages[currentPage],
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: lightColorScheme.primaryContainer,
-        selectedItemColor: Colors.red[300],
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(
-                Icons.restaurant,
-              ),
-              label: 'Restaurant'),
-          BottomNavigationBarItem(
-              icon: Icon(
-                Icons.explore,
-              ),
-              label: 'Explore'),
-          BottomNavigationBarItem(
-              icon: Icon(
-                Icons.person_2_rounded,
-              ),
-              label: 'My Page'),
-        ],
-        onTap: (int index) {
-          setState(() {
-            currentPage = index;
-          });
-        },
-        currentIndex: currentPage,
+      bottomNavigationBar: Theme(
+        data: ThemeData(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: lightColorScheme.onInverseSurface,
+          selectedItemColor: Colors.red[300],
+          unselectedItemColor: Colors.grey[800],
+          items: [
+            BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.restaurant,
+                ),
+                label: 'Restaurant'),
+            BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.explore,
+                ),
+                label: 'Explore'),
+            BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.person_2_rounded,
+                ),
+                label: 'My Page'),
+          ],
+          onTap: (int index) {
+            setState(() {
+              currentPage = index;
+            });
+          },
+          currentIndex: currentPage,
+        ),
       ),
     );
   }

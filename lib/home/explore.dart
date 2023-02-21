@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gdsctokyo/widgets/big_text.dart';
 
 class Explore extends StatefulWidget {
   const Explore({super.key});
@@ -10,6 +11,6 @@ class Explore extends StatefulWidget {
 class _ExploreState extends State<Explore> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold();
   }
 }

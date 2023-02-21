@@ -1,7 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gdsctokyo/home/my_store_page.dart';
+import 'package:gdsctokyo/home/store_page.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:gdsctokyo/widgets/big_text.dart';
 
 class MyPage extends StatelessWidget {
   const MyPage({super.key});
@@ -15,7 +18,7 @@ class MyPage extends StatelessWidget {
           final user = snapshot.data;
 
           if (user == null) {
-            return NotLoggedIn();
+            return NotLoggedIn(); //note to change back to NotLoggedIn
           } else {
             return const LoggedIn();
           }
