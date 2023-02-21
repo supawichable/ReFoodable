@@ -24,3 +24,14 @@ class TimestampConverter extends JsonConverter<DateTime, Timestamp> {
     return Timestamp.fromDate(object);
   }
 }
+
+class DocumentReferenceConverter
+    extends JsonConverter<DocumentReference, DocumentReference> {
+  const DocumentReferenceConverter();
+
+  @override
+  DocumentReference fromJson(json) => json;
+
+  @override
+  DocumentReference toJson(DocumentReference object) => object;
+}
