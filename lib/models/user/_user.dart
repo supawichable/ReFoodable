@@ -7,5 +7,5 @@ import 'package:gdsctokyo/util/json_converter.dart';
 part '_user.g.dart';
 part '_user.freezed.dart';
 
-part 'private.dart';
+part 'user_data.dart';
 part 'public.dart';

@@ -14,6 +14,7 @@ class Restaurant with _$Restaurant {
       String? email,
       String? phone,
       String? ownerId,
+      String? addedBy,
       List<FoodCategory>? category}) = _Restaurant;
 
   factory Restaurant.fromJson(Map<String, dynamic> json) =>
@@ -22,6 +23,9 @@ class Restaurant with _$Restaurant {
   factory Restaurant.fromFirestore(
           DocumentSnapshot<Map<String, dynamic>> snapshot) =>
       Restaurant.fromJson({"id": snapshot.id, ...snapshot.data()!});
+
+  static Map<String, dynamic> toFirestore(Restaurant data) =>
+      data.toJson().remove('id');
 }
 
 // enums for food category
