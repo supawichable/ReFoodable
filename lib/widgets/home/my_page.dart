@@ -31,8 +31,7 @@ class ProfileCard extends StatelessWidget {
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (BuildContext context, snapshot) {
             final user = snapshot.data;
-            final _isAnonymous =
-                FirebaseAuth.instance.currentUser?.isAnonymous ?? true;
+            final isAuthenticated = user != null;
 
             return Column(
               children: [
@@ -45,7 +44,7 @@ class ProfileCard extends StatelessWidget {
                           'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'),
                     ),
                     const SizedBox(width: 16),
-                    if (_isAnonymous)
+                    if (!isAuthenticated)
                       Text('You\'re not signed in.',
                           style: Theme.of(context).textTheme.bodyLarge)
                     else
@@ -55,7 +54,7 @@ class ProfileCard extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodyLarge),
                   ],
                 ),
-                if (_isAnonymous)
+                if (!isAuthenticated)
                   const Padding(
                     padding: EdgeInsets.all(16.0),
                     child: Text(
@@ -63,7 +62,7 @@ class ProfileCard extends StatelessWidget {
                       'Sign in to save your favorites and participate in the community!',
                     ),
                   ),
-                if (_isAnonymous)
+                if (!isAuthenticated)
                   ElevatedButton(
                     onPressed: () {
                       context.router.push(const SignInRoute());
