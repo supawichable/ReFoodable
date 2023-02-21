@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/assets/data/food_list.dart';
+import 'package:gdsctokyo/models/restaurant/_restaurant.dart';
 import 'package:gdsctokyo/widgets/big_text_bold.dart';
 import 'package:gdsctokyo/widgets/icon_text.dart';
 
-
 class StorePage extends StatelessWidget {
-  StorePage({super.key});
+  final Restaurant restaurant;
+
+  const StorePage({super.key, required this.restaurant});
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      child: ListView(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(restaurant.name),
+      ),
+      body: ListView(
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
         children: [
@@ -53,9 +58,15 @@ class StorePage extends StatelessWidget {
                           margin: const EdgeInsets.only(
                             bottom: 8,
                           ),
-                          child: IconText(iconType: Icons.location_pin, iconColor: Colors.red[300], text: '500m from here'),
+                          child: IconText(
+                              iconType: Icons.location_pin,
+                              iconColor: Colors.red[300],
+                              text: '500m from here'),
                         ),
-                        IconText(iconType: Icons.bento, iconColor: Colors.red[300], text: 'bento'),
+                        IconText(
+                            iconType: Icons.bento,
+                            iconColor: Colors.red[300],
+                            text: 'bento'),
                       ],
                     ),
                   ),
@@ -67,9 +78,15 @@ class StorePage extends StatelessWidget {
                           margin: const EdgeInsets.only(
                             bottom: 8,
                           ),
-                          child: IconText(iconType: Icons.schedule, iconColor: Colors.red[300], text: '11:00 - 23:00'),
+                          child: IconText(
+                              iconType: Icons.schedule,
+                              iconColor: Colors.red[300],
+                              text: '11:00 - 23:00'),
                         ),
-                        IconText(iconType: Icons.discount, iconColor: Colors.red[300], text: '40% - 80% discount'),
+                        IconText(
+                            iconType: Icons.discount,
+                            iconColor: Colors.red[300],
+                            text: '40% - 80% discount'),
                       ],
                     ),
                   ),
@@ -83,4 +100,3 @@ class StorePage extends StatelessWidget {
     );
   }
 }
-

@@ -8,7 +8,6 @@ import 'package:gdsctokyo/widgets/sorting_tab.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-
 class RestaurantPage extends StatefulWidget {
   const RestaurantPage({super.key});
 
@@ -65,8 +64,8 @@ class _RestaurantPageState extends State<RestaurantPage> {
               }),
             })
         .catchError((onError) {
-          debugPrint("Error caught in getCurrentLocation: $onError");
-        });
+      debugPrint("Error caught in getCurrentLocation: $onError");
+    });
   }
 
   @override

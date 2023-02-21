@@ -5,12 +5,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gdsctokyo/firebase_options.dart';
+import 'package:gdsctokyo/routes/guard.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/theme/color_schemes.g.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: '.env');
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -35,7 +36,7 @@ void main() async {
 class Main extends StatelessWidget {
   Main({super.key});
 
-  final _appRouter = AppRouter();
+  final _appRouter = AppRouter(authGuard: AuthGuard());
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {

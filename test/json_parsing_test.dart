@@ -5,7 +5,6 @@ void main() {
   group('restaurant', () {
     test('Parse restaurant', () async {
       final json = {
-        "id": "test",
         "name": "Restaurant 1",
         "location": {
           "latitude": 50.0,
@@ -21,12 +20,9 @@ void main() {
       };
 
       final restaurant = Restaurant.fromJson(json);
-      expect(restaurant.id, "test");
       expect(restaurant.name, "Restaurant 1");
       expect(restaurant.location.latitude, 50.0);
       expect(restaurant.location.longitude, 128.0);
-      expect(restaurant.updatedAt, DateTime.parse("2021-08-01T00:00:00.000Z"));
-      expect(restaurant.createdAt, DateTime.parse("2021-08-01T00:00:00.000Z"));
       expect(restaurant.address, "test");
       expect(restaurant.email, "test@example.com");
       expect(restaurant.phone, "08080808080");

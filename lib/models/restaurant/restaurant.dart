@@ -1,13 +1,10 @@
 part of '_restaurant.dart';
 
-@freezed
+@Freezed(unionKey: 'type')
 class Restaurant with _$Restaurant {
   const factory Restaurant(
-      {required String id,
-      required String name,
+      {required String name,
       @GeoPointConverter() required GeoPoint location,
-      @TimestampConverter() required DateTime updatedAt,
-      @TimestampConverter() required DateTime createdAt,
 
       // Location is required, so address might not be needed
       String? address,
@@ -21,7 +18,7 @@ class Restaurant with _$Restaurant {
 
   factory Restaurant.fromFirestore(
           DocumentSnapshot<Map<String, dynamic>> snapshot) =>
-      Restaurant.fromJson({"id": snapshot.id, ...snapshot.data()!});
+      Restaurant.fromJson({...snapshot.data()!});
 }
 
 // enums for food category

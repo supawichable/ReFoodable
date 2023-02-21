@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/home/explore.dart';
-import 'package:gdsctokyo/home/my_page.dart';
-import 'package:gdsctokyo/home/restaurant.dart';
+import 'package:gdsctokyo/screens/home/explore.dart';
+import 'package:gdsctokyo/screens/home/my_page/my_page.dart';
+import 'package:gdsctokyo/screens/home/restaurant.dart';
 import 'package:gdsctokyo/theme/color_schemes.g.dart';
 import 'package:gdsctokyo/widgets/big_text.dart';
 
@@ -15,16 +15,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int currentPage = 0;
   List<Widget> pages = [
-    RestaurantPage(),
-    Explore(),
-    MyPage(),
+    const RestaurantPage(),
+    const Explore(),
+    const MyPage(),
   ];
 
-  List<String> titles = [
-    'Restaurant',
-    'Explore',
-    'My page'
-  ];
+  List<String> titles = ['Restaurant', 'Explore', 'My page'];
 
   // titles = ['Restaurant', 'Explore', 'My Page']
 
@@ -45,7 +41,7 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: lightColorScheme.onInverseSurface,
           selectedItemColor: Colors.red[300],
           unselectedItemColor: Colors.grey[800],
-          items: [
+          items: const [
             BottomNavigationBarItem(
                 icon: Icon(
                   Icons.restaurant,

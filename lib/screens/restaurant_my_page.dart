@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/home/explore.dart';
-import 'package:gdsctokyo/home/my_page.dart';
-import 'package:gdsctokyo/home/restaurant.dart';
+import 'package:gdsctokyo/screens/home/explore.dart';
+import 'package:gdsctokyo/screens/home/my_page.dart';
+import 'package:gdsctokyo/screens/home/restaurant.dart';
 import 'package:gdsctokyo/theme/color_schemes.g.dart';
 import 'package:gdsctokyo/widgets/big_text.dart';
 import 'package:gdsctokyo/widgets/my_items.dart';
@@ -18,9 +18,9 @@ class RestaurantMyPage extends StatefulWidget {
 class _RestaurantMyPageState extends State<RestaurantMyPage> {
   int currentPage = 0;
   List<Widget> pages = [
-    RestaurantPage(),
-    Explore(),
-    MyPage(),
+    const RestaurantPage(),
+    const Explore(),
+    const MyPage(),
   ];
 
   // titles = ['Restaurant', 'Explore', 'My Page']
@@ -42,13 +42,13 @@ class _RestaurantMyPageState extends State<RestaurantMyPage> {
                 Container(
                   width: double.infinity,
                   height: 160,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       image: DecorationImage(
                     image: AssetImage('lib/assets/images/sushi.png'),
                     fit: BoxFit.cover,
                   )),
                 ),
-                Positioned(
+                const Positioned(
                   left: 16.0,
                   bottom: 4.0,
                   child: Text(
@@ -72,9 +72,9 @@ class _RestaurantMyPageState extends State<RestaurantMyPage> {
             //   )),
             // ),
 
-            StoreInfo(),
-            TodayItems(),
-            MyItems(),
+            const StoreInfo(),
+            const TodayItems(),
+            const MyItems(),
           ],
         ),
       ),
@@ -82,17 +82,17 @@ class _RestaurantMyPageState extends State<RestaurantMyPage> {
         backgroundColor: lightColorScheme.primaryContainer,
         selectedItemColor: Colors.red[300],
         items: [
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
               icon: Icon(
                 Icons.restaurant,
               ),
               label: 'Restaurant'),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
               icon: Icon(
                 Icons.explore,
               ),
               label: 'Explore'),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
               icon: Icon(
                 Icons.person_2_rounded,
               ),

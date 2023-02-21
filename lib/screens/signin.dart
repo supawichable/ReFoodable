@@ -26,6 +26,7 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
+  late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
   late TextEditingController _confirmPasswordController;
@@ -42,12 +43,15 @@ class _SignInPageState extends State<SignInPage> {
   @override
   void initState() {
     super.initState();
+    _nameController = TextEditingController();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
     _authStateSubscription =
         FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (_redirecting) return;
+      if (_redirecting) {
+        return;
+      }
       if (user != null) {
         _redirecting = true;
         context.router
@@ -58,6 +62,7 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -74,7 +79,7 @@ class _SignInPageState extends State<SignInPage> {
       },
       child: Scaffold(
           appBar: AppBar(
-            title: const Text('Sign In'),
+            title: Text(mode.label),
             elevation: 2,
           ),
           body: Padding(
@@ -92,6 +97,19 @@ class _SignInPageState extends State<SignInPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          if (mode == AuthMode.register)
+                            TextFormField(
+                              controller: _nameController,
+                              decoration: const InputDecoration(
+                                labelText: 'Name',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) => value!.isEmpty
+                                  ? 'Please enter your name'
+                                  : null,
+                            ),
+                          if (mode == AuthMode.register)
+                            const SizedBox(height: 16),
                           TextFormField(
                             controller: _emailController,
                             decoration: const InputDecoration(
@@ -112,7 +130,9 @@ class _SignInPageState extends State<SignInPage> {
                             ),
                             validator: (value) => value!.isEmpty
                                 ? 'Please enter your password'
-                                : null,
+                                : value.contains(' ')
+                                    ? 'Password cannot contain spaces'
+                                    : null,
                           ),
                           const SizedBox(height: 16),
                           if (mode == AuthMode.register)
@@ -128,7 +148,9 @@ class _SignInPageState extends State<SignInPage> {
                                   : _passwordController.text !=
                                           _confirmPasswordController.text
                                       ? 'Passwords do not match'
-                                      : null,
+                                      : value.contains(' ')
+                                          ? 'Password cannot contain spaces'
+                                          : null,
                             ),
                           if (mode == AuthMode.register)
                             const SizedBox(height: 16),
@@ -266,8 +288,8 @@ class _SignInPageState extends State<SignInPage> {
       });
       try {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text,
-          password: _passwordController.text,
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
         );
       } on FirebaseAuthException catch (e) {
         switch (e.code) {
@@ -299,9 +321,11 @@ class _SignInPageState extends State<SignInPage> {
           ),
         );
       } finally {
-        setState(() {
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     }
   }
@@ -313,9 +337,12 @@ class _SignInPageState extends State<SignInPage> {
       });
       try {
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text,
-          password: _passwordController.text,
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
         );
+        await FirebaseAuth.instance.currentUser!.sendEmailVerification();
+        await FirebaseAuth.instance.currentUser!
+            .updateDisplayName(_nameController.text.trim());
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -323,9 +350,11 @@ class _SignInPageState extends State<SignInPage> {
           ),
         );
       } finally {
-        setState(() {
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     }
   }
@@ -429,9 +458,11 @@ class _SignInPageState extends State<SignInPage> {
         ),
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 }
