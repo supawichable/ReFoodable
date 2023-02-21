@@ -26,7 +26,6 @@ linter:
     always_use_package_imports: true
     avoid_empty_else: true
     always_put_control_body_on_new_line: true
-    always_put_required_named_parameters_first: true
     avoid_relative_lib_imports: true
     avoid_void_async: true
     avoid_print: true
