@@ -1,7 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gdsctokyo/home/my_store_page.dart';
+import 'package:gdsctokyo/home/store_page.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:gdsctokyo/widgets/big_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 
