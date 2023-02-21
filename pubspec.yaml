@@ -55,6 +55,10 @@ dependencies:
   flutter_polyline_points: ^1.0.0
   flutter_svg: ^2.0.1
   flutter_secure_storage: ^8.0.0
+  location: ^4.4.0
+  google_maps_flutter: ^2.2.3
+  google_maps_flutter_web: ^0.4.0+5
+  flutter_config: ^2.0.0
 
 dev_dependencies:
   integration_test:

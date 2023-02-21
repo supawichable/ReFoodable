@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/widgets/big_text_bold.dart';
 import 'package:gdsctokyo/widgets/description_text.dart';
+import 'package:gdsctokyo/widgets/icon_text.dart';
 
 class PanelWidget extends StatelessWidget {
   final ScrollController controller;
@@ -20,17 +21,25 @@ class PanelWidget extends StatelessWidget {
         children: List<Widget>.generate(
           10,
           (index) => Padding(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.only(
+              left: 10,
+              right: 10,
+              top: 5,
+              bottom: 5,
+            ),
             child: Container(
               height: 130,
-              decoration: BoxDecoration(color: Colors.white, boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  spreadRadius: 2,
-                  blurRadius: 4,
-                  offset: Offset(0, 3),
-                )
-              ]),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 1,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -51,57 +60,25 @@ class PanelWidget extends StatelessWidget {
                           margin: EdgeInsets.only(
                             top: 15,
                           ),
-                          child: Row(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.only(
-                                  right: 10,
-                                ),
-                                child: Icon(
-                                  Icons.location_pin,
-                                  size: 15,
-                                ),
-                              ),
-                              DescriptionText(text: '500m from here')
-                            ],
-                          ),
+                          child: IconText(
+                              iconType: Icons.location_pin,
+                              iconColor: Colors.red[300],
+                              text: '500m from here'),
                         ),
                         Container(
-                          margin: EdgeInsets.only(top: 2),
-                          child: Row(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.only(
-                                  right: 10,
-                                ),
-                                child: Icon(
-                                  Icons.bento,
-                                  size: 15,
-                                ),
-                              ),
-                              DescriptionText(text: 'Bento (food Type)')
-                            ],
-                          ),
-                        ),
+                            margin: EdgeInsets.only(top: 2),
+                            child: IconText(
+                                iconType: Icons.bento,
+                                iconColor: Colors.red[300],
+                                text: 'bento (food type)')),
                         Container(
-                          margin: EdgeInsets.only(
-                            top: 20,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.only(
-                                  right: 10,
-                                ),
-                                child: Icon(
-                                  Icons.discount,
-                                  size: 15,
-                                ),
-                              ),
-                              DescriptionText(text: '40% - 80% Discounted')
-                            ],
-                          ),
-                        ),
+                            margin: EdgeInsets.only(
+                              top: 15,
+                            ),
+                            child: IconText(
+                                iconType: Icons.discount,
+                                iconColor: Colors.red[300],
+                                text: '40% - 80% Discounted')),
                       ],
                     ),
                   ),
@@ -126,20 +103,10 @@ class PanelWidget extends StatelessWidget {
                           top: 10,
                           right: 20,
                         ),
-                        child: Row(
-                          children: [
-                            Container(
-                              margin: EdgeInsets.only(
-                                right: 10,
-                              ),
-                              child: Icon(
-                                Icons.schedule,
-                                size: 15,
-                              ),
-                            ),
-                            DescriptionText(text: 'closes 23:00')
-                          ],
-                        ),
+                        child: IconText(
+                            iconType: Icons.schedule,
+                            iconColor: Colors.red[300],
+                            text: 'close 23:00'),
                       ),
                     ],
                   ),

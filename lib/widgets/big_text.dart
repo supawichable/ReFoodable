@@ -10,7 +10,7 @@ class BigText extends StatelessWidget {
       this.color = Colors.black,
       required this.text,
       this.overFlow = TextOverflow.ellipsis,
-      this.size = 20});
+      this.size = 18});
 
   @override
   Widget build(BuildContext context) {
