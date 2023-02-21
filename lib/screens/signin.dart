@@ -48,7 +48,7 @@ class _SignInPageState extends State<SignInPage> {
     _authStateSubscription =
         FirebaseAuth.instance.authStateChanges().listen((user) {
       if (_redirecting) return;
-      if (user != null) {
+      if (!user!.isAnonymous) {
         _redirecting = true;
         context.router
             .pushAndPopUntil(const HomeRoute(), predicate: (route) => false);
@@ -312,9 +312,11 @@ class _SignInPageState extends State<SignInPage> {
         _isLoading = true;
       });
       try {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text,
-          password: _passwordController.text,
+        await FirebaseAuth.instance.currentUser!.updateEmail(
+          _emailController.text,
+        );
+        await FirebaseAuth.instance.currentUser!.updatePassword(
+          _passwordController.text,
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(

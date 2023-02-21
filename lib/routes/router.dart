@@ -4,6 +4,7 @@ import 'package:gdsctokyo/screens/forgot.dart';
 import 'package:gdsctokyo/screens/reset.dart';
 import 'package:gdsctokyo/screens/home.dart';
 import 'package:gdsctokyo/screens/signin.dart';
+import 'package:gdsctokyo/screens/splash.dart';
 
 @MaterialAutoRouter(
   replaceInRouteName: 'Page,Route',
@@ -11,7 +12,8 @@ import 'package:gdsctokyo/screens/signin.dart';
     AutoRoute(page: SignInPage, path: '/signin'),
     AutoRoute(page: ForgotPasswordPage, path: '/forgot'),
     AutoRoute(page: ResetPasswordPage, path: '/reset'),
-    AutoRoute(page: HomePage, path: '/home', initial: true)
+    AutoRoute(page: HomePage, path: '/home'),
+    AutoRoute(page: SplashPage, path: '/splash', initial: true),
   ],
 )
 class $AppRouter {}
