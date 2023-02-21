@@ -8,15 +8,15 @@ import 'package:gdsctokyo/widgets/sorting_tab.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-class Restaurant extends StatefulWidget {
-  const Restaurant({super.key});
 
+class RestaurantPage extends StatefulWidget {
+  const RestaurantPage({super.key});
 
   @override
-  State<Restaurant> createState() => _RestaurantState();
+  State<RestaurantPage> createState() => _RestaurantPageState();
 }
 
-class _RestaurantState extends State<Restaurant> {
+class _RestaurantPageState extends State<RestaurantPage> {
   TextEditingController textController = TextEditingController();
   final PanelController panelController = PanelController();
 
