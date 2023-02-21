@@ -1,6 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:gdsctokyo/models/restaurant/_restaurant.dart';
-import 'package:gdsctokyo/models/user/_user.dart';
+part of 'firebase_extension.dart';
 
 extension FirestoreX on FirebaseFirestore {
   CollectionReference<Restaurant> get restaurants =>
