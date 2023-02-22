@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gdsctokyo/models/restaurant/_restaurant.dart';
+import 'package:gdsctokyo/models/store/_store.dart';
 
 void main() {
-  group('restaurant', () {
-    test('Parse restaurant', () async {
+  group('store', () {
+    test('Parse store', () async {
       final json = {
-        "name": "Restaurant 1",
+        "name": "Store 1",
         "location": {
           "latitude": 50.0,
           "longitude": 128.0,
@@ -19,15 +19,15 @@ void main() {
         "category": ["japanese"],
       };
 
-      final restaurant = Restaurant.fromJson(json);
-      expect(restaurant.name, "Restaurant 1");
-      expect(restaurant.location.latitude, 50.0);
-      expect(restaurant.location.longitude, 128.0);
-      expect(restaurant.address, "test");
-      expect(restaurant.email, "test@example.com");
-      expect(restaurant.phone, "08080808080");
-      expect(restaurant.ownerId, "test");
-      expect(restaurant.category, [FoodCategory.japanese]);
+      final store = Store.fromJson(json);
+      expect(store.name, "Store 1");
+      expect(store.location.latitude, 50.0);
+      expect(store.location.longitude, 128.0);
+      expect(store.address, "test");
+      expect(store.email, "test@example.com");
+      expect(store.phone, "08080808080");
+      expect(store.ownerId, "test");
+      expect(store.category, [FoodCategory.japanese]);
     });
   });
 }

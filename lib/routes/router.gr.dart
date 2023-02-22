@@ -11,138 +11,127 @@
 // ignore_for_file: type=lint
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i10;
-import 'package:flutter/material.dart' as _i11;
+import 'package:auto_route/auto_route.dart' as _i9;
+import 'package:flutter/material.dart' as _i10;
 
-import '../models/restaurant/_restaurant.dart' as _i13;
-import '../screens/edit_profile.dart' as _i5;
-import '../screens/forgot.dart' as _i2;
+import '../models/store/_store.dart' as _i12;
+import '../screens/auth/forgot.dart' as _i2;
+import '../screens/auth/reset.dart' as _i3;
+import '../screens/auth/signin.dart' as _i1;
 import '../screens/home/home.dart' as _i4;
-import '../screens/my_store_page.dart' as _i8;
-import '../screens/my_stores.dart' as _i7;
-import '../screens/reset.dart' as _i3;
-import '../screens/signin.dart' as _i1;
-import '../screens/splash.dart' as _i6;
-import '../screens/store_page.dart' as _i9;
-import 'guard.dart' as _i12;
+import '../screens/my_store_page.dart' as _i7;
+import '../screens/my_stores.dart' as _i6;
+import '../screens/splash.dart' as _i5;
+import '../screens/store_page.dart' as _i8;
+import 'guard.dart' as _i11;
 
-class AppRouter extends _i10.RootStackRouter {
+class AppRouter extends _i9.RootStackRouter {
   AppRouter({
-    _i11.GlobalKey<_i11.NavigatorState>? navigatorKey,
+    _i10.GlobalKey<_i10.NavigatorState>? navigatorKey,
     required this.authGuard,
   }) : super(navigatorKey);
 
-  final _i12.AuthGuard authGuard;
+  final _i11.AuthGuard authGuard;
 
   @override
-  final Map<String, _i10.PageFactory> pagesMap = {
+  final Map<String, _i9.PageFactory> pagesMap = {
     SignInRoute.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i9.MaterialPageX<dynamic>(
         routeData: routeData,
         child: const _i1.SignInPage(),
       );
     },
     ForgotPasswordRoute.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i9.MaterialPageX<dynamic>(
         routeData: routeData,
         child: const _i2.ForgotPasswordPage(),
       );
     },
     ResetPasswordRoute.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i9.MaterialPageX<dynamic>(
         routeData: routeData,
         child: const _i3.ResetPasswordPage(),
       );
     },
     HomeRoute.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i9.MaterialPageX<dynamic>(
         routeData: routeData,
         child: const _i4.HomePage(),
       );
     },
-    EditProfileRoute.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
-        routeData: routeData,
-        child: const _i5.EditProfilePage(),
-      );
-    },
     SplashRoute.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i9.MaterialPageX<dynamic>(
         routeData: routeData,
-        child: const _i6.SplashPage(),
+        child: const _i5.SplashPage(),
       );
     },
     MyStoresRoute.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i9.MaterialPageX<dynamic>(
         routeData: routeData,
-        child: const _i7.MyStoresPage(),
+        child: const _i6.MyStoresPage(),
       );
     },
     MyStoreRoute.name: (routeData) {
       final args = routeData.argsAs<MyStoreRouteArgs>();
-      return _i10.MaterialPageX<dynamic>(
+      return _i9.MaterialPageX<dynamic>(
         routeData: routeData,
-        child: _i8.MyStorePage(
+        child: _i7.MyStorePage(
           key: args.key,
-          restaurant: args.restaurant,
+          store: args.store,
         ),
       );
     },
     StoreRoute.name: (routeData) {
       final args = routeData.argsAs<StoreRouteArgs>();
-      return _i10.MaterialPageX<dynamic>(
+      return _i9.MaterialPageX<dynamic>(
         routeData: routeData,
-        child: _i9.StorePage(
+        child: _i8.StorePage(
           key: args.key,
-          restaurant: args.restaurant,
+          store: args.store,
         ),
       );
     },
   };
 
   @override
-  List<_i10.RouteConfig> get routes => [
-        _i10.RouteConfig(
+  List<_i9.RouteConfig> get routes => [
+        _i9.RouteConfig(
           '/#redirect',
           path: '/',
           redirectTo: '/splash',
           fullMatch: true,
         ),
-        _i10.RouteConfig(
+        _i9.RouteConfig(
           SignInRoute.name,
           path: '/signin',
         ),
-        _i10.RouteConfig(
+        _i9.RouteConfig(
           ForgotPasswordRoute.name,
           path: '/forgot',
         ),
-        _i10.RouteConfig(
+        _i9.RouteConfig(
           ResetPasswordRoute.name,
           path: '/reset',
         ),
-        _i10.RouteConfig(
+        _i9.RouteConfig(
           HomeRoute.name,
           path: '/home',
         ),
-        _i10.RouteConfig(
-          EditProfileRoute.name,
-          path: '/edit-profile',
-        ),
-        _i10.RouteConfig(
+        _i9.RouteConfig(
           SplashRoute.name,
           path: '/splash',
         ),
-        _i10.RouteConfig(
+        _i9.RouteConfig(
           MyStoresRoute.name,
           path: '/my-stores',
           guards: [authGuard],
         ),
-        _i10.RouteConfig(
+        _i9.RouteConfig(
           MyStoreRoute.name,
           path: '/store/:storeId',
           guards: [authGuard],
         ),
-        _i10.RouteConfig(
+        _i9.RouteConfig(
           StoreRoute.name,
           path: '/store/:storeId',
         ),
@@ -151,7 +140,7 @@ class AppRouter extends _i10.RootStackRouter {
 
 /// generated route for
 /// [_i1.SignInPage]
-class SignInRoute extends _i10.PageRouteInfo<void> {
+class SignInRoute extends _i9.PageRouteInfo<void> {
   const SignInRoute()
       : super(
           SignInRoute.name,
@@ -163,7 +152,7 @@ class SignInRoute extends _i10.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i2.ForgotPasswordPage]
-class ForgotPasswordRoute extends _i10.PageRouteInfo<void> {
+class ForgotPasswordRoute extends _i9.PageRouteInfo<void> {
   const ForgotPasswordRoute()
       : super(
           ForgotPasswordRoute.name,
@@ -175,7 +164,7 @@ class ForgotPasswordRoute extends _i10.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i3.ResetPasswordPage]
-class ResetPasswordRoute extends _i10.PageRouteInfo<void> {
+class ResetPasswordRoute extends _i9.PageRouteInfo<void> {
   const ResetPasswordRoute()
       : super(
           ResetPasswordRoute.name,
@@ -187,7 +176,7 @@ class ResetPasswordRoute extends _i10.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i4.HomePage]
-class HomeRoute extends _i10.PageRouteInfo<void> {
+class HomeRoute extends _i9.PageRouteInfo<void> {
   const HomeRoute()
       : super(
           HomeRoute.name,
@@ -198,20 +187,8 @@ class HomeRoute extends _i10.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i5.EditProfilePage]
-class EditProfileRoute extends _i10.PageRouteInfo<void> {
-  const EditProfileRoute()
-      : super(
-          EditProfileRoute.name,
-          path: '/edit-profile',
-        );
-
-  static const String name = 'EditProfileRoute';
-}
-
-/// generated route for
-/// [_i6.SplashPage]
-class SplashRoute extends _i10.PageRouteInfo<void> {
+/// [_i5.SplashPage]
+class SplashRoute extends _i9.PageRouteInfo<void> {
   const SplashRoute()
       : super(
           SplashRoute.name,
@@ -222,8 +199,8 @@ class SplashRoute extends _i10.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i7.MyStoresPage]
-class MyStoresRoute extends _i10.PageRouteInfo<void> {
+/// [_i6.MyStoresPage]
+class MyStoresRoute extends _i9.PageRouteInfo<void> {
   const MyStoresRoute()
       : super(
           MyStoresRoute.name,
@@ -234,17 +211,17 @@ class MyStoresRoute extends _i10.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i8.MyStorePage]
-class MyStoreRoute extends _i10.PageRouteInfo<MyStoreRouteArgs> {
+/// [_i7.MyStorePage]
+class MyStoreRoute extends _i9.PageRouteInfo<MyStoreRouteArgs> {
   MyStoreRoute({
-    _i11.Key? key,
-    required _i13.Restaurant restaurant,
+    _i10.Key? key,
+    required _i12.Store store,
   }) : super(
           MyStoreRoute.name,
           path: '/store/:storeId',
           args: MyStoreRouteArgs(
             key: key,
-            restaurant: restaurant,
+            store: store,
           ),
         );
 
@@ -254,31 +231,31 @@ class MyStoreRoute extends _i10.PageRouteInfo<MyStoreRouteArgs> {
 class MyStoreRouteArgs {
   const MyStoreRouteArgs({
     this.key,
-    required this.restaurant,
+    required this.store,
   });
 
-  final _i11.Key? key;
+  final _i10.Key? key;
 
-  final _i13.Restaurant restaurant;
+  final _i12.Store store;
 
   @override
   String toString() {
-    return 'MyStoreRouteArgs{key: $key, restaurant: $restaurant}';
+    return 'MyStoreRouteArgs{key: $key, store: $store}';
   }
 }
 
 /// generated route for
-/// [_i9.StorePage]
-class StoreRoute extends _i10.PageRouteInfo<StoreRouteArgs> {
+/// [_i8.StorePage]
+class StoreRoute extends _i9.PageRouteInfo<StoreRouteArgs> {
   StoreRoute({
-    _i11.Key? key,
-    required _i13.Restaurant restaurant,
+    _i10.Key? key,
+    required _i12.Store store,
   }) : super(
           StoreRoute.name,
           path: '/store/:storeId',
           args: StoreRouteArgs(
             key: key,
-            restaurant: restaurant,
+            store: store,
           ),
         );
 
@@ -288,15 +265,15 @@ class StoreRoute extends _i10.PageRouteInfo<StoreRouteArgs> {
 class StoreRouteArgs {
   const StoreRouteArgs({
     this.key,
-    required this.restaurant,
+    required this.store,
   });
 
-  final _i11.Key? key;
+  final _i10.Key? key;
 
-  final _i13.Restaurant restaurant;
+  final _i12.Store store;
 
   @override
   String toString() {
-    return 'StoreRouteArgs{key: $key, restaurant: $restaurant}';
+    return 'StoreRouteArgs{key: $key, store: $store}';
   }
 }

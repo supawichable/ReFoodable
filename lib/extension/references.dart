@@ -1,15 +1,13 @@
 part of 'firebase_extension.dart';
 
 extension FirestoreX on FirebaseFirestore {
-  CollectionReference<Restaurant> get restaurants =>
-      collection('restaurants').withConverter(
-          fromFirestore: (snapshot, _) => Restaurant.fromFirestore(snapshot),
-          toFirestore: (restaurant, _) => restaurant.toJson());
+  CollectionReference<Store> get stores => collection('stores').withConverter(
+      fromFirestore: (snapshot, _) => Store.fromFirestore(snapshot),
+      toFirestore: (store, _) => store.toJson());
 
-  DocumentReference<Restaurant> restaurant(String id) =>
-      doc('restaurants/$id').withConverter(
-          fromFirestore: (snapshot, _) => Restaurant.fromFirestore(snapshot),
-          toFirestore: (restaurant, _) => restaurant.toJson());
+  DocumentReference<Store> store(String id) => doc('stores/$id').withConverter(
+      fromFirestore: (snapshot, _) => Store.fromFirestore(snapshot),
+      toFirestore: (store, _) => store.toJson());
 
   // CollectionReference<Profile> get profiles =>
   //     collection('profiles').withConverter(

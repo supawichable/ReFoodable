@@ -12,8 +12,8 @@ class MyPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(children: [
-        ProfileCard(),
-        if (FirebaseAuth.instance.currentUser != null) MyStoresCard()
+        const ProfileCard(),
+        if (FirebaseAuth.instance.currentUser != null) const MyStoresCard()
       ]),
     );
   }

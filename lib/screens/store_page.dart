@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/assets/data/food_list.dart';
-import 'package:gdsctokyo/models/restaurant/_restaurant.dart';
+import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/widgets/big_text_bold.dart';
 import 'package:gdsctokyo/widgets/icon_text.dart';
 
 class StorePage extends StatelessWidget {
-  final Restaurant restaurant;
+  final Store store;
 
-  const StorePage({super.key, required this.restaurant});
+  const StorePage({super.key, required this.store});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(restaurant.name),
+        title: Text(store.name),
       ),
       body: ListView(
         scrollDirection: Axis.vertical,

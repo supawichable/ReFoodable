@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/models/restaurant/_restaurant.dart';
+import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/widgets/big_text_bold.dart';
 import 'package:gdsctokyo/assets/data/food_list.dart';
 import 'package:gdsctokyo/widgets/icon_text.dart';
 import 'package:gdsctokyo/widgets/list_header.dart';
 
 class MyStorePage extends StatelessWidget {
-  final Restaurant restaurant;
-  
-  const MyStorePage({super.key, required this.restaurant});
+  final Store store;
+
+  const MyStorePage({super.key, required this.store});
 
   @override
   Widget build(BuildContext context) {

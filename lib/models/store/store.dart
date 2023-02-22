@@ -1,8 +1,8 @@
-part of '_restaurant.dart';
+part of '_store.dart';
 
 @Freezed(unionKey: 'type')
-class Restaurant with _$Restaurant {
-  const factory Restaurant(
+class Store with _$Store {
+  const factory Store(
       {required String name,
       @GeoPointConverter() required GeoPoint location,
 
@@ -11,14 +11,13 @@ class Restaurant with _$Restaurant {
       String? email,
       String? phone,
       String? ownerId,
-      List<FoodCategory>? category}) = _Restaurant;
+      List<FoodCategory>? category}) = _Store;
 
-  factory Restaurant.fromJson(Map<String, dynamic> json) =>
-      _$RestaurantFromJson(json);
+  factory Store.fromJson(Map<String, dynamic> json) => _$StoreFromJson(json);
 
-  factory Restaurant.fromFirestore(
+  factory Store.fromFirestore(
           DocumentSnapshot<Map<String, dynamic>> snapshot) =>
-      Restaurant.fromJson({...snapshot.data()!});
+      Store.fromJson({...snapshot.data()!});
 }
 
 // enums for food category

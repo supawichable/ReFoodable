@@ -1,4 +1,4 @@
-part of '_restaurant.dart';
+part of '_store.dart';
 
 @freezed
 class WeeklySchedule with _$WeeklySchedule {

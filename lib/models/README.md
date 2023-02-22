@@ -100,7 +100,7 @@ class _[ModelName] with _$_[ModelName] {
 }
 ```
 
-4. If you need any enums, just place it directly below the class definition. For example, in `restaurant/restaurant.dart`:
+4. If you need any enums, just place it directly below the class definition. For example, in `store/store.dart`:
 
 ```dart
 enum FoodCategory {

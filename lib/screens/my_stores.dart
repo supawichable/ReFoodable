@@ -2,9 +2,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
-import 'package:gdsctokyo/models/restaurant/_restaurant.dart';
+import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 
 class MyStoresPage extends StatelessWidget {
@@ -16,8 +15,8 @@ class MyStoresPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('My Stores'),
       ),
-      body: FutureBuilder<QuerySnapshot<Restaurant>>(
-        future: FirebaseFirestore.instance.restaurants
+      body: FutureBuilder<QuerySnapshot<Store>>(
+        future: FirebaseFirestore.instance.stores
             .ownedByUser(FirebaseAuth.instance.currentUser!.uid)
             .get(),
         builder: (BuildContext context, primarySnapshot) {
@@ -45,18 +44,18 @@ class MyStoresPage extends StatelessWidget {
                   return ListTile(
                     title: const Text('Just go to the store!'),
                     onTap: () {
-                      context.router.push(StoreRoute(
-                          restaurant: Restaurant(
-                              name: 'Restaurant', location: GeoPoint(0, 0))));
+                      context.router.push(MyStoreRoute(
+                          store: const Store(
+                              name: 'Store', location: GeoPoint(0, 0))));
                     },
                   );
                 }
-                final restaurant = snapshot.docs[index + 1].data();
+                final store = snapshot.docs[index + 1].data();
                 return ListTile(
-                  title: Text(restaurant.name),
-                  subtitle: Text(restaurant.address ?? ''),
+                  title: Text(store.name),
+                  subtitle: Text(store.address ?? ''),
                   onTap: () {
-                    context.router.push(StoreRoute(restaurant: restaurant));
+                    context.router.push(StoreRoute(store: store));
                   },
                 );
               },
