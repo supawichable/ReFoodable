@@ -33,6 +33,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.5.0"
+  analyzer_plugin:
+    dependency: transitive
+    description:
+      name: analyzer_plugin
+      sha256: c1d5f167683de03d5ab6c3b53fc9aeefc5d59476e7810ba7bbddff50c6f4392d
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.11.2"
   anim_search_bar:
     dependency: "direct main"
     description:
@@ -185,6 +193,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.2"
+  cli_util:
+    dependency: transitive
+    description:
+      name: cli_util
+      sha256: "66f86e916d285c1a93d3b79587d94bd71984a66aac4ff74e524cfa7877f1395c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.5"
   clock:
     dependency: transitive
     description:
@@ -722,6 +738,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
+  import_lint:
+    dependency: "direct dev"
+    description:
+      name: import_lint
+      sha256: "552eeea2a0b1b07915707dfc8e42addf2b05f16301ec8451d2b004d865a77a14"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.4"
   integration_test:
     dependency: "direct dev"
     description: flutter
