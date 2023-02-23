@@ -1,9 +1,9 @@
 name: Test
 on:
   push:
-    branches: [master, ops]
+    branches: [master]
   pull_request:
-    branches: [master, ops]
+    branches: [master]
 
 env:
   USE_EMULATOR: false
