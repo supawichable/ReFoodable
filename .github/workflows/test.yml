@@ -18,9 +18,7 @@ jobs:
         with:
           envkey_USE_EMULATOR: false
           envkey_ANDROID_GOOGLE_API_KEY: "dont_need_for_now"
-          directory: .
-          filename: .env
-          fail_on_empty: false
+          directory: ./
 
   unit-tests:
     name: Run flutter tests
