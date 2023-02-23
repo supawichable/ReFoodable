@@ -1,6 +1,8 @@
 part of 'firebase_extension.dart';
 
-extension QueryX<Store> on Query<Store> {
+typedef StoreQuery = Query<Store>;
+
+extension StoreQueryX on StoreQuery {
   /// [Query] object for the stores owned by the user with [id].
   ///
   /// Example:

@@ -17,7 +17,7 @@ class Store with _$Store {
 
   factory Store.fromFirestore(
           DocumentSnapshot<Map<String, dynamic>> snapshot) =>
-      Store.fromJson({...snapshot.data()!});
+      Store.fromJson(snapshot.data()!);
 }
 
 // enums for food category
