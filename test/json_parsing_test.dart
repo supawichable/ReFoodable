@@ -1,33 +1,69 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gdsctokyo/models/menu/_menu.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 
 void main() {
   group('store', () {
-    test('Parse store', () async {
-      final json = {
-        "name": "Store 1",
-        "location": {
-          "latitude": 50.0,
-          "longitude": 128.0,
-        },
-        "updated_at": "2021-08-01T00:00:00.000Z",
-        "created_at": "2021-08-01T00:00:00.000Z",
-        "address": "test",
-        "email": "test@example.com",
-        "phone": "08080808080",
-        "owner_id": "test",
-        "category": ["japanese"],
-      };
+    const store = Store(
+        name: 'Store 1',
+        location: GeoPoint(50.0, 128.0),
+        address: 'test',
+        email: 'test@example.com',
+        phone: '08080808080',
+        ownerId: 'test',
+        category: [FoodCategory.japanese]);
 
-      final store = Store.fromJson(json);
-      expect(store.name, "Store 1");
-      expect(store.location.latitude, 50.0);
-      expect(store.location.longitude, 128.0);
-      expect(store.address, "test");
-      expect(store.email, "test@example.com");
-      expect(store.phone, "08080808080");
-      expect(store.ownerId, "test");
-      expect(store.category, [FoodCategory.japanese]);
+    const json = {
+      'name': 'Store 1',
+      'location': GeoPoint(50.0, 128.0),
+      'address': 'test',
+      'email': 'test@example.com',
+      'phone': '08080808080',
+      'owner_id': 'test',
+      'category': ['japanese'],
+    };
+
+    test('Parse store', () async {
+      final storeJ = Store.fromJson(json);
+      expect(storeJ, store);
+    });
+
+    test('toJson store', () {
+      final jsonS = store.toJson();
+      expect(jsonS, json);
+    });
+  });
+
+  group('item', () {
+    const json = {
+      'name': 'Item 1',
+      'price': {
+        'amount': 100,
+        'compare_at_price': 400,
+        'currency': 'jpy',
+      },
+      'added_by': 'steve',
+    };
+
+    const item = Item(
+      name: 'Item 1',
+      price: Price(
+        amount: 100,
+        compareAtPrice: 400,
+        currency: CurrencySymbol.jpy,
+      ),
+      addedBy: 'steve',
+    );
+
+    test('parse item', () {
+      final itemJ = Item.fromJson(json);
+      expect(itemJ, item);
+    });
+
+    test('toJson item', () {
+      final jsonI = item.toJson();
+      expect(jsonI, json);
     });
   });
 }
