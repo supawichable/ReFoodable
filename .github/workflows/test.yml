@@ -9,17 +9,6 @@ env:
   USE_EMULATOR: false
 
 jobs:
-  create-envfile:
-    name: Create `.env` file to prevent errors
-    runs-on: ubuntu-latest
-    steps:
-      - name: Make envfile
-        uses: SpicyPizza/create-envfile@v1.3
-        with:
-          envkey_USE_EMULATOR: false
-          envkey_ANDROID_GOOGLE_API_KEY: "dont_need_for_now"
-          directory: ./
-
   unit-tests:
     name: Run flutter tests
     runs-on: ubuntu-latest
@@ -30,5 +19,11 @@ jobs:
         with:
           channel: "stable"
           flutter-version: "3.7.3"
+      - name: Make envfile
+        uses: SpicyPizza/create-envfile@v1.3
+        with:
+          envkey_USE_EMULATOR: false
+          envkey_ANDROID_GOOGLE_API_KEY: "dont_need_for_now"
+          directory: ./
       - name: Run tests
         run: flutter test
