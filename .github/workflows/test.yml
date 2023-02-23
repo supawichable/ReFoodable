@@ -19,11 +19,14 @@ jobs:
         with:
           channel: "stable"
           flutter-version: "3.7.3"
+          cache: true
       - name: Make envfile
         uses: SpicyPizza/create-envfile@v1.3
         with:
           envkey_USE_EMULATOR: false
           envkey_ANDROID_GOOGLE_API_KEY: "dont_need_for_now"
           directory: ./
+      - name: Install dependencies
+        run: flutter pub get
       - name: Run tests
         run: flutter test
