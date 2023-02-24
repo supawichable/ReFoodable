@@ -11,10 +11,15 @@ class MyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(children: [
-        const ProfileCard(),
-        if (FirebaseAuth.instance.currentUser != null) const MyStoresCard()
-      ]),
+      child: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (BuildContext context, snapshot) {
+          return Column(children: [
+            const ProfileCard(),
+            if (FirebaseAuth.instance.currentUser != null) const MyStoresCard()
+          ]);
+        },
+      ),
     );
   }
 }
