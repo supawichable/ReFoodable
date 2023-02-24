@@ -111,8 +111,6 @@ class _LoggedInState extends ConsumerState<LoggedIn> {
     final localProvider =
         imageUploadProvider(ImageUploadOptions(context: context));
 
-    print(user.photoURL);
-
     return Column(children: [
       Row(
         children: [
