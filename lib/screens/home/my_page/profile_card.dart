@@ -124,7 +124,29 @@ class _ProfileCardState extends State<ProfileCard> {
                     else
                       ElevatedButton(
                         onPressed: () {
-                          FirebaseAuth.instance.signOut();
+                          // show dialog to confirm sign out
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: const Text('Sign Out'),
+                                    content: const Text(
+                                        'Are you sure you want to sign out?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          FirebaseAuth.instance.signOut();
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Sign Out'),
+                                      ),
+                                    ],
+                                  ));
                         },
                         child: const Text('Sign Out'),
                       )
