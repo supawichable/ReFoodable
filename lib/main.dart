@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -9,6 +10,7 @@ import 'package:gdsctokyo/routes/guard.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/theme/color_schemes.g.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 void main() async {
   await dotenv.load(fileName: '.env');
@@ -24,13 +26,17 @@ void main() async {
           dotenv.get('LOCALHOST_IP', fallback: 'localhost'), 8080);
       await FirebaseAuth.instance.useAuthEmulator(
           dotenv.get('LOCALHOST_IP', fallback: 'localhost'), 9099);
+      FirebaseStorage.instance.useStorageEmulator(
+          dotenv.get('LOCALHOST_IP', fallback: 'localhost'), 9199);
     } catch (e) {
       // ignore: avoid_print
       print(e);
     }
   }
 
-  runApp(Main());
+  runApp(ProviderScope(
+    child: Main(),
+  ));
 }
 
 class Main extends StatelessWidget {
@@ -50,9 +56,6 @@ class Main extends StatelessWidget {
         ),
       ),
       // use material 3 font size
-      textTheme: GoogleFonts.poppinsTextTheme(
-        Theme.of(context).textTheme,
-      ),
     );
 
     return MaterialApp.router(
@@ -60,11 +63,17 @@ class Main extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: baseTheme.copyWith(
         colorScheme: lightColorScheme,
+        textTheme: GoogleFonts.poppinsTextTheme(
+          Theme.of(context).textTheme,
+        ),
       ),
 
       darkTheme: baseTheme.copyWith(
         colorScheme: darkColorScheme,
         scaffoldBackgroundColor: darkColorScheme.background,
+        textTheme: GoogleFonts.poppinsTextTheme(
+          Theme.of(context).textTheme,
+        ),
       ),
       themeMode: ThemeMode.light,
       routerDelegate: _appRouter.delegate(),
