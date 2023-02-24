@@ -388,6 +388,8 @@ class _SignInPageState extends State<SignInPage> {
         await FirebaseAuth.instance.currentUser!.sendEmailVerification();
         await FirebaseAuth.instance.currentUser!
             .updateDisplayName(_nameController.text.trim());
+        await FirebaseAuth.instance.currentUser!
+            .updatePhotoURL('$placeholderUrlbase$seed');
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
