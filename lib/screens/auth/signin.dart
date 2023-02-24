@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,12 +11,20 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 // TODO:
 // - validator coverage
-// - redirect to home page after sign in
 
 enum AuthMode { login, register }
 
 extension on AuthMode {
   String get label => this == AuthMode.login ? 'Sign In' : 'Sign Up';
+}
+
+// util for creating random string
+String randomString(int length) {
+  const _chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  final random = Random.secure();
+  return List.generate(length, (index) => _chars[random.nextInt(_chars.length)])
+      .join();
 }
 
 class SignInPage extends StatefulWidget {
@@ -39,6 +48,9 @@ class _SignInPageState extends State<SignInPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   AuthMode mode = AuthMode.login;
+
+  String placeholderUrlbase = 'https://api.dicebear.com/5.x/thumbs/png?seed=';
+  String seed = randomString(10);
 
   @override
   void initState() {
@@ -97,6 +109,39 @@ class _SignInPageState extends State<SignInPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          if (mode == AuthMode.register)
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  seed = randomString(10);
+                                });
+                              },
+                              icon: const Icon(Icons.refresh),
+                              label: const Text('Refresh'),
+                            ),
+                          if (mode == AuthMode.register)
+                            const SizedBox(height: 16),
+                          if (mode == AuthMode.register)
+                            CircleAvatar(
+                              radius: 48,
+                              backgroundImage:
+                                  NetworkImage('$placeholderUrlbase$seed'),
+                              // upload icon in the right cornerx
+                              child: const Align(
+                                alignment: Alignment.bottomRight,
+                                child: CircleAvatar(
+                                  radius: 12,
+                                  backgroundColor: Colors.white,
+                                  child: Icon(
+                                    // upload icon
+                                    Icons.camera_alt,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          if (mode == AuthMode.register)
+                            const SizedBox(height: 16),
                           if (mode == AuthMode.register)
                             TextFormField(
                               controller: _nameController,
