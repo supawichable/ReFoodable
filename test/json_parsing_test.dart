@@ -5,18 +5,22 @@ import 'package:gdsctokyo/models/store/_store.dart';
 
 void main() {
   group('store', () {
-    const store = Store(
+    final store = Store(
         name: 'Store 1',
-        location: GeoPoint(50.0, 128.0),
+        location: const GeoPoint(50.0, 128.0),
+        createdAt: DateTime(2021, 1, 1),
+        updatedAt: DateTime(2021, 1, 1),
         address: 'test',
         email: 'test@example.com',
         phone: '08080808080',
         ownerId: 'test',
         category: [FoodCategory.japanese]);
 
-    const json = {
+    final json = {
       'name': 'Store 1',
-      'location': GeoPoint(50.0, 128.0),
+      'location': const GeoPoint(50.0, 128.0),
+      'created_at': Timestamp.fromDate(DateTime(2021, 1, 1)),
+      'updated_at': Timestamp.fromDate(DateTime(2021, 1, 1)),
       'address': 'test',
       'email': 'test@example.com',
       'phone': '08080808080',
@@ -36,7 +40,7 @@ void main() {
   });
 
   group('item', () {
-    const json = {
+    final json = {
       'name': 'Item 1',
       'price': {
         'amount': 100,
@@ -44,16 +48,20 @@ void main() {
         'currency': 'jpy',
       },
       'added_by': 'steve',
+      'created_at': Timestamp.fromDate(DateTime(2021, 1, 1)),
+      'updated_at': Timestamp.fromDate(DateTime(2021, 1, 1)),
     };
 
-    const item = Item(
+    final item = Item(
       name: 'Item 1',
-      price: Price(
+      price: const Price(
         amount: 100,
         compareAtPrice: 400,
         currency: Currency.jpy,
       ),
       addedBy: 'steve',
+      createdAt: DateTime(2021, 1, 1),
+      updatedAt: DateTime(2021, 1, 1),
     );
 
     test('parse item', () {
