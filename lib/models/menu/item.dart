@@ -7,7 +7,8 @@ class Item with _$Item {
       @PriceConverter() required Price price,
       required String addedBy,
       @TimestampConverter() required DateTime createdAt,
-      @TimestampConverter() required DateTime updatedAt}) = _Item;
+      @TimestampConverter() required DateTime updatedAt,
+      String? photoURL}) = _Item;
 
   factory Item.fromJson(Map<String, dynamic> json) => _$ItemFromJson(json);
 
