@@ -1,32 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:gdsctokyo/models/menu/_menu.dart';
 import 'package:gdsctokyo/widgets/big_text_bold.dart';
 
-class Item extends StatefulWidget {
-  final String name;
-  final double compareAtPrice;
-  final double amount;
-  final String photoURL;
-  final String addedBy;
-  final String createdAt;
-
-  const Item({
+class ItemCard extends StatefulWidget {
+  final Item item;
+  const ItemCard({
     Key? key,
-    required this.name,
-    required this.compareAtPrice,
-    this.amount = 0,
-    required this.photoURL,
-    required this.addedBy,
-    required this.createdAt,
+    required this.item,
   }) : super(key: key);
 
   @override
-  State<Item> createState() => _ItemState();
+  State<ItemCard> createState() => _ItemCardState();
 }
 
-class _ItemState extends State<Item> {
+class _ItemCardState extends State<ItemCard> {
   @override
   Widget build(BuildContext context) {
-    String timeString = widget.createdAt.substring(11, 16);
+    // Deconstructing the item
+    final String name = widget.item.name;
+    final Price price = widget.item.price;
+    final String addedBy = widget.item.addedBy;
+    final DateTime createdAt = widget.item.createdAt;
+    final DateTime updatedAt = widget.item.updatedAt;
+    final String? photoURL = widget.item.photoURL;
+
+    String timeString = createdAt.toLocal().toString().substring(11, 16);
     return Container(
       // height: 130,
       decoration: BoxDecoration(color: Colors.white, boxShadow: [
@@ -49,7 +47,7 @@ class _ItemState extends State<Item> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                BigBoldText(text: widget.name, size: 20),
+                BigBoldText(text: name, size: 20),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -69,7 +67,7 @@ class _ItemState extends State<Item> {
                     Row(
                       children: [
                         Text(
-                          widget.compareAtPrice.toInt().toString(),
+                          price.compareAtPrice.toString(),
                           style: const TextStyle(
                             decoration: TextDecoration.lineThrough,
                             fontFamily: 'Poppins',
@@ -78,7 +76,7 @@ class _ItemState extends State<Item> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          widget.amount.toInt().toString(),
+                          price.amount.toString(),
                           style: const TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 12,
@@ -92,7 +90,7 @@ class _ItemState extends State<Item> {
                 Row(
                   children: [
                     Text(
-                      'Added by ${widget.addedBy} at $timeString',
+                      'Added by $addedBy at $timeString',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.outline,
                         fontFamily: 'Poppins',
@@ -127,7 +125,7 @@ class _ItemState extends State<Item> {
             height: 90,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(widget.photoURL),
+                image: AssetImage(photoURL ?? 'lib/assets/images/tomyum.png'),
                 fit: BoxFit.cover,
               ),
             ),
