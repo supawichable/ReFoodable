@@ -2,6 +2,9 @@
   "buckets": [
     {
       "id": "default-bucket"
+    },
+    {
+      "id": "gdsctokyo-793f7.appspot.com"
     }
   ]
 }
