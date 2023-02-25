@@ -41,7 +41,3 @@ linter:
 
 import_lint:
   rules:
-    dont-import-color-scheme-rule:
-      target_file_path: "{!(main).dart,**/*.dart}"
-      not_allowed_imports: ["theme/color_schemes.g.dart"]
-      exclude_imports: []
