@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/widgets/item.dart';
+import 'package:gdsctokyo/models/menu/_menu.dart';
+import 'package:gdsctokyo/widgets/item_card.dart';
 
 class MyItems extends StatefulWidget {
   const MyItems({
@@ -62,30 +63,45 @@ class _MyItemsState extends State<MyItems> {
           ),
           Column(
             children: [
-              const Item(
+              ItemCard(
+                  item: Item(
                 name: 'BentoBenjai',
-                compareAtPrice: 500,
-                amount: 300,
-                photoURL: 'lib/assets/images/tomyum.jpg',
+                price: const Price(
+                  amount: 300,
+                  compareAtPrice: 500,
+                  currency: Currency.jpy,
+                ),
                 addedBy: 'atomicativesjai',
-                createdAt: '2022-10-05 13:20:00',
-              ),
-              const Item(
+                createdAt: DateTime.parse('2022-10-05 13:20:00'),
+                updatedAt: DateTime.parse('2022-10-05 13:20:00'),
+                photoURL: 'lib/assets/images/tomyum.jpg',
+              )),
+              ItemCard(
+                  item: Item(
                 name: 'BentoJa',
-                compareAtPrice: 500,
-                amount: 200,
-                photoURL: 'lib/assets/images/tomyum.jpg',
+                price: const Price(
+                  amount: 200,
+                  compareAtPrice: 500,
+                  currency: Currency.jpy,
+                ),
                 addedBy: 'atomicativesjai',
-                createdAt: '2022-10-05 13:20:00',
-              ),
-              const Item(
+                createdAt: DateTime.parse('2022-10-05 13:20:00'),
+                updatedAt: DateTime.parse('2022-10-05 13:20:00'),
+                photoURL: 'lib/assets/images/tomyum.jpg',
+              )),
+              ItemCard(
+                  item: Item(
                 name: 'BentoBenjai',
-                compareAtPrice: 500,
-                amount: 300,
-                photoURL: 'lib/assets/images/tomyum.jpg',
+                price: const Price(
+                  amount: 300,
+                  compareAtPrice: 500,
+                  currency: Currency.jpy,
+                ),
                 addedBy: 'atomicativesjai',
-                createdAt: '2022-10-05 13:20:00',
-              ),
+                createdAt: DateTime.parse('2022-10-05 13:20:00'),
+                updatedAt: DateTime.parse('2022-10-05 13:20:00'),
+                photoURL: 'lib/assets/images/tomyum.jpg',
+              )),
               Container(
                 height: 24,
                 width: double.infinity,
