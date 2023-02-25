@@ -27,7 +27,7 @@ class _RestaurantMyPageState extends State<RestaurantMyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: BigText(text: 'My Basket Himonya'),
+        title: const BigText(text: 'My Basket Himonya'),
         elevation: 2,
       ),
       body: SingleChildScrollView(
@@ -79,18 +79,18 @@ class _RestaurantMyPageState extends State<RestaurantMyPage> {
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: lightColorScheme.primaryContainer,
         selectedItemColor: Colors.red[300],
-        items: [
-          const BottomNavigationBarItem(
+        items: const [
+          BottomNavigationBarItem(
               icon: Icon(
                 Icons.store,
               ),
               label: 'Store'),
-          const BottomNavigationBarItem(
+          BottomNavigationBarItem(
               icon: Icon(
                 Icons.explore,
               ),
               label: 'Explore'),
-          const BottomNavigationBarItem(
+          BottomNavigationBarItem(
               icon: Icon(
                 Icons.person_2_rounded,
               ),

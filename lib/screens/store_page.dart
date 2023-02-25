@@ -29,7 +29,7 @@ class StorePage extends StatelessWidget {
                   width: MediaQuery.of(context).size.width,
                   fit: BoxFit.cover,
                 ),
-                Positioned(
+                const Positioned(
                     left: 10,
                     bottom: 3,
                     child: BigBoldText(
@@ -49,7 +49,7 @@ class StorePage extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Container(
+                  SizedBox(
                     width: MediaQuery.of(context).size.width * 0.5,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,25 +70,23 @@ class StorePage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(
-                            bottom: 8,
-                          ),
-                          child: IconText(
-                              iconType: Icons.schedule,
-                              iconColor: Colors.red[300],
-                              text: '11:00 - 23:00'),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(
+                          bottom: 8,
                         ),
-                        IconText(
-                            iconType: Icons.discount,
+                        child: IconText(
+                            iconType: Icons.schedule,
                             iconColor: Colors.red[300],
-                            text: '40% - 80% discount'),
-                      ],
-                    ),
+                            text: '11:00 - 23:00'),
+                      ),
+                      IconText(
+                          iconType: Icons.discount,
+                          iconColor: Colors.red[300],
+                          text: '40% - 80% discount'),
+                    ],
                   ),
                 ],
               ),

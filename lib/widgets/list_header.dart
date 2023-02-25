@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../theme/color_schemes.dart';
-import 'big_text_bold.dart';
-import 'big_text_semibold.dart';
+import 'package:gdsctokyo/theme/color_schemes.dart';
+import 'package:gdsctokyo/widgets/big_text_bold.dart';
+import 'package:gdsctokyo/widgets/big_text_semibold.dart';
 
 class ListHeader extends StatelessWidget {
   final String text;
-  ListHeader({super.key, required this.text});
+  const ListHeader({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/widgets/big_text_bold.dart';
-import 'package:gdsctokyo/widgets/description_text.dart';
 
 class Item extends StatefulWidget {
   final String menuName;
@@ -35,14 +34,14 @@ class _ItemState extends State<Item> {
           color: Colors.grey.withOpacity(0.3),
           spreadRadius: 2,
           blurRadius: 4,
-          offset: Offset(0, 3),
+          offset: const Offset(0, 3),
         )
       ]),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            margin: EdgeInsets.only(
+            margin: const EdgeInsets.only(
               left: 16,
               right: 10,
             ),
@@ -50,82 +49,78 @@ class _ItemState extends State<Item> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(child: BigBoldText(text: widget.menuName, size: 20)),
-                SizedBox(height: 8),
-                Container(
-                  child: Row(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.only(
-                          right: 8,
-                        ),
-                        width: 16,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage('lib/assets/images/Sale.png'),
-                            fit: BoxFit.cover,
-                          ),
+                BigBoldText(text: widget.menuName, size: 20),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(
+                        right: 8,
+                      ),
+                      width: 16,
+                      height: 16,
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage('lib/assets/images/Sale.png'),
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      Row(
-                        children: [
-                          Text(
-                            widget.normalPrice.toInt().toString(),
-                            style: TextStyle(
-                              decoration: TextDecoration.lineThrough,
-                              fontFamily: 'Poppins',
-                              fontSize: 12,
-                            ),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          widget.normalPrice.toInt().toString(),
+                          style: const TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                            fontFamily: 'Poppins',
+                            fontSize: 12,
                           ),
-                          SizedBox(width: 4),
-                          Text(
-                            widget.discountedPrice.toInt().toString(),
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 12,
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          widget.discountedPrice.toInt().toString(),
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 12,
+                          ),
+                        )
+                      ],
+                    )
+                  ],
                 ),
-                SizedBox(height: 8),
-                Container(
-                  child: Row(
-                    children: [
-                      Text(
-                        "Added by ${widget.addedName} at $timeString",
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Text(
+                      'Added by ${widget.addedName} at $timeString',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.outline,
+                        fontFamily: 'Poppins',
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () {},
+                      child: Text(
+                        'Delete',
+                        maxLines: 1, // making sure overflow works propperly
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.outline,
-                          fontFamily: 'Poppins',
                           fontSize: 12,
-                          fontStyle: FontStyle.italic,
+                          fontFamily: 'Poppins',
                         ),
                       ),
-                      SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () {},
-                        child: Text(
-                          'Delete',
-                          maxLines: 1, // making sure overflow works propperly
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.outline,
-                            fontSize: 12,
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
+                    )
+                  ],
                 ),
               ],
             ),
           ),
           Container(
-            margin: EdgeInsets.all(
+            margin: const EdgeInsets.all(
               4,
             ),
             width: 90,
