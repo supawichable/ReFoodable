@@ -1,16 +1,29 @@
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2023, 3, 18);
+  
+  	// Anyone can read restaurant data
+  	// Anyone can add a restaurant as long as
+    // they claim to be an owner in the payload
+  	// Only restaurant owner can update and delete their own restaurants
+    match /restaurants/{restaurant} {
+      allow read: if true;
+      allow create: if request.resource.data.owner_id == request.auth.uid;
+      allow update: if resource.data.owner_id == request.auth.uid;
+      
+      // Anyone can read item data
+      // Anyone can add an item as long as
+      // they claim to be an owner in the payload
+      // Only restaurant owner and the person who added the item can 
+      // update and delete the item
+      match /items/{item} {
+        allow read: if true;
+        allow create: if request.resource.data.added_by == request.auth.uid;
+        allow update: if resource.data.added_by == request.auth.uid
+											|| get(/database/{database}/documents/restaurants/{restaurant}).data.owner_id == request.auth.uid;
+      }
     }
+    
+    
   }
 }
