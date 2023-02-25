@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/screens/home/bookmark.dart';
 import 'package:gdsctokyo/screens/home/my_page/my_page.dart';
 import 'package:gdsctokyo/screens/home/explore.dart';
-import 'package:gdsctokyo/theme/color_schemes.g.dart';
+import 'package:gdsctokyo/theme/color_schemes.dart';
 import 'package:gdsctokyo/widgets/big_text.dart';
 import 'package:gdsctokyo/widgets/my_items.dart';
 import 'package:gdsctokyo/widgets/store_info.dart';

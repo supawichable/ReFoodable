@@ -8,7 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gdsctokyo/firebase_options.dart';
 import 'package:gdsctokyo/routes/guard.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
-import 'package:gdsctokyo/theme/color_schemes.g.dart';
+import 'package:gdsctokyo/theme/color_schemes.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -26,7 +26,7 @@ void main() async {
           dotenv.get('LOCALHOST_IP', fallback: 'localhost'), 8080);
       await FirebaseAuth.instance.useAuthEmulator(
           dotenv.get('LOCALHOST_IP', fallback: 'localhost'), 9099);
-      FirebaseStorage.instance.useStorageEmulator(
+      await FirebaseStorage.instance.useStorageEmulator(
           dotenv.get('LOCALHOST_IP', fallback: 'localhost'), 9199);
     } catch (e) {
       // ignore: avoid_print

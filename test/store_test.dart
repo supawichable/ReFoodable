@@ -105,7 +105,7 @@ void main() {
       final item = Item(
         name: 'Item Name',
         price: const Price(
-            amount: 100, currency: CurrencySymbol.jpy, compareAtPrice: 120),
+            amount: 100, currency: Currency.jpy, compareAtPrice: 120),
         addedBy: auth.currentUser!.uid,
       );
       // Add a store by this current user.

@@ -51,7 +51,7 @@ void main() {
       price: Price(
         amount: 100,
         compareAtPrice: 400,
-        currency: CurrencySymbol.jpy,
+        currency: Currency.jpy,
       ),
       addedBy: 'steve',
     );

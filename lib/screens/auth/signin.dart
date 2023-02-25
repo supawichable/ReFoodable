@@ -9,9 +9,6 @@ import 'package:gdsctokyo/widgets/or_bar.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
 
-// TODO:
-// - validator coverage
-
 enum AuthMode { login, register }
 
 extension on AuthMode {
@@ -20,10 +17,10 @@ extension on AuthMode {
 
 // util for creating random string
 String randomString(int length) {
-  const _chars =
+  const chars =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   final random = Random.secure();
-  return List.generate(length, (index) => _chars[random.nextInt(_chars.length)])
+  return List.generate(length, (index) => chars[random.nextInt(chars.length)])
       .join();
 }
 

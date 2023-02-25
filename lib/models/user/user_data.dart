@@ -13,7 +13,7 @@ class UserData with _$UserData {
 
   factory UserData.fromFirestore(
       DocumentSnapshot<Map<String, dynamic>> snapshot) {
-    return UserData.fromJson({"uid": snapshot.id, ...snapshot.data()!});
+    return UserData.fromJson({'uid': snapshot.id, ...snapshot.data()!});
   }
 
   static Map<String, dynamic> toFirestore(Profile data) =>

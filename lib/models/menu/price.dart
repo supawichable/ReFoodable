@@ -4,22 +4,15 @@ part of '_menu.dart';
 class Price with _$Price {
   const factory Price({
     required double amount,
-    required CurrencySymbol currency,
+    required Currency currency,
     double? compareAtPrice,
   }) = _Price;
 
   factory Price.fromJson(Map<String, dynamic> json) => _$PriceFromJson(json);
 }
 
-enum CurrencySymbol {
+@JsonEnum(valueField: 'symbol')
+enum Currency {
+  @JsonValue('¥')
   jpy,
-}
-
-extension on CurrencySymbol {
-  String get symbol {
-    switch (this) {
-      case CurrencySymbol.jpy:
-        return '¥';
-    }
-  }
 }

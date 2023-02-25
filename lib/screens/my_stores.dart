@@ -36,7 +36,7 @@ class MyStoresPage extends StatelessWidget {
               itemCount: snapshot!.docs.length + 1,
               separatorBuilder: (BuildContext context, int index) {
                 return const Divider(
-                  height: 1,
+                  height: 2,
                 );
               },
               itemBuilder: (BuildContext context, int index) {
@@ -44,7 +44,7 @@ class MyStoresPage extends StatelessWidget {
                   return ListTile(
                     title: const Text('Just go to the store!'),
                     onTap: () {
-                      context.router.push(MyStoreRoute(
+                      context.router.push(StoreRoute(
                           store: const Store(
                               name: 'Store', location: GeoPoint(0, 0))));
                     },

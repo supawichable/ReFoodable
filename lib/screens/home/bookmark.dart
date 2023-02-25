@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/widgets/big_text.dart';
 
 class Bookmark extends StatefulWidget {
   const Bookmark({super.key});
