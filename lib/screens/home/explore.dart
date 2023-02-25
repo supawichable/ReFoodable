@@ -61,8 +61,9 @@ class _ExploreState extends State<Explore> {
                 // debugPrint('currentLocation: $currentLocation');
               }),
             })
-        .catchError((onError) {
-      debugPrint('Error caught in getCurrentLocation: $onError');
+        // ignore: body_might_complete_normally_catch_error
+        .catchError((error) {
+      debugPrint('Error caught in getCurrentLocation: $error');
     });
   }
 
@@ -82,9 +83,9 @@ class _ExploreState extends State<Explore> {
             topRight: Radius.circular(20),
           ),
           body: currentLocation == null
-              ? const Center(child: Text("Loading"))
+              ? const Center(child: Text('Loading'))
               : Stack(children: [
-                  Container(
+                  SizedBox(
                     height: MediaQuery.of(context).size.height,
                     width: double.infinity,
                     child: GoogleMap(
@@ -153,7 +154,7 @@ class _ExploreState extends State<Explore> {
                     left: 10,
                     right: 10,
                   ),
-                  child: SortingTab(),
+                  child: const SortingTab(),
                 ),
                 Container(
                   padding: const EdgeInsets.only(
@@ -161,7 +162,7 @@ class _ExploreState extends State<Explore> {
                     top: 10,
                     bottom: 10,
                   ),
-                  child: Align(
+                  child: const Align(
                       alignment: Alignment.centerLeft,
                       child: DescriptionText(
                         text: 'n places found',

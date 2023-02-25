@@ -13,7 +13,7 @@ class OrBar extends StatelessWidget {
               height: 36,
             )),
       ),
-      const Text("OR"),
+      const Text('OR'),
       Expanded(
         child: Container(
             margin: const EdgeInsets.only(left: 20.0, right: 10.0),

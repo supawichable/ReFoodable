@@ -28,7 +28,7 @@ class MyStorePage extends StatelessWidget {
                     width: MediaQuery.of(context).size.width,
                     fit: BoxFit.cover,
                   ),
-                  Positioned(
+                  const Positioned(
                       left: 10,
                       bottom: 3,
                       child: BigBoldText(
@@ -39,7 +39,7 @@ class MyStorePage extends StatelessWidget {
                 ],
               ),
             ),
-            ListHeader(text: 'Store Info'),
+            const ListHeader(text: 'Store Info'),
             SizedBox(
               height: 200,
               child: Container(
@@ -50,7 +50,7 @@ class MyStorePage extends StatelessWidget {
                         color: Colors.grey.withOpacity(0.2),
                         spreadRadius: 1,
                         blurRadius: 5,
-                        offset: Offset(0, 3),
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
@@ -60,7 +60,7 @@ class MyStorePage extends StatelessWidget {
                     bottom: 5,
                   ),
                   child: Container(
-                    padding: EdgeInsets.only(
+                    padding: const EdgeInsets.only(
                       left: 20,
                       right: 20,
                       top: 10,
@@ -97,7 +97,7 @@ class MyStorePage extends StatelessWidget {
                     ),
                   )),
             ),
-            ListHeader(text: 'Menu Items'),
+            const ListHeader(text: 'Menu Items'),
             ...menuList,
             Container(
               height: 20,

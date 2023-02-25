@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class DescriptionText extends StatelessWidget {
-  Color? color;
+  final Color? color;
   final String text;
-  double size;
-  double height;
-  DescriptionText({
+  final double size;
+  final double height;
+  const DescriptionText({
     super.key,
     this.color = Colors.black,
     required this.text,

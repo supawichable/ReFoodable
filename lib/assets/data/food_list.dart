@@ -38,13 +38,13 @@ List<Widget> menuList = List<Widget>.generate(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              BigSemiboldText(text: 'Bento'),
+              const BigSemiboldText(text: 'Bento'),
               IconText(
                 iconType: Icons.discount,
                 iconColor: Colors.red[300],
                 text: '500',
               ),
-              DescriptionText(
+              const DescriptionText(
                 text: 'Added by atomicative at 20:00 pm',
                 color: Colors.grey,
                 size: 12,

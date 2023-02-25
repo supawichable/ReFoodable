@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class BigSemiboldText extends StatelessWidget {
-  Color? color;
+  final Color? color;
   final String text;
-  double size;
-  TextOverflow overFlow;
-  BigSemiboldText(
+  final double size;
+  final TextOverflow overFlow;
+  const BigSemiboldText(
       {super.key,
       this.color = Colors.black,
       required this.text,

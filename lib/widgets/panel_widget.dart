@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/widgets/big_text_bold.dart';
-import 'package:gdsctokyo/widgets/description_text.dart';
 import 'package:gdsctokyo/widgets/icon_text.dart';
 
 class PanelWidget extends StatelessWidget {
@@ -36,7 +35,7 @@ class PanelWidget extends StatelessWidget {
                     color: Colors.grey.withOpacity(0.2),
                     spreadRadius: 1,
                     blurRadius: 5,
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -44,7 +43,7 @@ class PanelWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    margin: EdgeInsets.only(
+                    margin: const EdgeInsets.only(
                       left: 10,
                       right: 10,
                     ),
@@ -52,12 +51,12 @@ class PanelWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                            margin: EdgeInsets.only(
+                            margin: const EdgeInsets.only(
                               top: 10,
                             ),
-                            child: BigBoldText(text: 'Restuarant Name')),
+                            child: const BigBoldText(text: 'Restuarant Name')),
                         Container(
-                          margin: EdgeInsets.only(
+                          margin: const EdgeInsets.only(
                             top: 15,
                           ),
                           child: IconText(
@@ -66,13 +65,13 @@ class PanelWidget extends StatelessWidget {
                               text: '500m from here'),
                         ),
                         Container(
-                            margin: EdgeInsets.only(top: 2),
+                            margin: const EdgeInsets.only(top: 2),
                             child: IconText(
                                 iconType: Icons.bento,
                                 iconColor: Colors.red[300],
                                 text: 'bento (food type)')),
                         Container(
-                            margin: EdgeInsets.only(
+                            margin: const EdgeInsets.only(
                               top: 15,
                             ),
                             child: IconText(
@@ -87,19 +86,19 @@ class PanelWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        margin: EdgeInsets.only(
+                        margin: const EdgeInsets.only(
                           right: 20,
                         ),
                         width: 80,
                         height: 80,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                             image: DecorationImage(
                           image: AssetImage('lib/assets/images/tomyum.jpg'),
                           fit: BoxFit.cover,
                         )),
                       ),
                       Container(
-                        margin: EdgeInsets.only(
+                        margin: const EdgeInsets.only(
                           top: 10,
                           right: 20,
                         ),
