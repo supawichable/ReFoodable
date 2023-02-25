@@ -81,7 +81,24 @@ class ProfileData extends StatelessWidget {
               // signout
               ElevatedButton(
                 onPressed: () async {
-                  await FirebaseAuth.instance.signOut();
+                  // signout confirmation dialog
+                  final shouldSignOut = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Sign Out'),
+                      content: const Text('Are you sure you want to sign out?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text('Sign Out'),
+                        ),
+                      ],
+                    ),
+                  );
                 },
                 child: const Text('Sign Out'),
               ),
