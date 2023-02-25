@@ -13,6 +13,7 @@ class Store with _$Store {
       String? email,
       String? phone,
       String? ownerId,
+      String? photoURL,
       List<FoodCategory>? category}) = _Store;
 
   factory Store.fromJson(Map<String, dynamic> json) => _$StoreFromJson(json);
