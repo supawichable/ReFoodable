@@ -45,8 +45,11 @@ class MyStoresPage extends StatelessWidget {
                     title: const Text('Just go to the store!'),
                     onTap: () {
                       context.router.push(StoreRoute(
-                          store: const Store(
-                              name: 'Store', location: GeoPoint(0, 0))));
+                          store: Store(
+                              name: 'Store',
+                              location: const GeoPoint(0, 0),
+                              createdAt: DateTime.now(),
+                              updatedAt: DateTime.now())));
                     },
                   );
                 }

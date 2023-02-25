@@ -5,7 +5,9 @@ class Item with _$Item {
   const factory Item(
       {required String name,
       @PriceConverter() required Price price,
-      required String addedBy}) = _Item;
+      required String addedBy,
+      @TimestampConverter() required DateTime createdAt,
+      @TimestampConverter() required DateTime updatedAt}) = _Item;
 
   factory Item.fromJson(Map<String, dynamic> json) => _$ItemFromJson(json);
 

@@ -32,6 +32,8 @@ void main() {
       final store = Store(
           name: 'Store Name',
           location: const GeoPoint(0, 0),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
           address: 'test',
           email: 'store@example.com',
           phone: '08080808080',
@@ -51,6 +53,8 @@ void main() {
       final store2 = Store(
           name: 'Store Name 2',
           location: const GeoPoint(0, 0),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
           address: 'test',
           email: 'store@example.com',
           phone: '08080808080',
@@ -106,6 +110,8 @@ void main() {
         price: const Price(
             amount: 100, currency: Currency.jpy, compareAtPrice: 120),
         addedBy: auth.currentUser!.uid,
+        createdAt: DateTime(2021, 1, 1),
+        updatedAt: DateTime(2021, 1, 1),
       );
       // Add a store by this current user.
       await firestore.stores.doc(storeDoc.id).items.add(item);

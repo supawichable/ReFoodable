@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/widgets/big_text_bold.dart';
 
 class Item extends StatefulWidget {
-  final String menuName;
-  final double normalPrice;
-  final double discountedPrice;
-  final String imageLocation;
-  final String addedName;
-  final String addedTime;
+  final String name;
+  final double compareAtPrice;
+  final double amount;
+  final String photoURL;
+  final String addedBy;
+  final String createdAt;
 
   const Item({
     Key? key,
-    required this.menuName,
-    required this.normalPrice,
-    this.discountedPrice = 0,
-    required this.imageLocation,
-    required this.addedName,
-    required this.addedTime,
+    required this.name,
+    required this.compareAtPrice,
+    this.amount = 0,
+    required this.photoURL,
+    required this.addedBy,
+    required this.createdAt,
   }) : super(key: key);
 
   @override
@@ -26,7 +26,7 @@ class Item extends StatefulWidget {
 class _ItemState extends State<Item> {
   @override
   Widget build(BuildContext context) {
-    String timeString = widget.addedTime.substring(11, 16);
+    String timeString = widget.createdAt.substring(11, 16);
     return Container(
       // height: 130,
       decoration: BoxDecoration(color: Colors.white, boxShadow: [
@@ -49,7 +49,7 @@ class _ItemState extends State<Item> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                BigBoldText(text: widget.menuName, size: 20),
+                BigBoldText(text: widget.name, size: 20),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -69,7 +69,7 @@ class _ItemState extends State<Item> {
                     Row(
                       children: [
                         Text(
-                          widget.normalPrice.toInt().toString(),
+                          widget.compareAtPrice.toInt().toString(),
                           style: const TextStyle(
                             decoration: TextDecoration.lineThrough,
                             fontFamily: 'Poppins',
@@ -78,7 +78,7 @@ class _ItemState extends State<Item> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          widget.discountedPrice.toInt().toString(),
+                          widget.amount.toInt().toString(),
                           style: const TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 12,
@@ -92,7 +92,7 @@ class _ItemState extends State<Item> {
                 Row(
                   children: [
                     Text(
-                      'Added by ${widget.addedName} at $timeString',
+                      'Added by ${widget.addedBy} at $timeString',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.outline,
                         fontFamily: 'Poppins',
@@ -127,7 +127,7 @@ class _ItemState extends State<Item> {
             height: 90,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(widget.imageLocation),
+                image: AssetImage(widget.photoURL),
                 fit: BoxFit.cover,
               ),
             ),
