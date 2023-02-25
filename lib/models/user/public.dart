@@ -13,7 +13,7 @@ class Profile with _$Profile {
 
   factory Profile.fromFirestore(
       DocumentSnapshot<Map<String, dynamic>> snapshot) {
-    return Profile.fromJson({"uid": snapshot.id, ...snapshot.data()!});
+    return Profile.fromJson({'uid': snapshot.id, ...snapshot.data()!});
   }
 
   static Map<String, dynamic> toFirestore(Profile data) =>

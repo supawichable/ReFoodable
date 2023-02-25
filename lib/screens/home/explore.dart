@@ -62,7 +62,7 @@ class _ExploreState extends State<Explore> {
               }),
             })
         .catchError((onError) {
-      debugPrint("Error caught in getCurrentLocation: $onError");
+      debugPrint('Error caught in getCurrentLocation: $onError');
     });
   }
 

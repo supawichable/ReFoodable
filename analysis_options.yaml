@@ -12,6 +12,10 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   plugins:
     - import_lint
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.gr.dart"
 
 linter:
   # The lint rules applied to this project can be customized in the

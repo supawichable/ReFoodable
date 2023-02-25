@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/color_schemes.g.dart';
+import '../theme/color_schemes.dart';
 import 'big_text_bold.dart';
 import 'big_text_semibold.dart';
 

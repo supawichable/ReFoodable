@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/theme/color_schemes.g.dart';
+import 'package:gdsctokyo/theme/color_schemes.dart';
 import 'package:gdsctokyo/widgets/description_text.dart';
 
 class SortingTab extends StatefulWidget {
@@ -32,7 +32,9 @@ class _SortingTabState extends State<SortingTab> {
               top: 10,
             ),
             decoration: BoxDecoration(
-                color: _selections[0] ? lightColorScheme.primaryContainer:Colors.brown[50],
+                color: _selections[0]
+                    ? lightColorScheme.primaryContainer
+                    : Colors.brown[50],
                 borderRadius: BorderRadius.circular(20)),
             alignment: Alignment.center,
             child: DescriptionText(text: 'Nearest'),
@@ -49,7 +51,9 @@ class _SortingTabState extends State<SortingTab> {
               top: 10,
             ),
             decoration: BoxDecoration(
-                color: _selections[1] ? lightColorScheme.primaryContainer:Colors.brown[50],
+                color: _selections[1]
+                    ? lightColorScheme.primaryContainer
+                    : Colors.brown[50],
                 borderRadius: BorderRadius.circular(20)),
             alignment: Alignment.center,
             child: DescriptionText(text: 'Cheapest'),
@@ -66,7 +70,9 @@ class _SortingTabState extends State<SortingTab> {
               top: 10,
             ),
             decoration: BoxDecoration(
-                color: _selections[2] ? lightColorScheme.primaryContainer:Colors.brown[50],
+                color: _selections[2]
+                    ? lightColorScheme.primaryContainer
+                    : Colors.brown[50],
                 borderRadius: BorderRadius.circular(20)),
             alignment: Alignment.center,
             child: Row(children: [
