@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
+import 'package:gdsctokyo/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -46,11 +47,11 @@ class ImageUploadNotifier extends StateNotifier<ImageUpload> {
     await state.whenOrNull<Future<void>>(
       prompt: _prompt,
       picked: (pickedFile) async {
-        Logger().i('Picked file: ${pickedFile.path}');
+        logger.i('Picked file: ${pickedFile.path}');
         await _cropImage();
       },
       cropped: (croppedFile) async {
-        Logger().i('Cropped file: ${croppedFile.path}');
+        logger.i('Cropped file: ${croppedFile.path}');
         // I know what I am doing.
         // ignore: invalid_use_of_protected_member
         imageDialogKey.currentState?.setState(() {});
