@@ -1,19 +1,21 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:gdsctokyo/providers/current_user.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 // Splash Screen is for initiating the app
 // Originally it was intended to be signInAnonymously-inator but the idea
 // was scrapped because we don't want to store unauthenticated user data
 
-class SplashPage extends StatefulWidget {
+class SplashPage extends StatefulHookConsumerWidget {
   const SplashPage({super.key});
 
   @override
-  State<SplashPage> createState() => _SplashPageState();
+  ConsumerState<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> {
+class _SplashPageState extends ConsumerState<SplashPage> {
   bool _redirecting = false;
 
   @override
@@ -22,6 +24,7 @@ class _SplashPageState extends State<SplashPage> {
     // Future.delayed(const Duration(seconds: 2), () {
     if (!_redirecting) {
       _redirecting = true;
+      ref.read(currentUserProvider);
       context.router.replace(const HomeRoute());
     }
     // });
