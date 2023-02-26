@@ -15,5 +15,5 @@ class UserPublic with _$UserPublic {
     return UserPublic.fromJson(snapshot.data()!);
   }
 
-  static Map<String, dynamic> toFirestore(UserPublic data) => data.toJson();
+  Map<String, dynamic> toFirestore() => toJson();
 }
