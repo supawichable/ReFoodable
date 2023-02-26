@@ -14,6 +14,8 @@ class UserPrivate with _$UserPrivate {
       DocumentSnapshot<Map<String, dynamic>> snapshot) {
     return UserPrivate.fromJson(snapshot.data()!);
   }
+}
 
+extension UserPrivateX on UserPrivate {
   Map<String, dynamic> toFirestore() => toJson();
 }

@@ -14,6 +14,8 @@ class UserPublic with _$UserPublic {
       DocumentSnapshot<Map<String, dynamic>> snapshot) {
     return UserPublic.fromJson(snapshot.data()!);
   }
+}
 
+extension UserPublicX on UserPublic {
   Map<String, dynamic> toFirestore() => toJson();
 }
