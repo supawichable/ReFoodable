@@ -51,14 +51,29 @@ class MyStoresPage extends StatelessWidget {
               );
             }
             return ListView.separated(
-              itemCount: snapshot.docs.length,
+              itemCount: snapshot.docs.length + 1,
               separatorBuilder: (BuildContext context, int index) {
                 return const Divider(
                   height: 2,
                 );
               },
               itemBuilder: (BuildContext context, int index) {
-                final store = snapshot.docs[index].data();
+                if (index == snapshot.docs.length) {
+                  return const SizedBox(
+                    height: 80,
+                  );
+                }
+                late final Store store;
+                try {
+                  store = snapshot.docs[index].data();
+                } catch (e, stackTrace) {
+                  // TODO What's going on?
+                  logger.e('Error while parsing store data', e, stackTrace);
+                  return const ListTile(
+                    leading: Icon(Icons.error),
+                    title: Text('Loading...'),
+                  );
+                }
                 return ListTile(
                   leading: const Icon(Icons.store),
                   key: ObjectKey(store),
