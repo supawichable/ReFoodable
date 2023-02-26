@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/models/menu/_menu.dart';
+import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/widgets/big_text_bold.dart';
 
 class ItemCard extends StatefulWidget {

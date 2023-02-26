@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gdsctokyo/models/menu/_menu.dart';
+import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 
 void main() {
