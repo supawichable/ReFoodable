@@ -85,6 +85,7 @@ extension StoreX on Store {
       );
 
   Map<String, dynamic> toFirestore() => toJson()
+    ..remove('type')
     ..putIfAbsent('created_at', FieldValue.serverTimestamp)
     ..update('updated_at', (_) => FieldValue.serverTimestamp(),
         ifAbsent: FieldValue.serverTimestamp);

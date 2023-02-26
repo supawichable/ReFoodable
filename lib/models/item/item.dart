@@ -34,7 +34,7 @@ class Item with _$Item {
       {required String name,
       @PriceConverter() required Price price,
       required String addedBy,
-      @JsonKey(name: 'photoURL') String? photoURL}) = ItemCreate;
+      String? photoURL}) = ItemCreate;
 
   factory Item.fromJson(Map<String, dynamic> json) => _$ItemFromJson(json);
 
@@ -71,6 +71,7 @@ extension ItemX on Item {
       );
 
   Map<String, dynamic> toFirestore() => toJson()
+    ..remove('type')
     ..putIfAbsent('created_at', FieldValue.serverTimestamp)
     ..update('updated_at', (_) => FieldValue.serverTimestamp(),
         ifAbsent: FieldValue.serverTimestamp);
