@@ -3,22 +3,6 @@ part of 'firebase_extension.dart';
 typedef StoreReference = DocumentReference<Store>;
 typedef StoresReference = CollectionReference<Store>;
 
-extension FirestoreX on FirebaseFirestore {
-  /// Get a reference to a stores collection
-  /// which can be used to query the stores.
-  ///
-  /// Example:
-  /// ```dart
-  /// final storesRef = FirebaseFirestore.instance.stores;
-  /// final snapshots = await storesRef.get();
-  /// final stores = snapshots.docs.map((e) => e.data()).toList();
-  /// ```
-  CollectionReference<Store> get stores =>
-      collection(ApiPath.stores.name).withConverter(
-          fromFirestore: (snapshot, _) => Store.fromFirestore(snapshot),
-          toFirestore: (store, _) => store.toFirestore());
-}
-
 extension StoreReferenceX on StoreReference {
   /// Get a collection reference of items in a store document.
   ///

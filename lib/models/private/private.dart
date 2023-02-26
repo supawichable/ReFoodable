@@ -15,5 +15,5 @@ class UserPrivate with _$UserPrivate {
     return UserPrivate.fromJson(snapshot.data()!);
   }
 
-  static Map<String, dynamic> toFirestore(UserPrivate data) => data.toJson();
+  Map<String, dynamic> toFirestore() => toJson();
 }
