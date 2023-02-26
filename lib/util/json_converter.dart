@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gdsctokyo/models/menu/_menu.dart';
-import 'package:gdsctokyo/models/result/_result.dart';
 
 class GeoPointConverter extends JsonConverter<GeoPoint, GeoPoint> {
   const GeoPointConverter();
@@ -47,20 +46,6 @@ class CollectionReferenceConverter
 
   @override
   CollectionReference toJson(CollectionReference object) => object;
-}
-
-class ResultErrorConverter extends JsonConverter<ResultError, Map> {
-  const ResultErrorConverter();
-
-  @override
-  ResultError fromJson(Map json) {
-    return ResultError(message: json['message'], code: json['code']);
-  }
-
-  @override
-  Map toJson(ResultError object) {
-    return {'message': object.message, 'code': object.code};
-  }
 }
 
 class PriceConverter extends JsonConverter<Price, Map<String, dynamic>> {
