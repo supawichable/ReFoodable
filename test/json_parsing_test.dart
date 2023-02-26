@@ -5,7 +5,7 @@ import 'package:gdsctokyo/models/store/_store.dart';
 
 void main() {
   group('store', () {
-    final store = Store(
+    final store = Store.data(
         name: 'Store 1',
         location: const GeoPoint(50.0, 128.0),
         createdAt: DateTime(2021, 1, 1),
@@ -17,6 +17,7 @@ void main() {
         category: [FoodCategory.japanese]);
 
     final json = {
+      'type': 'data',
       'name': 'Store 1',
       'location': const GeoPoint(50.0, 128.0),
       'created_at': Timestamp.fromDate(DateTime(2021, 1, 1)),
@@ -41,6 +42,7 @@ void main() {
 
   group('item', () {
     final json = {
+      'type': 'data',
       'name': 'Item 1',
       'price': {
         'amount': 100,
@@ -52,7 +54,7 @@ void main() {
       'updated_at': Timestamp.fromDate(DateTime(2021, 1, 1)),
     };
 
-    final item = Item(
+    final item = Item.data(
       name: 'Item 1',
       price: const Price(
         amount: 100,

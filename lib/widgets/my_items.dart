@@ -64,7 +64,7 @@ class _MyItemsState extends State<MyItems> {
           Column(
             children: [
               ItemCard(
-                  item: Item(
+                  item: Item.data(
                 name: 'BentoBenjai',
                 price: const Price(
                   amount: 300,
@@ -77,7 +77,7 @@ class _MyItemsState extends State<MyItems> {
                 photoURL: 'lib/assets/images/tomyum.jpg',
               )),
               ItemCard(
-                  item: Item(
+                  item: Item.data(
                 name: 'BentoJa',
                 price: const Price(
                   amount: 200,
@@ -90,7 +90,7 @@ class _MyItemsState extends State<MyItems> {
                 photoURL: 'lib/assets/images/tomyum.jpg',
               )),
               ItemCard(
-                  item: Item(
+                  item: Item.data(
                 name: 'BentoBenjai',
                 price: const Price(
                   amount: 300,

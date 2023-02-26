@@ -16,7 +16,7 @@ extension FirestoreX on FirebaseFirestore {
   CollectionReference<Store> get stores =>
       collection(ApiPath.stores.name).withConverter(
           fromFirestore: (snapshot, _) => Store.fromFirestore(snapshot),
-          toFirestore: (store, _) => store.toJson());
+          toFirestore: (store, _) => store.toFirestore());
 }
 
 extension StoreReferenceX on StoreReference {
@@ -48,5 +48,111 @@ extension StoreReferenceX on StoreReference {
   CollectionReference<Item> get items =>
       collection(ApiPath.items.name).withConverter(
           fromFirestore: (snapshot, _) => Item.fromFirestore(snapshot),
-          toFirestore: (item, _) => item.toJson());
+          toFirestore: (item, _) => item.toFirestore());
+
+  /// Update the store document with the new data.
+  ///
+  /// Example:
+  /// ```dart
+  /// final store = FirebaseFirestore.instance.store('store_id');
+  /// await store.updateStore(name: 'new name');
+  /// ```
+  Future<void> updateStore({
+    String? name,
+    GeoPoint? location,
+    String? address,
+    List<FoodCategory>? category,
+    String? email,
+    String? phone,
+    String? photoURL,
+  }) async {
+    await firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(this);
+      final store = snapshot.data()!;
+      transaction.update(this, {
+        'name': name ?? store.name,
+        'location': location ?? store.location,
+        'address': address ?? store.address,
+        'category': category ?? store.category,
+        'email': email ?? store.email,
+        'phone': phone ?? store.phone,
+        'photoURL': photoURL ?? store.photoURL,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    });
+  }
+}
+
+extension StoresReferenceX on StoresReference {
+  @Deprecated('Please use the original `add` for now.')
+  Future<StoreReference> addStore({
+    required String name,
+    required GeoPoint location,
+    String? ownerId,
+    String? address,
+    List<FoodCategory>? category,
+    String? email,
+    String? phone,
+    String? photoURL,
+  }) async {
+    final store = Store.create(
+        name: name,
+        location: location,
+        ownerId: ownerId,
+        address: address,
+        category: category,
+        email: email,
+        phone: phone,
+        photoURL: photoURL);
+    final storeRef = await add(store);
+    return storeRef;
+  }
+}
+
+typedef ItemReference = DocumentReference<Item>;
+typedef ItemsReference = CollectionReference<Item>;
+
+extension ItemReferenceX on ItemReference {
+  /// Update the item document with the new data.
+  ///
+  /// Example:
+  /// ```dart
+  /// final item = FirebaseFirestore.instance.item('store_id', 'item_id');
+  /// await item.updateItem(name: 'new name');
+  /// ```
+  Future<void> updateItem({
+    String? name,
+    Price? price,
+    String? photoURL,
+  }) async {
+    await firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(this);
+      final item = snapshot.data()!;
+      transaction.update(this, {
+        'name': name ?? item.name,
+        'price': price ?? item.price,
+        'photoURL': photoURL ?? item.photoURL,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    });
+  }
+}
+
+extension ItemsReferenceX on ItemsReference {
+  @Deprecated('Please use the original `add` for now.')
+  Future<ItemReference> addItem({
+    required String name,
+    required Price price,
+    required String addedBy,
+    String? photoURL,
+  }) async {
+    final item = Item.create(
+      photoURL: photoURL,
+      addedBy: addedBy,
+      name: name,
+      price: price,
+    );
+    final itemRef = await add(item);
+    return itemRef;
+  }
 }

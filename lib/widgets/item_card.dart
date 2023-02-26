@@ -14,16 +14,17 @@ class ItemCard extends StatefulWidget {
 }
 
 class _ItemCardState extends State<ItemCard> {
+  // Deconstructing the item
+  late final item = widget.item.asData()!;
+  late final String name = item.name;
+  late final Price price = item.price;
+  late final String addedBy = item.addedBy;
+  late final DateTime createdAt = item.createdAt;
+  late final DateTime updatedAt = item.updatedAt;
+  late final String? photoURL = item.photoURL;
+
   @override
   Widget build(BuildContext context) {
-    // Deconstructing the item
-    final String name = widget.item.name;
-    final Price price = widget.item.price;
-    final String addedBy = widget.item.addedBy;
-    final DateTime createdAt = widget.item.createdAt;
-    final DateTime updatedAt = widget.item.updatedAt;
-    final String? photoURL = widget.item.photoURL;
-
     String timeString = createdAt.toLocal().toString().substring(11, 16);
     return Container(
       // height: 130,
