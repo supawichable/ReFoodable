@@ -1,4 +1,4 @@
-part of '_menu.dart';
+part of '_item.dart';
 
 @Freezed(unionKey: 'type')
 class Item with _$Item {

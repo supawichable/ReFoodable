@@ -3,9 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
-import 'package:gdsctokyo/models/menu/_menu.dart';
+import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
-import 'package:gdsctokyo/util/logger.dart';
 
 void main() {
   final auth = MockFirebaseAuth();

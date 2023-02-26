@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:gdsctokyo/models/menu/_menu.dart';
+import 'package:gdsctokyo/models/item/_item.dart';
 
 class GeoPointConverter extends JsonConverter<GeoPoint, GeoPoint> {
   const GeoPointConverter();

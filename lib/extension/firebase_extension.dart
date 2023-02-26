@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:gdsctokyo/models/menu/_menu.dart';
+import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/models/private/_private.dart';
 import 'package:gdsctokyo/models/public/_public.dart';
 import 'package:gdsctokyo/models/store/_store.dart';

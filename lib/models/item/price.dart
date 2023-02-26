@@ -1,4 +1,4 @@
-part of '_menu.dart';
+part of '_item.dart';
 
 @freezed
 class Price with _$Price {
