@@ -7,8 +7,69 @@ import 'package:gdsctokyo/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:logger/logger.dart';
 
+/// A class that handles image upload.
+///
+/// Ironically, you have to handle the upload part yourself. \
+/// This is for systemically picking, and cropping images. \
+/// with an opinionated UI.
+///
+/// ## Usage
+/// ### Creating [HookConsumerWidget]
+/// This is necessary because our ImageUploader operates on \
+/// a global [StateNotifierProvider] to ensure state reliability. \
+/// (Probably, it says so)
+///
+/// ```dart
+/// class MyWidget extends HookConsumerWidget {
+///
+///   const MyWidget({Key? key}) : super(key: key);
+///
+///   @override
+///   Widget build(BuildContext context, WidgetRef ref) {
+///     // ...
+///   }
+/// ```
+///
+/// ### A button that triggers the image upload
+///
+/// ```dart
+/// ElevatedButton(
+///  onPressed: () async {
+///   final imageUpload = await ImageUploader(
+///     ref, // This is the WidgetRef from build()
+///     options: ImageUploadOptions(
+///      // The default aspect ratio is square.
+///      // So if you want to leave it blank, you can.
+///      aspectRatioPresets: [
+///         CropAspectRatioPreset.square,
+///         CropAspectRatioPreset.ratio3x2,
+///         CropAspectRatioPreset.original,
+///      ],
+///   ).handleImageUpload();
+///   // Do something with the image upload
+/// }
+/// ```
+/// ### Doing something with the image upload
+/// [ImageUpload] is a union type of different states. \
+/// You can use `when` to handle each state.
+/// Or you can use `whenOrNull` to handle only the states \
+/// that you want to handle. \
+/// You can use `maybeWhen` to handle only the states \
+/// that you want to handle, and return a default value \
+///
+/// [ImageUpload] will return error if something went wrong. \
+///
+/// ```dart
+/// await imageUpload.whenOrNull(
+///  cropped: (croppedFile) async {
+///   // Upload to the Firestore or something
+///  },
+///  error: (error) {
+///   // Show error snack bar
+///   },
+/// );
+/// ```
 class ImageUploader {
   final WidgetRef ref;
   final ImageUploadOptions? options;
