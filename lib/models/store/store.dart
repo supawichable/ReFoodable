@@ -47,7 +47,7 @@ class Store with _$Store {
     String? email,
     String? phone,
     String? ownerId,
-    @JsonKey(name: 'photoURL') String? photoURL,
+    String? photoURL,
     List<FoodCategory>? category,
   }) = StoreCreate;
 
