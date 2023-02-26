@@ -72,5 +72,6 @@ extension ItemX on Item {
 
   Map<String, dynamic> toFirestore() => toJson()
     ..putIfAbsent('created_at', FieldValue.serverTimestamp)
-    ..putIfAbsent('updated_at', FieldValue.serverTimestamp);
+    ..update('updated_at', (_) => FieldValue.serverTimestamp(),
+        ifAbsent: FieldValue.serverTimestamp);
 }

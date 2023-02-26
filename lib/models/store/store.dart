@@ -86,7 +86,8 @@ extension StoreX on Store {
 
   Map<String, dynamic> toFirestore() => toJson()
     ..putIfAbsent('created_at', FieldValue.serverTimestamp)
-    ..putIfAbsent('updated_at', FieldValue.serverTimestamp);
+    ..update('updated_at', (_) => FieldValue.serverTimestamp(),
+        ifAbsent: FieldValue.serverTimestamp);
 }
 
 /// enums for food category
