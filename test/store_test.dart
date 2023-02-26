@@ -39,7 +39,7 @@ void main() {
       // Add a store by this current user.
       final ref = await firestore.stores.add(store);
       final snapshot = await ref.get();
-      final data = snapshot.data()!.asData()!;
+      final data = snapshot.data()!;
 
       expect(data.name, store.name);
       expect(data.location, store.location);
@@ -68,11 +68,7 @@ void main() {
       // Get the stores owned by this user.
       final snapshots =
           await firestore.stores.ownedByUser(auth.currentUser!.uid).get();
-      final data = snapshots.docs
-          .map((e) => e.data())
-          .toList()
-          .map((e) => e.asData()!)
-          .toList();
+      final data = snapshots.docs.map((e) => e.data()).toList();
 
       expect(data.length, 2);
       expect(data[1].name, store2.name);
@@ -128,8 +124,7 @@ void main() {
       await firestore.stores.doc(storeDoc.id).items.add(item);
 
       final itemsSnapshot = await firestore.stores.doc(storeDoc.id).items.get();
-      final itemData =
-          itemsSnapshot.docs.map((e) => e.data()).toList().first.asData()!;
+      final itemData = itemsSnapshot.docs.map((e) => e.data()).toList().first;
 
       expect(itemData.name, item.name);
       expect(itemData.price.amount, item.price.amount);
