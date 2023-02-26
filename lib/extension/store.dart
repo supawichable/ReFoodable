@@ -51,6 +51,8 @@ extension StoreReferenceX on StoreReference {
           toFirestore: (item, _) => item.toFirestore());
 
   /// Update the store document with the new data.
+  /// This is to systematically update the store document.
+  /// By allowing only certain fields to be updated,
   ///
   /// Example:
   /// ```dart
@@ -84,26 +86,8 @@ extension StoreReferenceX on StoreReference {
 }
 
 extension StoresReferenceX on StoresReference {
-  @Deprecated('Please use the original `add` for now.')
-  Future<StoreReference> addStore({
-    required String name,
-    required GeoPoint location,
-    String? ownerId,
-    String? address,
-    List<FoodCategory>? category,
-    String? email,
-    String? phone,
-    String? photoURL,
-  }) async {
-    final store = Store.create(
-        name: name,
-        location: location,
-        ownerId: ownerId,
-        address: address,
-        category: category,
-        email: email,
-        phone: phone,
-        photoURL: photoURL);
+  @Deprecated('Use orignal add() instead')
+  Future<StoreReference> addStore(StoreCreate store) async {
     final storeRef = await add(store);
     return storeRef;
   }
@@ -114,6 +98,8 @@ typedef ItemsReference = CollectionReference<Item>;
 
 extension ItemReferenceX on ItemReference {
   /// Update the item document with the new data.
+  /// This is to systematically update the item document.
+  /// By allowing only certain fields to be updated,
   ///
   /// Example:
   /// ```dart
@@ -139,19 +125,10 @@ extension ItemReferenceX on ItemReference {
 }
 
 extension ItemsReferenceX on ItemsReference {
-  @Deprecated('Please use the original `add` for now.')
-  Future<ItemReference> addItem({
-    required String name,
-    required Price price,
-    required String addedBy,
-    String? photoURL,
-  }) async {
-    final item = Item.create(
-      photoURL: photoURL,
-      addedBy: addedBy,
-      name: name,
-      price: price,
-    );
+  @Deprecated('Use orignal add() instead')
+  Future<ItemReference> addItem(
+    ItemCreate item,
+  ) async {
     final itemRef = await add(item);
     return itemRef;
   }

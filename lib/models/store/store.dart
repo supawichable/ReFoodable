@@ -4,7 +4,9 @@ part of '_store.dart';
   unionKey: 'type',
 )
 class Store with _$Store {
-  /// Use this to read data from Firestore
+  /// Use this to parse data from Firestore \
+  /// **This is for internal use only.** \
+  /// The only part you need is `asData()`
   const factory Store.data({
     required String name,
     @GeoPointConverter() required GeoPoint location,
@@ -21,6 +23,21 @@ class Store with _$Store {
   }) = StoreData;
 
   /// Use this to generate payload to Firestore when creating a new store
+  ///
+  /// Example:
+  /// ```dart
+  /// final store = Store.create(
+  ///  name: 'My Store',
+  ///  location: GeoPoint(0, 0),
+  ///  address: 'My Address',
+  ///  email: 'My Email',
+  ///  phone: 'My Phone',
+  ///  ownerId: 'My Owner ID',
+  ///  photoURL: 'My Photo URL',
+  ///  category: [FoodCategory.japanese],
+  /// );
+  ///
+  /// final storeRef = FirebaseFirestore.instance.stores.add(store);
   const factory Store.create({
     required String name,
     @GeoPointConverter() required GeoPoint location,
@@ -42,6 +59,18 @@ class Store with _$Store {
 }
 
 extension StoreX on Store {
+  /// Convert [Store] to [StoreData] \
+  /// This is to show `createdAt` and `updatedAt` \
+  /// by making sure that you intend to read as data. \
+  /// and not to create a new store.
+  ///
+  /// Example:
+  /// ```dart
+  /// final snapshot = await FirebaseFirestore.instance
+  ///                    .stores.doc(storeId)
+  ///                    .get();
+  /// final store = snapshot.data()!.asData()!;
+  /// ```
   StoreData? asData() => mapOrNull(
         data: (data) => data,
       )!;
