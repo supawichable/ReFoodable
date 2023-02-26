@@ -6,3 +6,10 @@ part '_public.g.dart';
 part '_public.freezed.dart';
 
 part 'public.dart';
+
+class FirestoreUserPublic {
+  final String id;
+  final UserPublic userPublic;
+
+  FirestoreUserPublic(this.id, this.userPublic);
+}

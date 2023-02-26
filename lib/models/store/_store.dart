@@ -8,3 +8,10 @@ part '_store.g.dart';
 
 part 'store.dart';
 part 'schedule.dart';
+
+class FirestoreStore {
+  final String id;
+  final Store store;
+
+  FirestoreStore(this.id, this.store);
+}
