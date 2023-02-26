@@ -56,7 +56,8 @@ class ProfileData extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodyLarge)
             else
               Text('You\'re not signed in.',
-                  style: Theme.of(context).textTheme.bodyLarge)
+                  style: Theme.of(context).textTheme.bodyLarge),
+            if (user != null) DisplayNameEditor(user: user!)
           ],
         ),
         if (user == null)
@@ -99,12 +100,75 @@ class ProfileData extends StatelessWidget {
                       ],
                     ),
                   );
+
+                  if (shouldSignOut == true) {
+                    await FirebaseAuth.instance.signOut();
+                  }
                 },
                 child: const Text('Sign Out'),
               ),
           ],
         )
       ],
+    );
+  }
+}
+
+class DisplayNameEditor extends StatefulWidget {
+  final User user;
+
+  const DisplayNameEditor({super.key, required this.user});
+
+  @override
+  State<DisplayNameEditor> createState() => _DisplayNameEditorState();
+}
+
+class _DisplayNameEditorState extends State<DisplayNameEditor> {
+  final _nameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.text = widget.user.displayName ?? '';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // an IconButton that will pop up a dialog
+    return IconButton(
+      icon: const Icon(Icons.edit),
+      onPressed: () async {
+        final newName = await showDialog<String>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Edit Display Name'),
+            content: TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Display Name',
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(null),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context).pop(_nameController.text),
+                child: const Text('Save'),
+              ),
+            ],
+          ),
+        );
+
+        if (newName != null) {
+          await widget.user.updateDisplayName(newName).then((_) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Display name updated')));
+          });
+        }
+      },
     );
   }
 }
