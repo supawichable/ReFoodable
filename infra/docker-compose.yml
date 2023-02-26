@@ -11,6 +11,6 @@ services:
     volumes:
       - ./firebase:/firebase
     environment:
-      - GCP_PROJECT=demo-gdsctokyo-793f7
+      - GCP_PROJECT=gdsctokyo-793f7
     container_name: firebase-emulator
     command: ["firebase", "emulators:start", "--only", "auth,firestore,storage"]

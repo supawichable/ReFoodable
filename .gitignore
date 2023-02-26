@@ -50,3 +50,4 @@ app.*.map.json
 
 # Environment variables
 .env
+infra/firebase/reverse.sh
