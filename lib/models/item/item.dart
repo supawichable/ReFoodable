@@ -11,7 +11,7 @@ class Item with _$Item {
       required String addedBy,
       @TimestampConverter() required DateTime createdAt,
       @TimestampConverter() required DateTime updatedAt,
-      @JsonKey(name: 'photoURL') String? photoURL}) = ItemData;
+      String? photoURL}) = ItemData;
 
   /// Use this to generate payload to Firestore when creating a new item
   ///
