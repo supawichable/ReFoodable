@@ -7,3 +7,10 @@ part '_private.g.dart';
 part '_private.freezed.dart';
 
 part 'private.dart';
+
+class FirestoreUserPrivate {
+  final String id;
+  final UserPrivate userPrivate;
+
+  FirestoreUserPrivate(this.id, this.userPrivate);
+}
