@@ -71,9 +71,18 @@ extension StoreX on Store {
   ///                    .get();
   /// final store = snapshot.data()!.asData()!;
   /// ```
+  @Deprecated('You can get createdAt and updatedAt from Store directly')
   StoreData? asData() => mapOrNull(
         data: (data) => data,
       )!;
+
+  DateTime? get createdAt => mapOrNull(
+        data: (data) => data.createdAt,
+      );
+
+  DateTime? get updatedAt => mapOrNull(
+        data: (data) => data.updatedAt,
+      );
 
   Map<String, dynamic> toFirestore() => toJson()
     ..putIfAbsent('created_at', FieldValue.serverTimestamp)
