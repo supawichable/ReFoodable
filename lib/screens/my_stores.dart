@@ -154,14 +154,12 @@ class _AddStoreDialogDebugState extends State<AddStoreDialogDebug> {
         TextButton(
           onPressed: () {
             // add store to firestore
-            final store = Store(
+            final store = Store.create(
               name: _nameController.text,
               location: GeoPoint(
                 double.parse(_latitudeController.text),
                 double.parse(_longitudeController.text),
               ),
-              createdAt: DateTime.now(),
-              updatedAt: DateTime.now(),
               ownerId: FirebaseAuth.instance.currentUser!.uid,
             );
             FirebaseFirestore.instance.stores.add(store);
