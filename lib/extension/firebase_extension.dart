@@ -12,8 +12,24 @@ part 'user.dart';
 enum ApiPath {
   stores,
   items,
-  users_private,
-  users_public,
+  usersPrivate,
+  usersPublic;
+}
+
+/// For field rename ApiPath to snake_case on the name property
+extension ApiPathExtension on ApiPath {
+  String get name {
+    switch (this) {
+      case ApiPath.stores:
+        return 'stores';
+      case ApiPath.items:
+        return 'items';
+      case ApiPath.usersPrivate:
+        return 'users_private';
+      case ApiPath.usersPublic:
+        return 'users_public';
+    }
+  }
 }
 
 extension FirestoreX on FirebaseFirestore {
@@ -48,7 +64,7 @@ extension FirestoreX on FirebaseFirestore {
   /// // ✅ Yes you can do this
   /// ```
   CollectionReference<UserPrivate> get usersPrivate =>
-      collection(ApiPath.users_private.name).withConverter(
+      collection(ApiPath.usersPrivate.name).withConverter(
           fromFirestore: (snapshot, _) => UserPrivate.fromFirestore(snapshot),
           toFirestore: (userPrivate, _) => userPrivate.toFirestore());
 
@@ -72,7 +88,7 @@ extension FirestoreX on FirebaseFirestore {
   /// // ✅ Yes you can do this
   /// ```
   CollectionReference<UserPublic> get usersPublic =>
-      collection(ApiPath.users_public.name).withConverter(
+      collection(ApiPath.usersPublic.name).withConverter(
           fromFirestore: (snapshot, _) => UserPublic.fromFirestore(snapshot),
           toFirestore: (userPublic, _) => userPublic.toFirestore());
 }
