@@ -3,7 +3,6 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/extension/listener.dart';
-import 'package:gdsctokyo/util/logger.dart';
 
 void main() {
   final auth = MockFirebaseAuth();
@@ -35,6 +34,7 @@ void main() {
 
     test('User update', () async {
       await auth.currentUser!.updateDisplayName('Stonk2');
+      expect(auth.currentUser!.displayName, 'Stonk2');
 
       // check if user_public is updated
       final userPublicRef = firestore.usersPublic.doc(auth.currentUser!.uid);
