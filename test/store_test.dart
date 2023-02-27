@@ -28,7 +28,7 @@ void main() {
     // Suppose that this user wrote a form
     // (ownerId is implied and not required by the form)
     test('User add a store', () async {
-      final store = Store.create(
+      final store = Store(
           name: 'Store Name',
           location: const GeoPoint(0, 0),
           address: 'test',
@@ -54,7 +54,7 @@ void main() {
     test('User gets their owned stores', () async {
       // Suppose that this user wrote another
       // (ownerId is implied and not required by the form)
-      final store2 = Store.create(
+      final store2 = Store(
           name: 'Store Name 2',
           location: const GeoPoint(0, 0),
           address: 'test',
@@ -114,7 +114,7 @@ void main() {
     });
 
     test('User add an item', () async {
-      final item = Item.create(
+      final item = Item(
         name: 'Item Name',
         price: const Price(
             amount: 100, currency: Currency.jpy, compareAtPrice: 120),

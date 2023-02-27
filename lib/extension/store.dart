@@ -65,14 +65,6 @@ extension StoreReferenceX on StoreReference {
   }
 }
 
-extension StoresReferenceX on StoresReference {
-  @Deprecated('Use orignal add() instead')
-  Future<StoreReference> addStore(StoreCreate store) async {
-    final storeRef = await add(store);
-    return storeRef;
-  }
-}
-
 typedef ItemReference = DocumentReference<Item>;
 typedef ItemsReference = CollectionReference<Item>;
 
@@ -97,15 +89,5 @@ extension ItemReferenceX on ItemReference {
       'photoURL': photoURL,
       'updatedAt': FieldValue.serverTimestamp(),
     }..removeWhere((key, value) => value == null));
-  }
-}
-
-extension ItemsReferenceX on ItemsReference {
-  @Deprecated('Use orignal add() instead')
-  Future<ItemReference> addItem(
-    ItemCreate item,
-  ) async {
-    final itemRef = await add(item);
-    return itemRef;
   }
 }
