@@ -1,78 +1,28 @@
 part of '_item.dart';
 
-@Freezed(unionKey: 'type')
+@freezed
 class Item with _$Item {
   /// Use this to parse data from Firestore \
   /// **This is for internal use only.** \
   /// The only part you need is `asData()`
-  const factory Item.data(
+  const factory Item(
       {required String name,
       @PriceConverter() required Price price,
       required String addedBy,
-      @TimestampConverter() required DateTime createdAt,
-      @TimestampConverter() required DateTime updatedAt,
-      String? photoURL}) = ItemData;
-
-  /// Use this to generate payload to Firestore when creating a new item
-  ///
-  /// Example:
-  /// ```dart
-  /// final item = Item.create(
-  ///     name: 'My Item',
-  ///     price: Price(
-  ///       amount: 1000,
-  ///       currency: Currency.jpy,
-  ///     ),
-  ///     addedBy: 'User ID',
-  ///     photoURL: 'Photo URL',
-  /// );
-  ///
-  /// final itemRef = FirebaseFirestore.instance.stores
-  ///                   .doc(storeId).items.add(item);
-  /// ```
-  const factory Item.create(
-      {required String name,
-      @PriceConverter() required Price price,
-      required String addedBy,
-      String? photoURL}) = ItemCreate;
+      @TimestampConverter() DateTime? createdAt,
+      @TimestampConverter() DateTime? updatedAt,
+      String? photoURL}) = _Item;
 
   factory Item.fromJson(Map<String, dynamic> json) => _$ItemFromJson(json);
 
-  static ItemData fromFirestore(
-          DocumentSnapshot<Map<String, dynamic>> snapshot) =>
-      ItemData.fromJson(snapshot.data()!);
+  static Item fromFirestore(DocumentSnapshot<Map<String, dynamic>> snapshot) =>
+      Item.fromJson(snapshot.data()!);
 }
 
 extension ItemX on Item {
-  /// Convert [Item] to [ItemData] \
-  /// This is to show `createdAt` and `updatedAt` \
-  /// by making sure that you intend to read as data. \
-  /// and not to create a new item.
-  ///
-  /// Example:
-  /// ```dart
-  /// final snapshot = await FirebaseFirestore.instance
-  ///                    .stores.doc(storeId)
-  ///                    .items.doc(itemId)
-  ///                    .get();
-  /// final item = snapshot.data()!.asData()!;
-  /// ```
-  @Deprecated('You can get createdAt and updatedAt from Item directly')
-  ItemData? asData() => mapOrNull(
-        data: (data) => data,
-      )!;
-
-  DateTime? get createdAt => mapOrNull(
-        data: (data) => data.createdAt,
-      );
-
-  DateTime? get updatedAt => mapOrNull(
-        data: (data) => data.updatedAt,
-      );
-
   Map<String, dynamic> toFirestore() => toJson()
-    ..remove('type')
-    ..putIfAbsent('created_at', FieldValue.serverTimestamp)
     ..update('updated_at', (_) => FieldValue.serverTimestamp(),
+        ifAbsent: FieldValue.serverTimestamp)
+    ..update('created_at', (_) => FieldValue.serverTimestamp(),
         ifAbsent: FieldValue.serverTimestamp);
 }
