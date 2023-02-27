@@ -52,20 +52,16 @@ extension StoreReferenceX on StoreReference {
     String? phone,
     String? photoURL,
   }) async {
-    await firestore.runTransaction((transaction) async {
-      final snapshot = await transaction.get(this);
-      final store = snapshot.data()!;
-      transaction.update(this, {
-        'name': name ?? store.name,
-        'location': location ?? store.location,
-        'address': address ?? store.address,
-        'category': category ?? store.category,
-        'email': email ?? store.email,
-        'phone': phone ?? store.phone,
-        'photoURL': photoURL ?? store.photoURL,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-    });
+    await update({
+      'name': name,
+      'location': location,
+      'address': address,
+      'category': category,
+      'email': email,
+      'phone': phone,
+      'photoURL': photoURL,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }..removeWhere((key, value) => value == null));
   }
 }
 
@@ -95,16 +91,12 @@ extension ItemReferenceX on ItemReference {
     Price? price,
     String? photoURL,
   }) async {
-    await firestore.runTransaction((transaction) async {
-      final snapshot = await transaction.get(this);
-      final item = snapshot.data()!;
-      transaction.update(this, {
-        'name': name ?? item.name,
-        'price': price ?? item.price,
-        'photoURL': photoURL ?? item.photoURL,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-    });
+    await update({
+      'name': name,
+      'price': price,
+      'photoURL': photoURL,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }..removeWhere((key, value) => value == null));
   }
 }
 
