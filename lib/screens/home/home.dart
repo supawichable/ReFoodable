@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: BigText(text: titles[currentPage]),
+        title: Text(titles[currentPage]),
         elevation: 2,
       ),
       body: pages[currentPage],
