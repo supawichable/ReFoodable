@@ -1,6 +1,8 @@
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/theme/color_schemes.g.dart';
+import 'package:gdsctokyo/models/item/_item.dart';
+import 'package:gdsctokyo/theme/color_schemes.dart';
 import 'package:gdsctokyo/widgets/big_text.dart';
 import 'package:gdsctokyo/widgets/description_text.dart';
 import 'package:gdsctokyo/widgets/text_field_with_description.dart';
@@ -18,33 +20,9 @@ class PopUpComponent extends StatefulWidget {
 class _PopUpComponentState extends State<PopUpComponent> {
   bool _isPopupOpen = false;
 
-  String _menuName = '';
-  String _normalPrice = '';
-  String _discountedPrice = '';
-
-  Future<void> writeToJSONFile(String data) async {
-    final file = File('food_detail.json');
-    final jsonString = json.decode(data);
-    file.writeAsStringSync(jsonString);
-  }
-
-  void _setMenuName(String menuName) {
-    setState(() {
-      _menuName = menuName;
-    });
-  }
-
-  void _setnormalPrice(String normalPrice) {
-    setState(() {
-      _normalPrice = normalPrice;
-    });
-  }
-
-  void _setdiscountedPrice(String discountedPrice) {
-    setState(() {
-      _discountedPrice = discountedPrice;
-    });
-  }
+  final _controllerMenuName = TextEditingController();
+  final _controllerNormalPrice = TextEditingController();
+  final _controllerDiscountedPrice = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -90,10 +68,14 @@ class _PopUpComponentState extends State<PopUpComponent> {
                       left: 10,
                       right: 10,
                     ),
-                    child: TextFieldWithDescription(
-                      descriptionText: 'Menu name',
-                      placeHolderText: 'Yakisoba',
-                      function: _setMenuName,
+                    child: Container(
+                      child: TextField(
+                        controller: _controllerMenuName,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'menu name',
+                        ),
+                      ),
                     ),
                   ),
                   Container(
@@ -108,10 +90,14 @@ class _PopUpComponentState extends State<PopUpComponent> {
                         Expanded(
                           flex: 1,
                           child: Container(
-                            child: TextFieldWithDescription(
-                              descriptionText: 'Normal price',
-                              placeHolderText: 'normal price',
-                              function: _setnormalPrice,
+                            child: Container(
+                              child: TextField(
+                                controller: _controllerNormalPrice,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: 'normal price',
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -121,10 +107,12 @@ class _PopUpComponentState extends State<PopUpComponent> {
                         Expanded(
                           flex: 1,
                           child: Container(
-                            child: TextFieldWithDescription(
-                              descriptionText: 'Discounted price',
-                              placeHolderText: 'discounted price',
-                              function: _setdiscountedPrice,
+                            child: TextField(
+                              controller: _controllerDiscountedPrice,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'discounted price',
+                              ),
                             ),
                           ),
                         ),
@@ -211,9 +199,16 @@ class _PopUpComponentState extends State<PopUpComponent> {
                       width: 16,
                     ),
                     InkWell(
-                      onTap: () async {
-                        final data = "{'menuName': $_menuName,'normalPrice': $_normalPrice,'discountedPrice': $_discountedPrice,}";
-                        await writeToJSONFile(data);
+                      onTap: () {
+                        final menuName = _controllerMenuName;
+                        final normalPrice = _controllerNormalPrice;
+                        final discountedPrice = _controllerDiscountedPrice;
+
+                        createItem(
+                          discountedPrice: discountedPrice,
+                          menuName: menuName,
+                          normalPrice: normalPrice,
+                        );
 
                         setState(() {
                           _isPopupOpen = !_isPopupOpen;
@@ -255,4 +250,23 @@ class _PopUpComponentState extends State<PopUpComponent> {
       ],
     );
   }
+}
+
+Future createItem(
+    {required menuName, required normalPrice, required discountedPrice}) async {
+  final item = Item(
+    name: menuName,
+    price: Price(
+      amount: normalPrice,
+      compareAtPrice: discountedPrice,
+      currency: Currency.jpy,
+    ),
+    addedBy: 'user',
+  );
+
+  final itemJson = item.toJson();
+
+  final newItem = FirebaseFirestore.instance.collection('item').doc();
+
+  await newItem.set(itemJson);
 }
