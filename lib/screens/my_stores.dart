@@ -22,72 +22,73 @@ class MyStoresPage extends StatelessWidget {
         },
         child: const Icon(Icons.add),
       ),
-      body: Column(
-        children: [
-          StreamBuilder<QuerySnapshot<Store>>(
-            stream: FirebaseFirestore.instance.stores
-                .ownedByUser(FirebaseAuth.instance.currentUser!.uid)
-                .snapshots(),
-            builder: (BuildContext context, primarySnapshot) {
-              if (primarySnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              if (primarySnapshot.hasData) {
-                final snapshot = primarySnapshot.data;
-                if (snapshot!.docs.isEmpty) {
-                  return const Center(
-                    child: Text('Please add more stores!'),
-                  );
-                }
-                return ListView.separated(
-                  itemCount: snapshot.docs.length + 1,
-                  separatorBuilder: (BuildContext context, int index) {
-                    return const Divider(
-                      height: 2,
-                    );
-                  },
-                  itemBuilder: (BuildContext context, int index) {
-                    if (index == snapshot.docs.length) {
-                      return const SizedBox(
-                        height: 80,
-                      );
-                    }
-                    late final Store store;
-                    try {
-                      store = snapshot.docs[index].data();
-                    } catch (e, stackTrace) {
-                      // TODO What's going on?
-                      logger.e('Error while parsing store data', e, stackTrace);
-                      return const ListTile(
-                        leading: Icon(Icons.error),
-                        title: Text('Loading...'),
-                      );
-                    }
-                    return ListTile(
-                      leading: const Icon(Icons.store),
-                      key: ObjectKey(store),
-                      title: Text(store.name),
-                      subtitle: Text(store.address ?? ''),
-                      onTap: () {
-                        context.router.push(StoreRoute(store: store));
-                      },
-                    );
-                  },
-                );
-              }
-              if (primarySnapshot.hasError) {
-                return const Center(
-                  child: Text('Something went wrong!'),
-                );
-              }
+      body: SizedBox(
+        width: double.infinity,
+        // screen height - app bar height
+        height: MediaQuery.of(context).size.height,
+        child: StreamBuilder<QuerySnapshot<Store>>(
+          stream: FirebaseFirestore.instance.stores
+              .ownedByUser(FirebaseAuth.instance.currentUser!.uid)
+              .snapshots(),
+          builder: (BuildContext context, primarySnapshot) {
+            if (primarySnapshot.connectionState == ConnectionState.waiting) {
               return const Center(
-                child: Text('Something went wronger!'),
+                child: CircularProgressIndicator(),
               );
-            },
-          ),
-        ],
+            }
+            if (primarySnapshot.hasData) {
+              final snapshot = primarySnapshot.data;
+              if (snapshot!.docs.isEmpty) {
+                return const Center(
+                  child: Text('Please add more stores!'),
+                );
+              }
+              return ListView.separated(
+                itemCount: snapshot.docs.length + 1,
+                separatorBuilder: (BuildContext context, int index) {
+                  return const Divider(
+                    height: 2,
+                  );
+                },
+                itemBuilder: (BuildContext context, int index) {
+                  if (index == snapshot.docs.length) {
+                    return const SizedBox(
+                      height: 80,
+                    );
+                  }
+                  late final Store store;
+                  try {
+                    store = snapshot.docs[index].data();
+                  } catch (e, stackTrace) {
+                    // TODO What's going on?
+                    logger.e('Error while parsing store data', e, stackTrace);
+                    return const ListTile(
+                      leading: Icon(Icons.error),
+                      title: Text('Loading...'),
+                    );
+                  }
+                  return ListTile(
+                    leading: const Icon(Icons.store),
+                    key: ObjectKey(store),
+                    title: Text(store.name),
+                    subtitle: Text(store.address ?? ''),
+                    onTap: () {
+                      context.router.push(StoreRoute(store: store));
+                    },
+                  );
+                },
+              );
+            }
+            if (primarySnapshot.hasError) {
+              return const Center(
+                child: Text('Something went wrong!'),
+              );
+            }
+            return const Center(
+              child: Text('Something went wronger!'),
+            );
+          },
+        ),
       ),
     );
   }
