@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/widgets/big_text_semibold.dart';
-import '../../widgets/description_text.dart';
-import '../../widgets/icon_text.dart';
+import 'package:gdsctokyo/widgets/description_text.dart';
+import 'package:gdsctokyo/widgets/icon_text.dart';
 export 'food_list.dart';
 
 List<Widget> menuList = List<Widget>.generate(
@@ -20,7 +20,7 @@ List<Widget> menuList = List<Widget>.generate(
           color: Colors.grey.withOpacity(0.2),
           spreadRadius: 1,
           blurRadius: 5,
-          offset: Offset(0, 3),
+          offset: const Offset(0, 3),
         ),
       ],
     ),
@@ -38,13 +38,13 @@ List<Widget> menuList = List<Widget>.generate(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              BigSemiboldText(text: 'Bento'),
+              const BigSemiboldText(text: 'Bento'),
               IconText(
                 iconType: Icons.discount,
                 iconColor: Colors.red[300],
                 text: '500',
               ),
-              DescriptionText(
+              const DescriptionText(
                 text: 'Added by atomicative at 20:00 pm',
                 color: Colors.grey,
                 size: 12,

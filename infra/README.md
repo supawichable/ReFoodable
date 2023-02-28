@@ -15,7 +15,7 @@ This folder contains the infrastructure for the GDSC website, currently includin
 
 ```bash
 firebase login
-firebase emulators:start --import=./baseline-data (--export-on-exit)
+firebase emulators:start --import=./baseline-data --export-on-exit
 ```
 
 If you want to export the data from the emulators, you can use the `--export-on-exit` flag.

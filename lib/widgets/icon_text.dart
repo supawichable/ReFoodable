@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/widgets/description_text.dart';
 
 class IconText extends StatelessWidget {
-  Color? color;
-  Color? iconColor;
+  final Color? color;
+  final Color? iconColor;
   final String text;
-  IconData? iconType;
-  IconText(
+  final IconData? iconType;
+  const IconText(
       {super.key,
       this.color = Colors.black,
       this.iconColor = Colors.black,
@@ -28,7 +28,10 @@ class IconText extends StatelessWidget {
             color: iconColor,
           ),
         ),
-        DescriptionText(text: text, color: color, )
+        DescriptionText(
+          text: text,
+          color: color,
+        )
       ],
     );
   }

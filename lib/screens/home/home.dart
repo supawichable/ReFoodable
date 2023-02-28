@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gdsctokyo/screens/home/bookmark.dart';
 import 'package:gdsctokyo/screens/home/explore.dart';
 import 'package:gdsctokyo/screens/home/my_page/my_page.dart';
-import 'package:gdsctokyo/screens/home/restaurant.dart';
-import 'package:gdsctokyo/theme/color_schemes.g.dart';
+import 'package:gdsctokyo/theme/color_schemes.dart';
 import 'package:gdsctokyo/widgets/big_text.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,14 +15,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int currentPage = 0;
   List<Widget> pages = [
-    const RestaurantPage(),
+    const Bookmark(),
     const Explore(),
     const MyPage(),
   ];
 
-  List<String> titles = ['Restaurant', 'Explore', 'My page'];
+  List<String> titles = ['Store', 'Explore', 'My page'];
 
-  // titles = ['Restaurant', 'Explore', 'My Page']
+  // titles = ['Store', 'Explore', 'My Page']
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +44,9 @@ class _HomePageState extends State<HomePage> {
           items: const [
             BottomNavigationBarItem(
                 icon: Icon(
-                  Icons.restaurant,
+                  Icons.store,
                 ),
-                label: 'Restaurant'),
+                label: 'Store'),
             BottomNavigationBarItem(
                 icon: Icon(
                   Icons.explore,

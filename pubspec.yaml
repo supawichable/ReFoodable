@@ -42,6 +42,7 @@ dependencies:
   firebase_core: ^2.5.0
   firebase_auth: ^4.2.6
   cloud_firestore: ^4.4.2
+  firebase_storage: ^11.0.14
 
   auto_route: ^5.0.4
   flutter_dotenv: ^5.0.2
@@ -59,6 +60,9 @@ dependencies:
   google_maps_flutter: ^2.2.3
   google_maps_flutter_web: ^0.4.0+5
   flutter_config: ^2.0.0
+  image_cropper: ^3.0.1
+  image_picker: ^0.8.6+3
+  logger: ^1.2.2
 
 dev_dependencies:
   integration_test:
@@ -72,6 +76,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  import_lint: ^0.9.4
   build_runner: ^2.3.3
   freezed: ^2.3.2
   json_serializable: ^6.6.1

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:gdsctokyo/models/result/_result.dart';
+import 'package:gdsctokyo/models/item/_item.dart';
 
 class GeoPointConverter extends JsonConverter<GeoPoint, GeoPoint> {
   const GeoPointConverter();
@@ -37,16 +37,37 @@ class DocumentReferenceConverter
   DocumentReference toJson(DocumentReference object) => object;
 }
 
-class ResultErrorConverter extends JsonConverter<ResultError, Map> {
-  const ResultErrorConverter();
+class CollectionReferenceConverter
+    extends JsonConverter<CollectionReference, CollectionReference> {
+  const CollectionReferenceConverter();
 
   @override
-  ResultError fromJson(Map json) {
-    return ResultError(message: json['message'], code: json['code']);
+  CollectionReference fromJson(json) => json;
+
+  @override
+  CollectionReference toJson(CollectionReference object) => object;
+}
+
+class PriceConverter extends JsonConverter<Price, Map<String, dynamic>> {
+  const PriceConverter();
+
+  @override
+  Price fromJson(Map<String, dynamic> json) {
+    return Price(
+      amount: (json['amount'] as num).toDouble(),
+      currency: Currency.values.firstWhere(
+        (e) => e.toString() == 'Currency.${json['currency']}',
+      ),
+      compareAtPrice: (json['compare_at_price'] as num).toDouble(),
+    );
   }
 
   @override
-  Map toJson(ResultError object) {
-    return {'message': object.message, 'code': object.code};
+  Map<String, dynamic> toJson(Price object) {
+    return {
+      'amount': object.amount,
+      'currency': object.currency.name,
+      'compare_at_price': object.compareAtPrice,
+    };
   }
 }

@@ -1,0 +1,39 @@
+part of '_store.dart';
+
+@freezed
+class Store with _$Store {
+  const factory Store({
+    required String name,
+    @GeoPointConverter() required GeoPoint location,
+    @TimestampConverter() DateTime? createdAt,
+    @TimestampConverter() DateTime? updatedAt,
+
+    // Location is required, so address might not be needed
+    String? address,
+    String? email,
+    String? phone,
+    String? ownerId,
+    String? photoURL,
+    List<FoodCategory>? category,
+  }) = _Store;
+
+  factory Store.fromJson(Map<String, dynamic> json) => _$StoreFromJson(json);
+
+  static Store fromFirestore(DocumentSnapshot<Map<String, dynamic>> snapshot) =>
+      Store.fromJson(snapshot.data()!);
+}
+
+extension StoreX on Store {
+  Map<String, dynamic> toFirestore() => toJson()
+    ..update('updated_at', (_) => FieldValue.serverTimestamp(),
+        ifAbsent: FieldValue.serverTimestamp)
+    ..update('created_at', (_) => FieldValue.serverTimestamp(),
+        ifAbsent: FieldValue.serverTimestamp);
+}
+
+/// enums for food category
+/// add more as needed
+enum FoodCategory {
+  @JsonValue('japanese')
+  japanese,
+}

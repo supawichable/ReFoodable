@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gdsctokyo/screens/home/bookmark.dart';
+import 'package:gdsctokyo/screens/home/my_page/my_page.dart';
 import 'package:gdsctokyo/screens/home/explore.dart';
-import 'package:gdsctokyo/screens/home/my_page.dart';
-import 'package:gdsctokyo/screens/home/restaurant.dart';
-import 'package:gdsctokyo/theme/color_schemes.g.dart';
+import 'package:gdsctokyo/theme/color_schemes.dart';
 import 'package:gdsctokyo/widgets/big_text.dart';
 import 'package:gdsctokyo/widgets/my_items.dart';
 import 'package:gdsctokyo/widgets/store_info.dart';
@@ -18,18 +18,16 @@ class RestaurantMyPage extends StatefulWidget {
 class _RestaurantMyPageState extends State<RestaurantMyPage> {
   int currentPage = 0;
   List<Widget> pages = [
-    const RestaurantPage(),
+    const Bookmark(),
     const Explore(),
     const MyPage(),
   ];
-
-  // titles = ['Restaurant', 'Explore', 'My Page']
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: BigText(text: 'My Basket Himonya'),
+        title: const BigText(text: 'My Basket Himonya'),
         elevation: 2,
       ),
       body: SingleChildScrollView(
@@ -81,18 +79,18 @@ class _RestaurantMyPageState extends State<RestaurantMyPage> {
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: lightColorScheme.primaryContainer,
         selectedItemColor: Colors.red[300],
-        items: [
-          const BottomNavigationBarItem(
+        items: const [
+          BottomNavigationBarItem(
               icon: Icon(
-                Icons.restaurant,
+                Icons.store,
               ),
-              label: 'Restaurant'),
-          const BottomNavigationBarItem(
+              label: 'Store'),
+          BottomNavigationBarItem(
               icon: Icon(
                 Icons.explore,
               ),
               label: 'Explore'),
-          const BottomNavigationBarItem(
+          BottomNavigationBarItem(
               icon: Icon(
                 Icons.person_2_rounded,
               ),
