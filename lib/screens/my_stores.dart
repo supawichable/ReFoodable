@@ -18,83 +18,77 @@ class MyStoresPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // show dialog of adding store
-          // form includes
-          // name
-          // location (latitude and longitude)
-          // and it will automatically fill out
-          // updatedAt and createdAt
-
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return const AddStoreDialogDebug();
-              });
+          context.router.push(const AddAStoreRoute());
         },
         child: const Icon(Icons.add),
       ),
-      body: StreamBuilder<QuerySnapshot<Store>>(
-        stream: FirebaseFirestore.instance.stores
-            .ownedByUser(FirebaseAuth.instance.currentUser!.uid)
-            .snapshots(),
-        builder: (BuildContext context, primarySnapshot) {
-          if (primarySnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          if (primarySnapshot.hasData) {
-            final snapshot = primarySnapshot.data;
-            if (snapshot!.docs.isEmpty) {
+      body: SizedBox(
+        width: double.infinity,
+        // screen height - app bar height
+        height: MediaQuery.of(context).size.height,
+        child: StreamBuilder<QuerySnapshot<Store>>(
+          stream: FirebaseFirestore.instance.stores
+              .ownedByUser(FirebaseAuth.instance.currentUser!.uid)
+              .snapshots(),
+          builder: (BuildContext context, primarySnapshot) {
+            if (primarySnapshot.connectionState == ConnectionState.waiting) {
               return const Center(
-                child: Text('Please add more stores!'),
+                child: CircularProgressIndicator(),
               );
             }
-            return ListView.separated(
-              itemCount: snapshot.docs.length + 1,
-              separatorBuilder: (BuildContext context, int index) {
-                return const Divider(
-                  height: 2,
+            if (primarySnapshot.hasData) {
+              final snapshot = primarySnapshot.data;
+              if (snapshot!.docs.isEmpty) {
+                return const Center(
+                  child: Text('Please add more stores!'),
                 );
-              },
-              itemBuilder: (BuildContext context, int index) {
-                if (index == snapshot.docs.length) {
-                  return const SizedBox(
-                    height: 80,
+              }
+              return ListView.separated(
+                itemCount: snapshot.docs.length + 1,
+                separatorBuilder: (BuildContext context, int index) {
+                  return const Divider(
+                    height: 2,
                   );
-                }
-                late final Store store;
-                try {
-                  store = snapshot.docs[index].data();
-                } catch (e, stackTrace) {
-                  // TODO What's going on?
-                  logger.e('Error while parsing store data', e, stackTrace);
-                  return const ListTile(
-                    leading: Icon(Icons.error),
-                    title: Text('Loading...'),
+                },
+                itemBuilder: (BuildContext context, int index) {
+                  if (index == snapshot.docs.length) {
+                    return const SizedBox(
+                      height: 80,
+                    );
+                  }
+                  late final Store store;
+                  try {
+                    store = snapshot.docs[index].data();
+                  } catch (e, stackTrace) {
+                    // TODO What's going on?
+                    logger.e('Error while parsing store data', e, stackTrace);
+                    return const ListTile(
+                      leading: Icon(Icons.error),
+                      title: Text('Loading...'),
+                    );
+                  }
+                  return ListTile(
+                    leading: const Icon(Icons.store),
+                    key: ObjectKey(store),
+                    title: Text(store.name),
+                    subtitle: Text(store.address ?? ''),
+                    onTap: () {
+                      context.router.push(StoreRoute(store: store));
+                    },
                   );
-                }
-                return ListTile(
-                  leading: const Icon(Icons.store),
-                  key: ObjectKey(store),
-                  title: Text(store.name),
-                  subtitle: Text(store.address ?? ''),
-                  onTap: () {
-                    context.router.push(StoreRoute(store: store));
-                  },
-                );
-              },
-            );
-          }
-          if (primarySnapshot.hasError) {
+                },
+              );
+            }
+            if (primarySnapshot.hasError) {
+              return const Center(
+                child: Text('Something went wrong!'),
+              );
+            }
             return const Center(
-              child: Text('Something went wrong!'),
+              child: Text('Something went wronger!'),
             );
-          }
-          return const Center(
-            child: Text('Something went wronger!'),
-          );
-        },
+          },
+        ),
       ),
     );
   }
