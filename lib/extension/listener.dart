@@ -46,7 +46,7 @@ class FirebaseListener {
       if (user == null) {
         return;
       }
-      _firestore.usersPublic.doc(user.uid).set(UserPublic(
+      await _firestore.usersPublic.doc(user.uid).set(UserPublic(
             displayName: user.displayName,
             photoURL: user.photoURL,
           ));
