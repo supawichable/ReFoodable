@@ -50,7 +50,6 @@ class FirebaseListener {
             displayName: user.displayName,
             photoURL: user.photoURL,
           ));
-      logger.d('user_public updated');
     });
   }
 }
