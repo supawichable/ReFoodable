@@ -68,11 +68,11 @@ class _RestaurantPageState extends State<RestaurantPage> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getCurrentLocation();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   getCurrentLocation();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -83,29 +83,29 @@ class _RestaurantPageState extends State<RestaurantPage> {
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
           ),
-          body: currentLocation == null
-              ? const Center(child: Text("Loading"))
-              : Stack(children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: double.infinity,
-                    child: GoogleMap(
-                      onMapCreated: _onMapCreated,
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(currentLocation!.latitude!,
-                            currentLocation!.longitude!),
-                        zoom: 13.5,
-                      ),
-                    ),
-                  ),
-                  const TextField(
-                    decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: 'Search Location',
-                        suffixIcon: Icon(Icons.search)),
-                  )
-                ]),
+          // body: currentLocation == null
+          //     ? const Center(child: Text("Loading"))
+          //     : Stack(children: [
+          //         Container(
+          //           height: MediaQuery.of(context).size.height,
+          //           width: double.infinity,
+          //           child: GoogleMap(
+          //             onMapCreated: _onMapCreated,
+          //             initialCameraPosition: CameraPosition(
+          //               target: LatLng(currentLocation!.latitude!,
+          //                   currentLocation!.longitude!),
+          //               zoom: 13.5,
+          //             ),
+          //           ),
+          //         ),
+          //         const TextField(
+          //           decoration: InputDecoration(
+          //               filled: true,
+          //               fillColor: Colors.white,
+          //               hintText: 'Search Location',
+          //               suffixIcon: Icon(Icons.search)),
+          //         )
+          //       ]),
           // body: Column(
           //   children: [
           //     Container(

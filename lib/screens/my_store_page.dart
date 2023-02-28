@@ -7,7 +7,7 @@ import 'package:gdsctokyo/widgets/list_header.dart';
 
 class MyStorePage extends StatelessWidget {
   final Restaurant restaurant;
-  
+
   const MyStorePage({super.key, required this.restaurant});
 
   @override
