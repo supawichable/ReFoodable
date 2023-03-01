@@ -63,8 +63,7 @@ class _SignInPageState extends State<SignInPage> {
       }
       if (user != null) {
         _redirecting = true;
-        context.router
-            .pushAndPopUntil(const HomeRoute(), predicate: (route) => false);
+        context.router.pop();
       }
     });
   }
