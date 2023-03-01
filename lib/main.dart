@@ -50,36 +50,40 @@ class Main extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final baseTheme = ThemeData(
-      useMaterial3: true,
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(8)),
-          ),
-        ),
-      ),
-      // use material 3 font size
-    );
-
     return MaterialApp.router(
       // See `theme/color_schemes.g.dart` for the color schemes.
       debugShowCheckedModeBanner: false,
-      theme: baseTheme.copyWith(
+      theme: ThemeData(
+        useMaterial3: true,
         colorScheme: lightColorScheme,
-        textTheme: GoogleFonts.poppinsTextTheme(
-          Theme.of(context).textTheme,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+            ),
+          ),
         ),
+        textTheme: ThemeData.light().textTheme.apply(
+              fontFamily: GoogleFonts.poppins().fontFamily,
+            ),
+        iconTheme: IconThemeData(color: lightColorScheme.primary),
       ),
 
-      darkTheme: baseTheme.copyWith(
+      darkTheme: ThemeData.dark().copyWith(
+        useMaterial3: true,
         colorScheme: darkColorScheme,
-        scaffoldBackgroundColor: darkColorScheme.background,
-        textTheme: GoogleFonts.poppinsTextTheme(
-          Theme.of(context).textTheme,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+            ),
+          ),
         ),
+        textTheme: ThemeData.dark().textTheme.apply(
+              fontFamily: GoogleFonts.poppins().fontFamily,
+            ),
+        iconTheme: IconThemeData(color: darkColorScheme.primary),
       ),
-      themeMode: ThemeMode.light,
       routerDelegate: _appRouter.delegate(),
       routeInformationParser: _appRouter.defaultRouteParser(),
     );
