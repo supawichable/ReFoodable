@@ -6,14 +6,14 @@ import 'package:gdsctokyo/widgets/sorting_tab.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-class Explore extends StatefulWidget {
-  const Explore({super.key});
+class ExplorePage extends StatefulWidget {
+  const ExplorePage({super.key});
 
   @override
-  State<Explore> createState() => _ExploreState();
+  State<ExplorePage> createState() => _ExplorePageState();
 }
 
-class _ExploreState extends State<Explore> {
+class _ExplorePageState extends State<ExplorePage> {
   TextEditingController textController = TextEditingController();
   final PanelController panelController = PanelController();
 

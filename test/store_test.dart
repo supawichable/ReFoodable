@@ -127,9 +127,9 @@ void main() {
       final itemData = itemsSnapshot.docs.map((e) => e.data()).toList().first;
 
       expect(itemData.name, item.name);
-      expect(itemData.price.amount, item.price.amount);
-      expect(itemData.price.currency, item.price.currency);
-      expect(itemData.price.compareAtPrice, item.price.compareAtPrice);
+      expect(itemData.price!.amount, item.price!.amount);
+      expect(itemData.price!.currency, item.price!.currency);
+      expect(itemData.price!.compareAtPrice, item.price!.compareAtPrice);
       expect(itemData.addedBy, item.addedBy);
       expect(itemData.createdAt, isA<DateTime>());
       expect(itemData.updatedAt, isA<DateTime>());

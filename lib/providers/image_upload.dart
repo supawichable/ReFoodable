@@ -117,8 +117,10 @@ class ImageUploadNotifier extends StateNotifier<ImageUpload> {
         // ignore: invalid_use_of_protected_member
         imageDialogKey.currentState?.setState(() {});
       },
-      error: (_) async {
-        await uploader.ref.context.router.pop();
+      error: (error) {
+        if (error != ImagePickerError.userCancelled) {
+          Navigator.of(uploader.ref.context).pop();
+        }
       },
     );
     return state;

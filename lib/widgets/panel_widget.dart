@@ -60,14 +60,14 @@ class PanelWidget extends StatelessWidget {
                             top: 15,
                           ),
                           child: IconText(
-                              iconType: Icons.location_pin,
+                              icon: Icons.location_pin,
                               iconColor: Colors.red[300],
                               text: '500m from here'),
                         ),
                         Container(
                             margin: const EdgeInsets.only(top: 2),
                             child: IconText(
-                                iconType: Icons.bento,
+                                icon: Icons.bento,
                                 iconColor: Colors.red[300],
                                 text: 'bento (food type)')),
                         Container(
@@ -75,7 +75,7 @@ class PanelWidget extends StatelessWidget {
                               top: 15,
                             ),
                             child: IconText(
-                                iconType: Icons.discount,
+                                icon: Icons.discount,
                                 iconColor: Colors.red[300],
                                 text: '40% - 80% Discounted')),
                       ],
@@ -103,7 +103,7 @@ class PanelWidget extends StatelessWidget {
                           right: 20,
                         ),
                         child: IconText(
-                            iconType: Icons.schedule,
+                            icon: Icons.schedule,
                             iconColor: Colors.red[300],
                             text: 'close 23:00'),
                       ),

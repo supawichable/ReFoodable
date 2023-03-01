@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Bookmark extends StatefulWidget {
-  const Bookmark({super.key});
+class BookmarkPage extends StatefulWidget {
+  const BookmarkPage({super.key});
 
   @override
-  State<Bookmark> createState() => _BookmarkState();
+  State<BookmarkPage> createState() => _BookmarkPageState();
 }
 
-class _BookmarkState extends State<Bookmark> {
+class _BookmarkPageState extends State<BookmarkPage> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(

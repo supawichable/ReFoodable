@@ -20,8 +20,8 @@ service cloud.firestore {
       // item.added_by is the id of the person who added the item
       match /items/{item} {
         allow read;
-        allow create: if request.auth != null && request.resource.data.added_by == request.auth.uid && exists(/databases/$(database)/documents/stores/$(item.parent.id));
-        allow update, delete: if request.auth != null && (request.auth.uid == request.resource.data.added_by || request.auth.uid == get(/databases/$(database)/documents/stores/$(item.parent.id)).data.owner_id);
+        allow create: if request.auth != null && request.resource.data.added_by == request.auth.uid && exists(/databases/$(database)/documents/stores/$(store));
+        allow update, delete: if request.auth != null && (request.auth.uid == request.resource.data.added_by || request.auth.uid == get(/databases/$(database)/documents/stores/$(store)).data.owner_id);
       }
     }
 

@@ -1,9 +1,6 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/screens/home/bookmark.dart';
-import 'package:gdsctokyo/screens/home/explore.dart';
-import 'package:gdsctokyo/screens/home/my_page/my_page.dart';
-import 'package:gdsctokyo/theme/color_schemes.dart';
-import 'package:gdsctokyo/widgets/big_text.dart';
+import 'package:gdsctokyo/routes/router.gr.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,59 +10,62 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int currentPage = 0;
-  List<Widget> pages = [
-    const Bookmark(),
-    const Explore(),
-    const MyPage(),
-  ];
-
-  List<String> titles = ['Store', 'Explore', 'My page'];
-
-  // titles = ['Store', 'Explore', 'My Page']
+  static List<String> titles = ['Store', 'Explore', 'My Page'];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: BigText(text: titles[currentPage]),
-        elevation: 2,
-      ),
-      body: pages[currentPage],
-      bottomNavigationBar: Theme(
-        data: ThemeData(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: lightColorScheme.onInverseSurface,
-          selectedItemColor: Colors.red[300],
-          unselectedItemColor: Colors.grey[800],
-          items: const [
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.store,
+    return AutoTabsScaffold(
+      routes: const [
+        BookmarkRoute(),
+        ExploreRoute(),
+        MypageRoute(),
+      ],
+      builder: (context, child, animation) {
+        final tabsRouter = AutoTabsRouter.of(context);
+        return Scaffold(
+            appBar: AppBar(
+              title: Text(titles[tabsRouter.activeIndex]),
+              elevation: 2,
+            ),
+            body: SlideTransition(
+              position: animation.drive(
+                Tween(
+                  begin: tabsRouter.previousIndex == tabsRouter.activeIndex
+                      ? const Offset(0, 0)
+                      : tabsRouter.previousIndex! > tabsRouter.activeIndex
+                          ? const Offset(-1, 0)
+                          : const Offset(1, 0),
+                  end: const Offset(0, 0),
+                ).chain(
+                  CurveTween(curve: Curves.ease),
                 ),
-                label: 'Store'),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.explore,
-                ),
-                label: 'Explore'),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.person_2_rounded,
-                ),
-                label: 'My Page'),
-          ],
-          onTap: (int index) {
-            setState(() {
-              currentPage = index;
-            });
-          },
-          currentIndex: currentPage,
-        ),
-      ),
+              ),
+              child: child,
+            ),
+            bottomNavigationBar: BottomNavigationBar(
+              currentIndex: tabsRouter.activeIndex,
+              onTap: (index) {
+                tabsRouter.setActiveIndex(index);
+              },
+              items: const [
+                BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.bookmark_outline,
+                    ),
+                    label: 'Saved'),
+                BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.explore_outlined,
+                    ),
+                    label: 'Explore'),
+                BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.account_circle_outlined,
+                    ),
+                    label: 'My Page'),
+              ],
+            ));
+      },
     );
   }
 }
