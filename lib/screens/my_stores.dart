@@ -4,29 +4,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
+import 'package:gdsctokyo/providers/current_user.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/util/logger.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class MyStoresPage extends StatefulWidget {
+class MyStoresPage extends HookConsumerWidget {
   const MyStoresPage({super.key});
 
   @override
-  State<MyStoresPage> createState() => _MyStoresPageState();
-}
-
-class _MyStoresPageState extends State<MyStoresPage> {
-  late final Future<QuerySnapshot<Store>> _storesFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _storesFuture = FirebaseFirestore.instance.stores
-        .ownedByUser(FirebaseAuth.instance.currentUser!.uid)
-        .get();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final storesFuture = ref.watch(ownedStoresProvider.future);
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Stores'),
@@ -42,7 +30,7 @@ class _MyStoresPageState extends State<MyStoresPage> {
         // screen height - app bar height
         height: MediaQuery.of(context).size.height,
         child: FutureBuilder<QuerySnapshot<Store>>(
-          future: _storesFuture,
+          future: storesFuture,
           builder: (BuildContext context, primarySnapshot) {
             if (primarySnapshot.connectionState == ConnectionState.waiting) {
               return const Center(
