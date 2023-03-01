@@ -1,100 +1,180 @@
+import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/assets/data/food_list.dart';
+import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
-import 'package:gdsctokyo/widgets/big_text_bold.dart';
+import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/widgets/icon_text.dart';
 
 class StorePage extends StatelessWidget {
-  final Store store;
+  final String storeId;
 
-  const StorePage({super.key, required this.store});
+  const StorePage({super.key, @PathParam('storeId') required this.storeId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(store.name),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.bookmark_border),
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.share),
+          ),
+        ],
       ),
       body: ListView(
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
         children: [
-          SizedBox(
-            height: 200,
-            child: Stack(
-              children: [
-                Image(
-                  image: const AssetImage('lib/assets/images/tomyum.jpg'),
-                  height: 200,
-                  width: MediaQuery.of(context).size.width,
-                  fit: BoxFit.cover,
-                ),
-                const Positioned(
-                    left: 10,
-                    bottom: 3,
-                    child: BigBoldText(
-                      text: 'My Basket Himonya',
-                      color: Colors.white,
-                      size: 24,
-                    ))
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 75,
-            child: Container(
-              margin: const EdgeInsets.only(
-                top: 15,
-                left: 15,
-              ),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(
-                            bottom: 8,
-                          ),
-                          child: IconText(
-                              iconType: Icons.location_pin,
-                              iconColor: Colors.red[300],
-                              text: '500m from here'),
-                        ),
-                        IconText(
-                            iconType: Icons.bento,
-                            iconColor: Colors.red[300],
-                            text: 'bento'),
-                      ],
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.only(
-                          bottom: 8,
-                        ),
-                        child: IconText(
-                            iconType: Icons.schedule,
-                            iconColor: Colors.red[300],
-                            text: '11:00 - 23:00'),
-                      ),
-                      IconText(
-                          iconType: Icons.discount,
-                          iconColor: Colors.red[300],
-                          text: '40% - 80% discount'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          ...menuList,
+          StoreInfo(storeId: storeId),
         ],
       ),
     );
+  }
+}
+
+class StoreInfo extends StatefulWidget {
+  final String storeId;
+
+  const StoreInfo({super.key, required this.storeId});
+
+  @override
+  State<StoreInfo> createState() => _StoreInfoState();
+}
+
+class _StoreInfoState extends State<StoreInfo> {
+  late final Future<DocumentSnapshot<Store>> _storeFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _storeFuture = FirebaseFirestore.instance.stores.doc(widget.storeId).get();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<DocumentSnapshot<Store>>(
+        future: _storeFuture,
+        builder: (context, snapshot) {
+          final store = snapshot.data?.data();
+          return Column(
+            children: [
+              Container(
+                height: MediaQuery.of(context).size.width * 2 / 3,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(
+                      store?.photoURL ??
+                          // 200x300 placeholder image
+                          'https://via.placeholder.com/200x300',
+                    ),
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                        Colors.black.withOpacity(0.1), BlendMode.darken),
+                  ),
+                ),
+                child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                          snapshot.connectionState == ConnectionState.waiting
+                              ? 'Loading...'
+                              : store != null
+                                  ? store.name ?? '(Untitled)'
+                                  : 'Error fetching store',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              )),
+                    )),
+              ),
+              const SizedBox(height: 4),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Flexible(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(
+                                bottom: 8,
+                              ),
+                              child: IconText(
+                                  icon: Icons.location_pin,
+                                  text: snapshot.connectionState ==
+                                          ConnectionState.waiting
+                                      ? 'Loading...'
+                                      : store != null
+                                          ? store.address ?? '(No address)'
+                                          : 'Error fetching store'),
+                            ),
+                            const IconText(icon: Icons.bento, text: 'Bento'),
+                          ],
+                        ),
+                      ),
+                      Flexible(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(
+                                bottom: 8,
+                              ),
+                              child: const IconText(
+                                  icon: Icons.schedule, text: '11:00 - 23:00'),
+                            ),
+                            const IconText(
+                                icon: Icons.discount,
+                                text: '40% - 80% discount'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // "You're the owner of this store" => Edit Store Info
+              if (FirebaseAuth.instance.currentUser?.uid == store?.ownerId) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('You\'re the owner of this store!'),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: () {
+                            context.router.push(StoreFormRoute(
+                              storeId: widget.storeId,
+                            ));
+                          },
+                          child: const Text('Edit Store Info'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ],
+          );
+        });
   }
 }

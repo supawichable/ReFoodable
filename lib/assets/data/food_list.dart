@@ -40,7 +40,7 @@ List<Widget> menuList = List<Widget>.generate(
             children: [
               const BigSemiboldText(text: 'Bento'),
               IconText(
-                iconType: Icons.discount,
+                icon: Icons.discount,
                 iconColor: Colors.red[300],
                 text: '500',
               ),

@@ -7,8 +7,23 @@ import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/util/logger.dart';
 
-class MyStoresPage extends StatelessWidget {
+class MyStoresPage extends StatefulWidget {
   const MyStoresPage({super.key});
+
+  @override
+  State<MyStoresPage> createState() => _MyStoresPageState();
+}
+
+class _MyStoresPageState extends State<MyStoresPage> {
+  late final Future<QuerySnapshot<Store>> _storesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _storesFuture = FirebaseFirestore.instance.stores
+        .ownedByUser(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +33,7 @@ class MyStoresPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.router.push(const AddAStoreRoute());
+          context.router.push(StoreFormRoute());
         },
         child: const Icon(Icons.add),
       ),
@@ -26,10 +41,8 @@ class MyStoresPage extends StatelessWidget {
         width: double.infinity,
         // screen height - app bar height
         height: MediaQuery.of(context).size.height,
-        child: StreamBuilder<QuerySnapshot<Store>>(
-          stream: FirebaseFirestore.instance.stores
-              .ownedByUser(FirebaseAuth.instance.currentUser!.uid)
-              .snapshots(),
+        child: FutureBuilder<QuerySnapshot<Store>>(
+          future: _storesFuture,
           builder: (BuildContext context, primarySnapshot) {
             if (primarySnapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -73,7 +86,8 @@ class MyStoresPage extends StatelessWidget {
                     title: Text(store.name ?? '(Untitled)'),
                     subtitle: Text(store.address ?? ''),
                     onTap: () {
-                      context.router.push(StoreRoute(store: store));
+                      context.router
+                          .push(StoreRoute(storeId: snapshot.docs[index].id));
                     },
                   );
                 },

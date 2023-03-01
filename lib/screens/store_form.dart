@@ -1,7 +1,7 @@
 import 'dart:io';
 
+import 'package:auto_route/annotations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -10,17 +10,19 @@ import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/providers/image_upload.dart';
+import 'package:gdsctokyo/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 
-class AddAStorePage extends StatefulWidget {
-  const AddAStorePage({super.key});
+class StoreFormPage extends StatefulWidget {
+  final String? storeId;
+  const StoreFormPage({super.key, @PathParam('storeId') this.storeId});
 
   @override
-  State<AddAStorePage> createState() => _AddAStorePageState();
+  State<StoreFormPage> createState() => _StoreFormPageState();
 }
 
-class _AddAStorePageState extends State<AddAStorePage> {
+class _StoreFormPageState extends State<StoreFormPage> {
   // To add a store, we need these fields:
   // - photo (optional)
   // - name (required)
@@ -44,6 +46,11 @@ class _AddAStorePageState extends State<AddAStorePage> {
   File? _coverPhoto;
   List<FoodCategory> _categoryList = [];
 
+  // if storeId is not null, then we are editing a store
+  String? _targetStoreId;
+  bool isLoading = true;
+  String? _serverPhotoURL;
+
   @override
   void initState() {
     super.initState();
@@ -51,6 +58,30 @@ class _AddAStorePageState extends State<AddAStorePage> {
     _addressController = TextEditingController();
     _emailController = TextEditingController();
     _phoneController = TextEditingController();
+
+    final storeId = widget.storeId;
+    if (storeId != null) {
+      FirebaseFirestore.instance.stores.doc(storeId).get().then((value) {
+        final store = value.data();
+        if (store != null) {
+          _nameController.text = store.name ?? '';
+          _addressController.text = store.address ?? '';
+          _emailController.text = store.email ?? '';
+          _phoneController.text = store.phone ?? '';
+          _categoryList = store.category ?? [];
+          _location = store.location;
+          _serverPhotoURL = store.photoURL;
+          setState(() {
+            isLoading = false;
+            _targetStoreId = storeId;
+          });
+        }
+      }).catchError((e) {});
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -88,15 +119,15 @@ class _AddAStorePageState extends State<AddAStorePage> {
               // and the category field which will be a dropdown menu
               child: LayoutGrid(
                 areas: '''
-                photo             photo
-                name_label        name_field
-                location_label    location_field
-                address_label     address_field
-                email_label       email_field
-                phone_label       phone_field
-                category_label    category_field
-                submit_button     submit_button
-              ''',
+              photo             photo
+              name_label        name_field
+              location_label    location_field
+              address_label     address_field
+              email_label       email_field
+              phone_label       phone_field
+              category_label    category_field
+              submit_button     submit_button
+            ''',
                 columnSizes: [100.px, auto],
                 rowSizes: [
                   300.px,
@@ -110,6 +141,7 @@ class _AddAStorePageState extends State<AddAStorePage> {
                 ],
                 children: [
                   CoverPhoto(
+                    serverPhotoURL: _serverPhotoURL,
                     coverPhoto: _coverPhoto,
                     setFile: _setFile,
                   ).inGridArea('photo'),
@@ -163,17 +195,31 @@ class _AddAStorePageState extends State<AddAStorePage> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate() &&
                           _location != null) {
-                        final store = Store(
-                          name: _nameController.text,
-                          location: _location!,
-                          address: _addressController.text,
-                          email: _emailController.text,
-                          phone: _phoneController.text,
-                          category: _categoryList,
-                          ownerId: FirebaseAuth.instance.currentUser!.uid,
-                        );
-                        final storeRef =
-                            await FirebaseFirestore.instance.stores.add(store);
+                        late final DocumentReference<Store> storeRef;
+                        if (_targetStoreId == null) {
+                          final store = Store(
+                            name: _nameController.text,
+                            location: _location!,
+                            address: _addressController.text,
+                            email: _emailController.text,
+                            phone: _phoneController.text,
+                            category: _categoryList,
+                            ownerId: FirebaseAuth.instance.currentUser!.uid,
+                          );
+                          storeRef = await FirebaseFirestore.instance.stores
+                              .add(store);
+                        } else {
+                          storeRef = FirebaseFirestore.instance.stores
+                              .doc(_targetStoreId);
+                          await storeRef.updateStore(
+                            name: _nameController.text,
+                            location: _location!,
+                            address: _addressController.text,
+                            email: _emailController.text,
+                            phone: _phoneController.text,
+                            category: _categoryList,
+                          );
+                        }
                         if (_coverPhoto != null) {
                           final coverPhotoRef = FirebaseStorage.instance
                               .ref()
@@ -182,6 +228,9 @@ class _AddAStorePageState extends State<AddAStorePage> {
                           final coverPhotoUrl =
                               await coverPhotoRef.getDownloadURL();
                           await storeRef.updateStore(photoURL: coverPhotoUrl);
+                          logger.i('Uploaded cover photo');
+                        } else {
+                          logger.i('No cover photo');
                         }
                         // ignore: use_build_context_synchronously
                         Navigator.of(context).pop();
@@ -201,10 +250,13 @@ class _AddAStorePageState extends State<AddAStorePage> {
 class CoverPhoto extends HookConsumerWidget {
   final File? coverPhoto;
   final void Function(File) setFile;
+  final String? serverPhotoURL;
+
   const CoverPhoto({
     super.key,
     required this.coverPhoto,
     required this.setFile,
+    this.serverPhotoURL,
   });
 
   @override
@@ -218,12 +270,18 @@ class CoverPhoto extends HookConsumerWidget {
               fit: BoxFit.cover,
             ),
           if (coverPhoto == null)
-            Container(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: const Center(
-                child: Text('Add a cover photo'),
+            if (serverPhotoURL != null)
+              Image.network(
+                serverPhotoURL!,
+                fit: BoxFit.cover,
+              )
+            else
+              Container(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                child: const Center(
+                  child: Text('Add a cover photo'),
+                ),
               ),
-            ),
           Positioned.fill(
             child: Material(
               color: Colors.transparent,

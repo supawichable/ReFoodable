@@ -1,7 +1,7 @@
 import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:gdsctokyo/routes/guard.dart';
-import 'package:gdsctokyo/screens/add_a_store.dart';
+import 'package:gdsctokyo/screens/store_form.dart';
 import 'package:gdsctokyo/screens/auth/forgot.dart';
 import 'package:gdsctokyo/screens/home/bookmark.dart';
 import 'package:gdsctokyo/screens/home/explore.dart';
@@ -26,7 +26,10 @@ import 'package:gdsctokyo/screens/store_page.dart';
     ]),
     AutoRoute(page: SplashPage, path: '/', initial: true),
     AutoRoute(page: MyStoresPage, path: '/my-stores', guards: [AuthGuard]),
-    AutoRoute(page: AddAStorePage, path: '/add-a-store', guards: [AuthGuard]),
+    AutoRoute(
+        page: StoreFormPage,
+        path: '/store-form/:storeId',
+        guards: [AuthGuard, StoreOwnerGuard]),
     AutoRoute(page: StorePage, path: '/store/:storeId'),
   ],
 )

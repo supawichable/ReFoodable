@@ -5,32 +5,31 @@ class IconText extends StatelessWidget {
   final Color? color;
   final Color? iconColor;
   final String text;
-  final IconData? iconType;
+  final IconData? icon;
   const IconText(
       {super.key,
-      this.color = Colors.black,
-      this.iconColor = Colors.black,
-      required this.iconType,
+      this.color,
+      this.iconColor,
+      required this.icon,
       required this.text});
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Container(
-          margin: const EdgeInsets.only(
-            right: 6,
-          ),
-          child: Icon(
-            iconType,
-            size: 15,
-            color: iconColor,
-          ),
+        Icon(
+          icon,
+          size: 16,
         ),
-        DescriptionText(
-          text: text,
-          color: color,
+        const SizedBox(
+          width: 5,
+        ),
+        Text(
+          text,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: color,
+              ),
         )
       ],
     );

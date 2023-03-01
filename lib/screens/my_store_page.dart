@@ -70,27 +70,27 @@ class MyStorePage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         IconText(
-                            iconType: Icons.location_pin,
+                            icon: Icons.location_pin,
                             iconColor: Colors.red[300],
                             text: '東京都目黒区大岡山'),
                         IconText(
-                            iconType: Icons.bento,
+                            icon: Icons.bento,
                             iconColor: Colors.red[300],
                             text: 'Bento'),
                         IconText(
-                            iconType: Icons.schedule,
+                            icon: Icons.schedule,
                             iconColor: Colors.red[300],
                             text: '11:00 - 23:00'),
                         IconText(
-                            iconType: Icons.person,
+                            icon: Icons.person,
                             iconColor: Colors.red[300],
                             text: 'Tanaka Tarou'),
                         IconText(
-                            iconType: Icons.mail,
+                            icon: Icons.mail,
                             iconColor: Colors.red[300],
                             text: 'tanaka.t@gmail.com'),
                         IconText(
-                            iconType: Icons.phone,
+                            icon: Icons.phone,
                             iconColor: Colors.red[300],
                             text: '080-0000-0000'),
                       ],
