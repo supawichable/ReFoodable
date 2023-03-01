@@ -52,16 +52,16 @@ extension StoreReferenceX on StoreReference {
     String? phone,
     String? photoURL,
   }) async {
-    await update({
-      'name': name,
-      'location': location,
-      'address': address,
-      'category': category,
-      'email': email,
-      'phone': phone,
-      'photoURL': photoURL,
-      'updatedAt': FieldValue.serverTimestamp(),
-    }..removeWhere((key, value) => value == null));
+    final store = Store(
+      name: name,
+      location: location,
+      address: address,
+      category: category,
+      email: email,
+      phone: phone,
+      photoURL: photoURL,
+    );
+    await update(store.toFirestore());
   }
 }
 
@@ -83,11 +83,11 @@ extension ItemReferenceX on ItemReference {
     Price? price,
     String? photoURL,
   }) async {
-    await update({
-      'name': name,
-      'price': price,
-      'photoURL': photoURL,
-      'updatedAt': FieldValue.serverTimestamp(),
-    }..removeWhere((key, value) => value == null));
+    final item = Item(
+      name: name,
+      price: price,
+      photoURL: photoURL,
+    );
+    await update(item.toFirestore());
   }
 }
