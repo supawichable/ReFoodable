@@ -9,6 +9,7 @@ import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
+import 'package:gdsctokyo/providers/current_user.dart';
 import 'package:gdsctokyo/providers/image_upload.dart';
 import 'package:gdsctokyo/providers/store_in_view.dart';
 import 'package:gdsctokyo/util/logger.dart';
@@ -196,6 +197,7 @@ class _StoreFormPageState extends ConsumerState<StoreFormPage> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate() &&
                           _location != null) {
+                        bool isSuccessful = false;
                         late final DocumentReference<Store> storeRef;
                         if (_targetStoreId == null) {
                           final store = Store(
@@ -222,6 +224,7 @@ class _StoreFormPageState extends ConsumerState<StoreFormPage> {
                           );
 
                           ref.invalidate(storeInViewProvider(_targetStoreId!));
+                          ref.invalidate(ownedStoresProvider);
                         }
                         if (_coverPhoto != null) {
                           final coverPhotoRef = FirebaseStorage.instance
@@ -235,9 +238,9 @@ class _StoreFormPageState extends ConsumerState<StoreFormPage> {
                         } else {
                           logger.i('No cover photo');
                         }
-                        // ignore: use_build_context_synchronously
-                        Navigator.of(context).pop();
                       }
+                      // ignore: use_build_context_synchronously
+                      Navigator.of(context).pop();
                     },
                     child: const Text('Submit'),
                   ).inGridArea('submit_button'),

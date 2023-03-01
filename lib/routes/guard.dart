@@ -16,25 +16,3 @@ class AuthGuard extends AutoRouteGuard {
     }
   }
 }
-
-class StoreOwnerGuard extends AutoRouteGuard {
-  @override
-  void onNavigation(NavigationResolver resolver, StackRouter router) {
-    // this is for the path: */**/:storeId
-    // 1. get the storeId from the path
-    // 2. fetch it on the firestore to check the owner id
-    // 3. compare it with the current user id
-    // 4. if it's the same, continue
-    final String? storeId = router.current.pathParams.get('storeId', null);
-    if (storeId == null) {
-      router.pop();
-    }
-    FirebaseFirestore.instance.stores.doc(storeId).get().then((snapshot) {
-      if (snapshot.data()?.ownerId == FirebaseAuth.instance.currentUser?.uid) {
-        resolver.next(true);
-      } else {
-        router.pop();
-      }
-    });
-  }
-}

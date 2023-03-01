@@ -27,9 +27,7 @@ import 'package:gdsctokyo/screens/store_page.dart';
     AutoRoute(page: SplashPage, path: '/', initial: true),
     AutoRoute(page: MyStoresPage, path: '/my-stores', guards: [AuthGuard]),
     AutoRoute(
-        page: StoreFormPage,
-        path: '/store-form/:storeId',
-        guards: [AuthGuard, StoreOwnerGuard]),
+        page: StoreFormPage, path: '/store-form/:storeId', guards: [AuthGuard]),
     AutoRoute(page: StorePage, path: '/store/:storeId'),
   ],
 )
