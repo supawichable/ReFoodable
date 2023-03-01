@@ -3,16 +3,16 @@ part of '_store.dart';
 @freezed
 class Store with _$Store {
   const factory Store({
-    required String name,
-    @GeoPointConverter() required GeoPoint location,
+    String? name,
+    @GeoPointConverter() GeoPoint? location,
+    String? ownerId,
     @TimestampConverter() DateTime? createdAt,
     @TimestampConverter() DateTime? updatedAt,
 
-    // Location is required, so address might not be needed
+    ///  Location is required, so address might not be needed
     String? address,
     String? email,
     String? phone,
-    String? ownerId,
     String? photoURL,
     List<FoodCategory>? category,
   }) = _Store;

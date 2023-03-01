@@ -70,7 +70,7 @@ class MyStoresPage extends StatelessWidget {
                   return ListTile(
                     leading: const Icon(Icons.store),
                     key: ObjectKey(store),
-                    title: Text(store.name),
+                    title: Text(store.name ?? '(Untitled)'),
                     subtitle: Text(store.address ?? ''),
                     onTap: () {
                       context.router.push(StoreRoute(store: store));

@@ -16,9 +16,9 @@ class ItemCard extends StatefulWidget {
 class _ItemCardState extends State<ItemCard> {
   // Deconstructing the item
   late final item = widget.item;
-  late final String name = item.name;
-  late final Price price = item.price;
-  late final String addedBy = item.addedBy;
+  late final String name = item.name!;
+  late final Price price = item.price!;
+  late final String addedBy = item.addedBy!;
   late final DateTime createdAt = item.createdAt!;
   late final DateTime updatedAt = item.updatedAt!;
   late final String? photoURL = item.photoURL;
