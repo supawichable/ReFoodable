@@ -10,19 +10,20 @@ import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/providers/image_upload.dart';
+import 'package:gdsctokyo/providers/store_in_view.dart';
 import 'package:gdsctokyo/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 
-class StoreFormPage extends StatefulWidget {
+class StoreFormPage extends StatefulHookConsumerWidget {
   final String? storeId;
   const StoreFormPage({super.key, @PathParam('storeId') this.storeId});
 
   @override
-  State<StoreFormPage> createState() => _StoreFormPageState();
+  ConsumerState<StoreFormPage> createState() => _StoreFormPageState();
 }
 
-class _StoreFormPageState extends State<StoreFormPage> {
+class _StoreFormPageState extends ConsumerState<StoreFormPage> {
   // To add a store, we need these fields:
   // - photo (optional)
   // - name (required)
@@ -61,7 +62,7 @@ class _StoreFormPageState extends State<StoreFormPage> {
 
     final storeId = widget.storeId;
     if (storeId != null) {
-      FirebaseFirestore.instance.stores.doc(storeId).get().then((value) {
+      ref.read(storeInViewProvider(storeId).future).then((value) {
         final store = value.data();
         if (store != null) {
           _nameController.text = store.name ?? '';
@@ -219,6 +220,8 @@ class _StoreFormPageState extends State<StoreFormPage> {
                             phone: _phoneController.text,
                             category: _categoryList,
                           );
+
+                          ref.invalidate(storeInViewProvider(_targetStoreId!));
                         }
                         if (_coverPhoto != null) {
                           final coverPhotoRef = FirebaseStorage.instance
