@@ -5,8 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
+import 'package:gdsctokyo/providers/store_in_view.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/widgets/icon_text.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class StorePage extends StatelessWidget {
   final String storeId;
@@ -39,28 +41,16 @@ class StorePage extends StatelessWidget {
   }
 }
 
-class StoreInfo extends StatefulWidget {
+class StoreInfo extends HookConsumerWidget {
   final String storeId;
 
   const StoreInfo({super.key, required this.storeId});
 
   @override
-  State<StoreInfo> createState() => _StoreInfoState();
-}
-
-class _StoreInfoState extends State<StoreInfo> {
-  late final Future<DocumentSnapshot<Store>> _storeFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _storeFuture = FirebaseFirestore.instance.stores.doc(widget.storeId).get();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final storeFuture = ref.watch(storeInViewProvider(storeId).future);
     return FutureBuilder<DocumentSnapshot<Store>>(
-        future: _storeFuture,
+        future: storeFuture,
         builder: (context, snapshot) {
           final store = snapshot.data?.data();
           return Column(
@@ -162,7 +152,7 @@ class _StoreInfoState extends State<StoreInfo> {
                         ElevatedButton(
                           onPressed: () {
                             context.router.push(StoreFormRoute(
-                              storeId: widget.storeId,
+                              storeId: storeId,
                             ));
                           },
                           child: const Text('Edit Store Info'),
