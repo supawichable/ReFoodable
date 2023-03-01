@@ -95,7 +95,7 @@ void main() {
       storeDoc = snapshot.docs.first;
     });
 
-    test('API gives valid path', () async {
+    test('API gives valid paths', () async {
       expect(
         firestore.stores.path,
         'stores',
