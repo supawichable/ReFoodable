@@ -45,7 +45,8 @@ void main() async {
 class Main extends StatelessWidget {
   Main({super.key});
 
-  final _appRouter = AppRouter(authGuard: AuthGuard());
+  final _appRouter =
+      AppRouter(authGuard: AuthGuard(), storeOwnerGuard: StoreOwnerGuard());
 
   // This widget is the root of your application.
   @override
