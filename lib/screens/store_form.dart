@@ -197,7 +197,6 @@ class _StoreFormPageState extends ConsumerState<StoreFormPage> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate() &&
                           _location != null) {
-                        bool isSuccessful = false;
                         late final DocumentReference<Store> storeRef;
                         if (_targetStoreId == null) {
                           final store = Store(
@@ -222,9 +221,6 @@ class _StoreFormPageState extends ConsumerState<StoreFormPage> {
                             phone: _phoneController.text,
                             category: _categoryList,
                           );
-
-                          ref.invalidate(storeInViewProvider(_targetStoreId!));
-                          ref.invalidate(ownedStoresProvider);
                         }
                         if (_coverPhoto != null) {
                           final coverPhotoRef = FirebaseStorage.instance
@@ -234,13 +230,13 @@ class _StoreFormPageState extends ConsumerState<StoreFormPage> {
                           final coverPhotoUrl =
                               await coverPhotoRef.getDownloadURL();
                           await storeRef.updateStore(photoURL: coverPhotoUrl);
-                          logger.i('Uploaded cover photo');
-                        } else {
-                          logger.i('No cover photo');
                         }
+
+                        ref.invalidate(storeInViewProvider(_targetStoreId!));
+                        ref.invalidate(ownedStoresProvider);
+                        // ignore: use_build_context_synchronously
+                        Navigator.of(context).pop();
                       }
-                      // ignore: use_build_context_synchronously
-                      Navigator.of(context).pop();
                     },
                     child: const Text('Submit'),
                   ).inGridArea('submit_button'),
