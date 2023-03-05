@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/util/logger.dart';
@@ -121,6 +120,7 @@ class ImageUploadNotifier extends StateNotifier<ImageUpload> {
         if (error != ImagePickerError.userCancelled) {
           Navigator.of(uploader.ref.context).pop();
         }
+        return null;
       },
     );
     return state;
