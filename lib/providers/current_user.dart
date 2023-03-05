@@ -10,7 +10,8 @@ final currentUserProvider = StreamProvider<User?>((ref) async* {
   }
 });
 
-final ownedStoresProvider = FutureProvider<QuerySnapshot<Store>>((ref) async {
+final ownedStoresProvider =
+    FutureProvider.autoDispose<QuerySnapshot<Store>>((ref) async {
   final user = ref.watch(currentUserProvider).value;
   final snapshot =
       await FirebaseFirestore.instance.stores.ownedByUser(user!.uid).get();
