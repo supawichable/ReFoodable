@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/util/logger.dart';
@@ -107,18 +108,19 @@ class ImageUploadNotifier extends StateNotifier<ImageUpload> {
     await state.whenOrNull<Future<void>>(
       prompt: _prompt,
       picked: (pickedFile) async {
-        logger.i('Picked file: ${pickedFile.path}');
         await _cropImage();
       },
       cropped: (croppedFile) async {
-        logger.i('Cropped file: ${croppedFile.path}');
         // I know what I am doing.
         // ignore: invalid_use_of_protected_member
         imageDialogKey.currentState?.setState(() {});
       },
       error: (error) {
         if (error != ImagePickerError.userCancelled) {
-          Navigator.of(uploader.ref.context).pop();
+          uploader.ref.context.popRoute();
+          // ignore: invalid_use_of_protected_member
+          imageDialogKey.currentState?.setState(() {});
+          state = const ImageUpload.prompt();
         }
         return null;
       },
@@ -228,12 +230,14 @@ class ImageUploadNotifier extends StateNotifier<ImageUpload> {
             ]);
         if (croppedFile != null) {
           state = ImageUpload.cropped(croppedFile);
+          // ignore: invalid_use_of_protected_member
+          imageDialogKey.currentState?.setState(() {});
         } else {
           state = const ImageUpload.error(ImagePickerError.cropperError);
         }
       },
     );
-    _controlCenter();
+    // _controlCenter();
   }
 
   Future<void> _takePhoto() async {
