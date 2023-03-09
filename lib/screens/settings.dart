@@ -96,10 +96,10 @@ class SettingsPage extends HookConsumerWidget {
                 trailing: Switch(
                   value: Theme.of(context).brightness == Brightness.dark,
                   onChanged: (value) {
-                    ref.read(themeProvider.notifier).state =
+                    ref.read(themeProvider.notifier).setThemeMode(
                         Theme.of(context).brightness == Brightness.light
                             ? ThemeMode.dark
-                            : ThemeMode.light;
+                            : ThemeMode.light);
                   },
                 ),
               ),
