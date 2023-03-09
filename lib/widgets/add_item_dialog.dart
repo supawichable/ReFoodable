@@ -62,7 +62,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
       ),
       content: Container(
         width: 400,
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.background,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         height: 240,
         child: Column(
@@ -72,7 +72,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Menu name',
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith()),
+                    style: Theme.of(context).textTheme.labelLarge),
                 const SizedBox(
                   height: 8,
                 ),
@@ -80,14 +80,17 @@ class _AddItemDialogState extends State<AddItemDialog> {
                   height: 40,
                   child: TextField(
                     decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 0, horizontal: 10),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 10),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: lightColorScheme.outlineVariant),
+                        borderSide: BorderSide(
+                            color:
+                                Theme.of(context).colorScheme.outlineVariant),
                         borderRadius: BorderRadius.circular(5),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: lightColorScheme.outline),
+                        borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.outline),
                         borderRadius: BorderRadius.circular(5),
                       ),
                       hintText: 'menu name',
@@ -118,13 +121,15 @@ class _AddItemDialogState extends State<AddItemDialog> {
                             contentPadding: const EdgeInsets.symmetric(
                                 vertical: 0, horizontal: 10),
                             enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: lightColorScheme.outlineVariant),
+                              borderSide: BorderSide(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .outlineVariant),
                               borderRadius: BorderRadius.circular(5),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: lightColorScheme.outline),
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline),
                               borderRadius: BorderRadius.circular(5),
                             ),
                             hintText: 'normal',
@@ -143,10 +148,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Discounted price',
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith()),
+                          style: Theme.of(context).textTheme.labelLarge),
                       const SizedBox(
                         height: 8,
                       ),
@@ -157,13 +159,15 @@ class _AddItemDialogState extends State<AddItemDialog> {
                             contentPadding: const EdgeInsets.symmetric(
                                 vertical: 0, horizontal: 10),
                             enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: lightColorScheme.outlineVariant),
+                              borderSide: BorderSide(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .outlineVariant),
                               borderRadius: BorderRadius.circular(5),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: lightColorScheme.outline),
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline),
                               borderRadius: BorderRadius.circular(5),
                             ),
                             hintText: 'discounted',
@@ -187,15 +191,17 @@ class _AddItemDialogState extends State<AddItemDialog> {
                   flex: 4,
                   child: Container(
                     height: 50,
-                    color: lightColorScheme.primaryContainer,
+                    color: Theme.of(context).colorScheme.primaryContainer,
                   ),
                 ),
-                const SizedBox(width: 20,),
+                const SizedBox(
+                  width: 20,
+                ),
                 Flexible(
                   flex: 1,
                   child: Container(
                     height: 50,
-                    color: lightColorScheme.primaryContainer,
+                    color: Theme.of(context).colorScheme.primaryContainer,
                   ),
                 ),
               ]),
@@ -206,7 +212,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
       actions: [
         Container(
           padding: const EdgeInsets.only(right: 10),
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -226,11 +232,11 @@ class _AddItemDialogState extends State<AddItemDialog> {
                   });
                   final itemDoc = FirebaseFirestore.instance.stores
                       .doc(widget.storeId)
-                      .items.doc();
+                      .items
+                      .doc();
 
                   final Item item = Item(
                     name: menuName,
-                    id: itemDoc.id,
                     price: Price(
                         amount: discountedPrice!,
                         compareAtPrice: normalPrice,

@@ -3,16 +3,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
+import 'package:gdsctokyo/util/logger.dart';
 import 'package:gdsctokyo/widgets/big_text_bold.dart';
 
 class ItemCard extends StatefulWidget {
-  final String storeId;
-  final Item item;
+  final DocumentSnapshot<Item> snapshot;
   // final User user;
   const ItemCard({
     Key? key,
-    required this.storeId,
-    required this.item,
+    required this.snapshot,
     // required this.user,
   }) : super(key: key);
 
@@ -22,15 +21,27 @@ class ItemCard extends StatefulWidget {
 
 class _ItemCardState extends State<ItemCard> {
   // Deconstructing the item
-  late final item = widget.item;
-  // late final user = widget.user;
-  late final String id = item.id!;
+  late final item = widget.snapshot.data()!;
+  late final storeId = widget.snapshot.reference.parent.parent!.id;
+  late final String id = widget.snapshot.id;
   late final String name = item.name!;
   late final Price price = item.price!;
   late final String addedBy = item.addedBy!;
-  late final DateTime createdAt = item.createdAt!;
-  late final DateTime updatedAt = item.updatedAt!;
+  late final DateTime createdAt;
+  late final DateTime updatedAt;
   late final String? photoURL = item.photoURL;
+
+  @override
+  void initState() {
+    try {
+      createdAt = item.createdAt!;
+      updatedAt = item.updatedAt!;
+    } catch (e) {
+      createdAt = DateTime.now();
+      updatedAt = DateTime.now();
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -146,11 +157,11 @@ class _ItemCardState extends State<ItemCard> {
                       SizedBox(
                         height: 30,
                         child: TextButton(
-                          onPressed: () {
+                          onPressed: () async {
                             final User? user =
-                                FirebaseAuth.instance.currentUser; 
+                                FirebaseAuth.instance.currentUser;
                             if (user == null) {
-                              showDialog(
+                              await showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
@@ -175,44 +186,46 @@ class _ItemCardState extends State<ItemCard> {
                                   );
                                 },
                               );
-                            } else {
-                              final String userId = user.uid;
+                              return;
+                            }
+                            final String userId = user.uid;
                             if (userId == addedBy) {
-                              FirebaseFirestore.instance.stores
-                                  .doc(widget.storeId)
+                              await FirebaseFirestore.instance.stores
+                                  .doc(storeId)
                                   .items
                                   .doc(id)
                                   .delete();
+                              if (userId != addedBy && mounted) {
+                                await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(0)),
+                                      actionsPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 0, horizontal: 10),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 5, horizontal: 10),
+                                      titlePadding: const EdgeInsets.symmetric(
+                                          vertical: 10, horizontal: 10),
+                                      title: const Text('Warning!'),
+                                      content: const Text(
+                                          'you can only delete cards you created'),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text('close'))
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
                             }
-                            if (userId != addedBy) {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(0)),
-                                    actionsPadding: const EdgeInsets.symmetric(
-                                        vertical: 0, horizontal: 10),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        vertical: 5, horizontal: 10),
-                                    titlePadding: const EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 10),
-                                    title: const Text('Warning!'),
-                                    content: const Text(
-                                        'you can only delete cards you created'),
-                                    actions: [
-                                      TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: const Text('close'))
-                                    ],
-                                  );
-                                },
-                              );
-                            }
-                            }
-                            
                           },
                           child: Text(
                             'Delete',
@@ -242,7 +255,9 @@ class _ItemCardState extends State<ItemCard> {
               height: 90,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(photoURL ?? 'lib/assets/images/tomyum.png'),
+                  image: photoURL != null
+                      ? Image.network(photoURL!).image
+                      : const AssetImage('lib/assets/images/tomyum.jpg'),
                   fit: BoxFit.cover,
                 ),
               ),

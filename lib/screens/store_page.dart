@@ -226,13 +226,13 @@ class _ItemListState extends State<ItemList> {
           );
         }
         if (snapshot.hasData) {
-          final items = snapshot.data!.docs.map((e) => e.data()).toList();
+          final items = snapshot.data!.docs;
           return Column(
             children: [
               for (final item in items)
                 ItemCard(
-                  item: item,
-                  storeId: widget.storeId,
+                  key: ValueKey(item.id),
+                  snapshot: item,
                 ),
             ],
           );
