@@ -13,6 +13,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
     return const Scaffold(
         body: Center(
       child: Text('Bookmark'),
-    ));
+    )
+    );
   }
 }

@@ -6,6 +6,7 @@ class Item with _$Item {
       {String? name,
       @PriceConverter() Price? price,
       String? addedBy,
+      String? id,
       @TimestampConverter() DateTime? createdAt,
       @TimestampConverter() DateTime? updatedAt,
       String? photoURL}) = _Item;
