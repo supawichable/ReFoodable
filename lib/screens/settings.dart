@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/providers/current_user.dart';
+import 'package:gdsctokyo/providers/theme.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class SettingsPage extends HookConsumerWidget {
@@ -94,7 +95,12 @@ class SettingsPage extends HookConsumerWidget {
                 title: const Text('Dark Mode'),
                 trailing: Switch(
                   value: Theme.of(context).brightness == Brightness.dark,
-                  onChanged: (value) {},
+                  onChanged: (value) {
+                    ref.read(themeProvider.notifier).state =
+                        Theme.of(context).brightness == Brightness.light
+                            ? ThemeMode.dark
+                            : ThemeMode.light;
+                  },
                 ),
               ),
               const Divider(),
