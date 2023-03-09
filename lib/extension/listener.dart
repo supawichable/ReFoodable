@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/public/_public.dart';
-import 'package:gdsctokyo/util/logger.dart';
 
 class FirebaseListener {
   late StreamSubscription<User?> _userPublicUpdateListener;

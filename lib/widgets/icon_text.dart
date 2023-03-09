@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/widgets/description_text.dart';
 
 class IconText extends StatelessWidget {
   final Color? color;
