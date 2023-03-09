@@ -1,6 +1,7 @@
 import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:gdsctokyo/routes/guard.dart';
+import 'package:gdsctokyo/screens/settings.dart';
 import 'package:gdsctokyo/screens/store_form.dart';
 import 'package:gdsctokyo/screens/auth/forgot.dart';
 import 'package:gdsctokyo/screens/home/bookmark.dart';
@@ -19,6 +20,7 @@ import 'package:gdsctokyo/screens/store_page.dart';
     AutoRoute(page: SignInPage, path: '/signin'),
     AutoRoute(page: ForgotPasswordPage, path: '/forgot'),
     AutoRoute(page: ResetPasswordPage, path: '/reset'),
+    AutoRoute(page: SettingsPage, path: '/settings'),
     AutoRoute(page: HomePage, path: '/home', children: [
       AutoRoute(page: BookmarkPage, path: 'bookmark'),
       AutoRoute(page: ExplorePage, path: 'explore', initial: true),
