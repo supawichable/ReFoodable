@@ -5,6 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:gdsctokyo/widgets/add_item_dialog.dart';
+import 'package:gdsctokyo/widgets/icon_text.dart';
+import 'package:gdsctokyo/widgets/item_card.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/widgets/store_info.dart';
 import 'package:gdsctokyo/widgets/my_items.dart';
 import 'package:gdsctokyo/widgets/today_items.dart';
@@ -17,6 +22,14 @@ class StorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showDialog(
+            context: context,
+            builder: (context) => AddItemDialog(
+                  storeId: storeId,
+                )),
+        child: const Icon(Icons.add),
+      ),
       appBar: AppBar(
         actions: [
           IconButton(
@@ -86,18 +99,19 @@ class _StoreInfoState extends State<StoreInfo> {
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                          snapshot.connectionState == ConnectionState.waiting
-                              ? 'Loading...'
-                              : store != null
-                                  ? store.name ?? '(Untitled)'
-                                  : 'Error fetching store',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
-                              ?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              )),
+                        snapshot.connectionState == ConnectionState.waiting
+                            ? 'Loading...'
+                            : store != null
+                                ? store.name ?? '(Untitled)'
+                                : 'Error fetching store',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
                     )),
               ),
               const SizedBox(height: 4),

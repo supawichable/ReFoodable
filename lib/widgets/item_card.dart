@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
+import 'package:gdsctokyo/util/logger.dart';
 import 'package:gdsctokyo/widgets/big_text_bold.dart';
 
 class ItemCard extends StatefulWidget {
@@ -34,6 +35,7 @@ class _ItemCardState extends State<ItemCard> {
   late final String? photoURL = item.photoURL;
 
   late String? timeString = createdAt?.toLocal().toString().substring(11, 16);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -49,97 +51,88 @@ class _ItemCardState extends State<ItemCard> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            margin: const EdgeInsets.only(
-              left: 16,
-              right: 10,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                BigBoldText(text: name, size: 20),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(
-                        right: 8,
-                      ),
-                      width: 16,
-                      height: 16,
-                      decoration: const BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('lib/assets/images/Sale.png'),
-                          fit: BoxFit.cover,
+          Flexible(
+            flex: 4,
+            child: Container(
+              margin: const EdgeInsets.only(
+                left: 16,
+                right: 10,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  BigBoldText(text: name, size: 20),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(
+                          right: 8,
                         ),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          price.compareAtPrice.toString(),
-                          style: const TextStyle(
-                            decoration: TextDecoration.lineThrough,
-                            fontFamily: 'Poppins',
-                            fontSize: 12,
+                        width: 16,
+                        height: 16,
+                        decoration: const BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('lib/assets/images/Sale.png'),
+                            fit: BoxFit.cover,
                           ),
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          price.amount.toString(),
-                          style: const TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 12,
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    FutureBuilder(
-                      future: addedByName,
-                      builder: (BuildContext context, snapshot) {
-                        return Text(
-                          'Added by ${snapshot.data ?? '(Deleted User)'} at $timeString',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.outline,
-                            fontFamily: 'Poppins',
-                            fontSize: 12,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: () {
-                        // ❌
-                        // FirebaseFirestore.instance.stores
-                        //     .doc(storeId)
-                        //     .todaysItems
-                        //     .doc(widget.snapshot.id)
-                        //     .delete();
-                        // ✅
-                        widget.snapshot.reference.delete();
-                      },
-                      child: Text(
-                        'Delete',
-                        maxLines: 1, // making sure overflow works propperly
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.outline,
-                          fontSize: 12,
-                          fontFamily: 'Poppins',
-                        ),
                       ),
-                    )
-                  ],
-                ),
-              ],
+                      Row(
+                        children: [
+                          if (price.compareAtPrice != null) ...[
+                            Text(
+                              '${price.currency.symbol}${price.compareAtPrice}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                            ),
+                            const SizedBox(width: 4),
+                          ],
+                          Text(
+                            '${price.currency.symbol}${price.amount}',
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      FutureBuilder(
+                        future: addedByName,
+                        builder: (BuildContext context, snapshot) {
+                          return Text(
+                            'Added by ${snapshot.data ?? '(Deleted User)'} at $timeString',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.outline,
+                              fontFamily: 'Poppins',
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () {
+                          widget.snapshot.reference.delete();
+                        },
+                        child: const Text('Delete'),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
           Container(

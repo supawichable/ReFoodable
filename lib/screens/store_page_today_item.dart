@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 
 import 'package:gdsctokyo/models/item/_item.dart';
+import 'package:gdsctokyo/widgets/add_item_dialog.dart';
 import 'package:gdsctokyo/widgets/item_card.dart';
 
 class StoreTodayItemPage extends StatelessWidget {
@@ -16,6 +17,14 @@ class StoreTodayItemPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showDialog(
+            context: context,
+            builder: (context) => AddItemDialog(
+                  storeId: storeId,
+                )),
+        child: const Icon(Icons.add),
+      ),
       appBar: AppBar(
         title: const Text('Today Items'),
         centerTitle: true,

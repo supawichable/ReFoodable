@@ -11,8 +11,15 @@ class Price with _$Price {
   factory Price.fromJson(Map<String, dynamic> json) => _$PriceFromJson(json);
 }
 
-@JsonEnum(valueField: 'symbol')
 enum Currency {
-  @JsonValue('¥')
   jpy,
+}
+
+extension CurrencySymbol on Currency {
+  String get symbol {
+    switch (this) {
+      case Currency.jpy:
+        return '¥';
+    }
+  }
 }
