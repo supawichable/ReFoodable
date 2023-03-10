@@ -25,6 +25,7 @@ extension ImagePickerErrorMessage on ImagePickerError {
 
 @Freezed(unionKey: 'state', fromJson: false, toJson: false)
 class ImageUpload with _$ImageUpload {
+  const factory ImageUpload.standBy() = ImageUploadStandBy;
   const factory ImageUpload.prompt() = ImageUploadPrompt;
   const factory ImageUpload.picked(XFile sourceFile) = ImageUploadPicked;
   const factory ImageUpload.error(ImagePickerError error) = ImageUploadError;

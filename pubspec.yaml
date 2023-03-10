@@ -66,6 +66,7 @@ dependencies:
   flutter_layout_grid: ^2.0.1
   dotted_border: ^2.0.0+3
   shared_preferences: ^2.0.18
+  image_crop: ^0.4.1
 
 dev_dependencies:
   integration_test:
