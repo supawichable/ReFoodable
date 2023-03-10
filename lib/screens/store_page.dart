@@ -7,6 +7,9 @@ import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/widgets/store_info.dart';
 
+import '../widgets/my_items.dart';
+import '../widgets/today_items.dart';
+
 class StorePage extends StatelessWidget {
   final String storeId;
 
@@ -115,7 +118,20 @@ class _StoreInfoState extends State<StoreInfo> {
                   ],
                 ),
               ),
-
+              if (FirebaseAuth.instance.currentUser?.uid == store?.ownerId) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: MyItems(
+                    storeId: widget.storeId,
+                  ),
+                ),
+              ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: TodayItems(
+                  storeId: widget.storeId,
+                ),
+              ),
               // "You're the owner of this store" => Edit Store Info
               if (FirebaseAuth.instance.currentUser?.uid == store?.ownerId) ...[
                 Card(
