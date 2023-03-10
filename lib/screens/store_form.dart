@@ -5,26 +5,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
-import 'package:gdsctokyo/providers/current_user.dart';
 import 'package:gdsctokyo/providers/image_upload.dart';
-import 'package:gdsctokyo/providers/store_in_view.dart';
-import 'package:gdsctokyo/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 
-class StoreFormPage extends StatefulHookConsumerWidget {
+class StoreFormPage extends StatefulWidget {
   final String? storeId;
   const StoreFormPage({super.key, @PathParam('storeId') this.storeId});
 
   @override
-  ConsumerState<StoreFormPage> createState() => _StoreFormPageState();
+  State<StoreFormPage> createState() => _StoreFormPageState();
 }
 
-class _StoreFormPageState extends ConsumerState<StoreFormPage> {
+class _StoreFormPageState extends State<StoreFormPage> {
   // To add a store, we need these fields:
   // - photo (optional)
   // - name (required)
@@ -63,7 +59,7 @@ class _StoreFormPageState extends ConsumerState<StoreFormPage> {
 
     final storeId = widget.storeId;
     if (storeId != null) {
-      ref.read(storeInViewProvider(storeId).future).then((value) {
+      FirebaseFirestore.instance.stores.doc(storeId).get().then((value) {
         final store = value.data();
         if (store != null) {
           _nameController.text = store.name ?? '';
@@ -270,9 +266,6 @@ class _StoreFormPageState extends ConsumerState<StoreFormPage> {
                                     photoURL: coverPhotoUrl);
                               }
 
-                              ref.invalidate(
-                                  storeInViewProvider(_targetStoreId!));
-                              ref.invalidate(ownedStoresProvider);
                               // ignore: use_build_context_synchronously
                               Navigator.of(context).pop();
                             }

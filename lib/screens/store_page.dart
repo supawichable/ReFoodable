@@ -1,16 +1,11 @@
-import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
-import 'package:gdsctokyo/providers/store_in_view.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
-import 'package:gdsctokyo/widgets/icon_text.dart';
 import 'package:gdsctokyo/widgets/store_info.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '';
 
 class StorePage extends StatelessWidget {
   final String storeId;
@@ -43,16 +38,29 @@ class StorePage extends StatelessWidget {
   }
 }
 
-class StoreInfo extends HookConsumerWidget {
+class StoreInfo extends StatefulWidget {
   final String storeId;
 
   const StoreInfo({super.key, required this.storeId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final storeFuture = ref.watch(storeInViewProvider(storeId).future);
-    return FutureBuilder<DocumentSnapshot<Store>>(
-        future: storeFuture,
+  State<StoreInfo> createState() => _StoreInfoState();
+}
+
+class _StoreInfoState extends State<StoreInfo> {
+  late Stream<DocumentSnapshot<Store>> _storeStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _storeStream =
+        FirebaseFirestore.instance.stores.doc(widget.storeId).snapshots();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<DocumentSnapshot<Store>>(
+        stream: _storeStream,
         builder: (context, snapshot) {
           final store = snapshot.data?.data();
           return Column(
@@ -93,7 +101,7 @@ class StoreInfo extends HookConsumerWidget {
               const SizedBox(height: 4),
 
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Column(
                   children: [
                     snapshot.hasError
@@ -103,7 +111,7 @@ class StoreInfo extends HookConsumerWidget {
                                 data: store,
                                 edit: FirebaseAuth.instance.currentUser?.uid ==
                                     store?.ownerId)
-                            : Text('Loading...')
+                            : const Text('Loading...')
                   ],
                 ),
               ),
@@ -121,7 +129,7 @@ class StoreInfo extends HookConsumerWidget {
                         ElevatedButton(
                           onPressed: () {
                             context.router.push(StoreFormRoute(
-                              storeId: storeId,
+                              storeId: widget.storeId,
                             ));
                           },
                           child: const Text('Edit Store Info'),
