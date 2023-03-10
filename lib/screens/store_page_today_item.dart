@@ -68,9 +68,10 @@ class _TodayItemsListState extends State<TodayItemsList> {
     return StreamBuilder(
         stream: _todaysStream,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const LinearProgressIndicator();
           }
+
           return SizedBox(
             height: MediaQuery.of(context).size.height,
             child: ListView.builder(

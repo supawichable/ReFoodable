@@ -26,13 +26,13 @@ class _ItemCardState extends State<ItemCard> {
       .doc(addedBy)
       .get()
       .then((value) => value.data()?.displayName);
-  late final DateTime createdAt = item.createdAt!;
-  late final DateTime updatedAt = item.updatedAt!;
+  late final DateTime? createdAt = item.createdAt;
+  late final DateTime? updatedAt = item.updatedAt;
   late final String? photoURL = item.photoURL;
 
+  late String? timeString = createdAt?.toLocal().toString().substring(11, 16);
   @override
   Widget build(BuildContext context) {
-    String timeString = createdAt.toLocal().toString().substring(11, 16);
     return Container(
       // height: 130,
       decoration: BoxDecoration(color: Colors.white, boxShadow: [
