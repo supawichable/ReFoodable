@@ -6,9 +6,8 @@ import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/widgets/store_info.dart';
-
-import '../widgets/my_items.dart';
-import '../widgets/today_items.dart';
+import 'package:gdsctokyo/widgets/my_items.dart';
+import 'package:gdsctokyo/widgets/today_items.dart';
 
 class StorePage extends StatelessWidget {
   final String storeId;

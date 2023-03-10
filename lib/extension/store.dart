@@ -4,19 +4,19 @@ typedef StoreReference = DocumentReference<Store>;
 typedef StoresReference = CollectionReference<Store>;
 
 extension StoreReferenceX on StoreReference {
-  /// Get a collection reference of items in a store document.
+  /// Get a collection reference of soday's items in a store document.
   ///
   /// Example (gets, get, add):
   /// ```dart
   /// final store = FirebaseFirestore.instance.store('store_id');
-  /// final itemsRef = store.items;
+  /// final todaysItemsRef = store.todaysItems;
   ///
-  /// // get all items in the store
+  /// // get all today's items in the store
   /// final snapshots = await itemsRef.get();
-  /// final items = snapshots.docs.map((e) => e.data()).toList();
+  /// final todaysItems = snapshots.docs.map((e) => e.data()).toList();
   ///
   /// // get a specific item in the store
-  /// final itemRef = items.doc('item_id');
+  /// final itemRef = todaysItems.doc('item_id');
   /// final snapshot = await itemRef.get();
   /// final item = snapshot.data();
   ///
@@ -27,10 +27,43 @@ extension StoreReferenceX on StoreReference {
   ///                         currency: CurrencySymbol.jpy),
   ///                         addedBy: 'user_id');
   ///
-  /// final newItemRef = await itemsRef.add(newItem);
+  /// final newItemRef = await todaysItemsRef.add(newItem);
   /// ```
-  CollectionReference<Item> get items =>
-      collection(ApiPath.items.name).withConverter(
+  CollectionReference<Item> get todaysItems =>
+      collection(ApiPath.todays.name).withConverter(
+          fromFirestore: (snapshot, _) => Item.fromFirestore(snapshot),
+          toFirestore: (item, _) => item.toFirestore());
+
+  /// Get a collection reference of my items in a store document.
+  /// This is to get all the items in this store that the owner added
+  /// and to add new my items to the store.
+  /// This is only accessible by the owner of the store.
+  ///
+  /// Example (gets, get, add):
+  /// ```dart
+  /// final store = FirebaseFirestore.instance.store('store_id');
+  /// final myItemsRef = store.myItems;
+  ///
+  /// // get all my items in the store
+  /// final snapshots = await itemsRef.get();
+  /// final myItems = snapshots.docs.map((e) => e.data()).toList();
+  ///
+  /// // get a specific item in the store
+  /// final itemRef = myItems.doc('item_id');
+  /// final snapshot = await itemRef.get();
+  /// final item = snapshot.data();
+  ///
+  /// // add an item to the store
+  /// final newItem = Item(name: 'new item',
+  ///                     price: Price(
+  ///                        amount: 100,
+  ///                        currency: CurrencySymbol.jpy),
+  ///                        addedBy: 'user_id');
+  ///
+  /// final newItemRef = await myItemsRef.add(newItem);
+  /// ```
+  CollectionReference<Item> get myItems =>
+      collection(ApiPath.myItems.name).withConverter(
           fromFirestore: (snapshot, _) => Item.fromFirestore(snapshot),
           toFirestore: (item, _) => item.toFirestore());
 
