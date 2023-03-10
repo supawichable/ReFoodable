@@ -153,6 +153,7 @@ class _EmailChangeDialogState extends State<EmailChangeDialog> {
             ),
             TextFormField(
               controller: _passwordController,
+              obscureText: true,
               decoration: const InputDecoration(
                 labelText: 'Confirm Password',
               ),
