@@ -1,15 +1,21 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gdsctokyo/extension/firebase_extension.dart';
+import 'package:gdsctokyo/models/public/_public.dart';
+import 'package:gdsctokyo/models/store/_store.dart';
+import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/widgets/description_text.dart';
 
 class StoreCard extends StatefulWidget {
-  final dynamic data;
-  final bool edit;
+  final String storeId;
+  final Store? store;
 
   const StoreCard({
     Key? key,
-    required this.data,
-    required this.edit,
+    required this.store,
+    required this.storeId,
   }) : super(key: key);
 
   @override
@@ -17,22 +23,17 @@ class StoreCard extends StatefulWidget {
 }
 
 class _StoreCardState extends State<StoreCard> {
-  late final String ownerId;
-  late final DocumentReference ownerRef;
-  @override
-  void initState() {
-    super.initState();
-    ownerId = widget.data.ownerId;
-    ownerRef = FirebaseFirestore.instance.collection('owners').doc(ownerId);
-  }
+  late final String? ownerId = widget.store?.ownerId;
+  late final Future<DocumentSnapshot<UserPublic>> owner =
+      FirebaseFirestore.instance.usersPublic.doc(ownerId).get();
+  late final bool editable = ownerId != null
+      ? FirebaseAuth.instance.currentUser!.uid == ownerId
+      : false;
 
+  @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(
-        right: 10,
-        left: 10,
-        bottom: 10,
-      ),
+      padding: const EdgeInsets.all(10.0),
       child: Column(
         children: [
           const SizedBox(
@@ -42,41 +43,31 @@ class _StoreCardState extends State<StoreCard> {
             // crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Store Info',
-                maxLines: 1, // making sure overflow works propperly
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  fontFamily: 'Poppins',
-                ),
-              ),
-              widget.edit
-                  ? TextButton(
-                      onPressed: () {},
-                      style: ButtonStyle(
-                        minimumSize: MaterialStateProperty.all(Size.zero),
-                        visualDensity: VisualDensity.compact,
-                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                            EdgeInsets.zero),
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            Colors.transparent),
-                      ),
-                      child: Text(
-                        'edit',
-                        maxLines: 1, // making sure overflow works propperly
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
-                    )
-                  : SizedBox.shrink()
+              Text('Store Info',
+                  style: Theme.of(context).textTheme.headlineSmall),
+              if (editable)
+                TextButton(
+                  onPressed: () {
+                    context.router.push(StoreFormRoute(
+                      storeId: widget.storeId,
+                    ));
+                  },
+                  style: TextButton.styleFrom(
+                    minimumSize: Size.zero,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  child: Text(
+                    'edit',
+                    maxLines: 1, // making sure overflow works propperly
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                )
             ],
           ),
           Container(
@@ -114,11 +105,13 @@ class _StoreCardState extends State<StoreCard> {
                           ),
                         ),
                         Text(
-                          widget.data.address,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.shadow,
-                                  ),
+                          widget.store!.address ?? '(No address)',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
                         )
                       ],
                     ),
@@ -181,7 +174,7 @@ class _StoreCardState extends State<StoreCard> {
                         ),
                       ),
                       Text(
-                        widget.data.email,
+                        widget.store?.email ?? '(No email)',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.shadow,
                             ),
@@ -201,7 +194,7 @@ class _StoreCardState extends State<StoreCard> {
                         ),
                       ),
                       Text(
-                        widget.data.phone,
+                        widget.store?.phone ?? '(No phone)',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.shadow,
                             ),

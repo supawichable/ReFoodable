@@ -68,13 +68,13 @@ class _StoreInfoState extends State<StoreInfo> {
           return Column(
             children: [
               Container(
-                height: MediaQuery.of(context).size.width * 2 / 6,
+                height: MediaQuery.of(context).size.width / 3,
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: NetworkImage(
                       store?.photoURL ??
-                          // 200x300 placeholder image
-                          'https://via.placeholder.com/200x300',
+                          // 100x300 placeholder image
+                          'https://via.placeholder.com/100x300',
                     ),
                     fit: BoxFit.cover,
                     colorFilter: ColorFilter.mode(
@@ -106,14 +106,10 @@ class _StoreInfoState extends State<StoreInfo> {
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Column(
                   children: [
-                    snapshot.hasError
-                        ? Text('Error: ${snapshot.error}')
-                        : snapshot.hasData
-                            ? StoreCard(
-                                data: store,
-                                edit: FirebaseAuth.instance.currentUser?.uid ==
-                                    store?.ownerId)
-                            : const Text('Loading...')
+                    StoreCard(
+                      storeId: widget.storeId,
+                      store: store,
+                    )
                   ],
                 ),
               ),
@@ -132,29 +128,6 @@ class _StoreInfoState extends State<StoreInfo> {
                 ),
               ),
               // "You're the owner of this store" => Edit Store Info
-              if (FirebaseAuth.instance.currentUser?.uid == store?.ownerId) ...[
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('You\'re the owner of this store!'),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            context.router.push(StoreFormRoute(
-                              storeId: widget.storeId,
-                            ));
-                          },
-                          child: const Text('Edit Store Info'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
             ],
           );
         });
