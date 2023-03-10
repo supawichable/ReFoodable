@@ -6,6 +6,7 @@ import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/public/_public.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:gdsctokyo/util/logger.dart';
 import 'package:gdsctokyo/widgets/description_text.dart';
 
 class StoreCard extends StatefulWidget {
@@ -24,8 +25,12 @@ class StoreCard extends StatefulWidget {
 
 class _StoreCardState extends State<StoreCard> {
   late final String? ownerId = widget.store?.ownerId;
-  late final Future<DocumentSnapshot<UserPublic>> owner =
-      FirebaseFirestore.instance.usersPublic.doc(ownerId).get();
+  late final Future<String?> ownerName = FirebaseFirestore.instance.usersPublic
+      .doc(widget.store?.ownerId)
+      .get()
+      .then((snapshot) {
+    return snapshot.data()?.displayName;
+  });
   late final bool editable = ownerId != null
       ? FirebaseAuth.instance.currentUser!.uid == ownerId
       : false;
@@ -158,7 +163,20 @@ class _StoreCardState extends State<StoreCard> {
                           size: 20,
                         ),
                       ),
-                      const DescriptionText(size: 16, text: 'Natpawee')
+                      FutureBuilder<String?>(
+                          future: ownerName,
+                          builder: (context, snapshot) {
+                            return Text(
+                                snapshot.data ?? ownerId ?? '(No owner)',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    ));
+                          }),
                     ],
                   ),
                   const SizedBox(height: 10),

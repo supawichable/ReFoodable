@@ -106,10 +106,13 @@ class _StoreInfoState extends State<StoreInfo> {
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Column(
                   children: [
-                    StoreCard(
-                      storeId: widget.storeId,
-                      store: store,
-                    )
+                    if (snapshot.connectionState == ConnectionState.waiting)
+                      const LinearProgressIndicator()
+                    else
+                      StoreCard(
+                        storeId: widget.storeId,
+                        store: store,
+                      )
                   ],
                 ),
               ),
