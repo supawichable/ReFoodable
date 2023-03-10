@@ -22,14 +22,6 @@ class StorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showDialog(
-            context: context,
-            builder: (context) => AddItemDialog(
-                  storeId: storeId,
-                )),
-        child: const Icon(Icons.add),
-      ),
       appBar: AppBar(
         actions: [
           IconButton(
@@ -117,31 +109,29 @@ class _StoreInfoState extends State<StoreInfo> {
               const SizedBox(height: 4),
 
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
                     if (snapshot.connectionState == ConnectionState.waiting)
                       const LinearProgressIndicator()
-                    else
+                    else ...[
                       StoreCard(
                         storeId: widget.storeId,
                         store: store,
-                      )
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    if (FirebaseAuth.instance.currentUser?.uid ==
+                        store?.ownerId) ...[
+                      MyItems(
+                        storeId: widget.storeId,
+                      ),
+                      const SizedBox(height: 16)
+                    ],
+                    TodayItems(
+                      storeId: widget.storeId,
+                    ),
                   ],
-                ),
-              ),
-              if (FirebaseAuth.instance.currentUser?.uid == store?.ownerId) ...[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: MyItems(
-                    storeId: widget.storeId,
-                  ),
-                ),
-              ],
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: TodayItems(
-                  storeId: widget.storeId,
                 ),
               ),
               // "You're the owner of this store" => Edit Store Info

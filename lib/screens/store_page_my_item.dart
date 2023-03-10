@@ -1,16 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
-import 'package:gdsctokyo/routes/router.gr.dart';
-import 'package:gdsctokyo/widgets/store_info.dart';
-
-import '../models/item/_item.dart';
-import '../widgets/item_card.dart';
-import '../widgets/my_items.dart';
-import '../widgets/today_items.dart';
 
 class StoreMyItemPage extends StatelessWidget {
   final String storeId;
@@ -22,9 +14,9 @@ class StoreMyItemPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("My Items"),
+        title: const Text('My Items'),
         centerTitle: true,
-        actions: [],
+        actions: const [],
       ),
       body: ListView(
         scrollDirection: Axis.vertical,
@@ -64,7 +56,7 @@ class _StoreInfoState extends State<StoreInfo> {
           final store = snapshot.data?.data();
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Column(children: []),
+            child: Column(children: const []),
           );
         });
   }

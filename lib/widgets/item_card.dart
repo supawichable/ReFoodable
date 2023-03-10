@@ -39,115 +39,178 @@ class _ItemCardState extends State<ItemCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // height: 130,
-      decoration: BoxDecoration(color: Colors.white, boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.3),
-          spreadRadius: 2,
-          blurRadius: 4,
-          offset: const Offset(0, 3),
-        )
-      ]),
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).shadowColor.withOpacity(0.25),
+              spreadRadius: 2,
+              blurRadius: 4,
+              offset: const Offset(0, 3),
+            )
+          ]),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Flexible(
-            flex: 4,
-            child: Container(
-              margin: const EdgeInsets.only(
-                left: 16,
-                right: 10,
-              ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  BigBoldText(text: name, size: 20),
+                  Text(
+                    name,
+                    style: Theme.of(context).textTheme.bodyLarge?.apply(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontWeightDelta: 2),
+                  ),
                   const SizedBox(height: 8),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Container(
-                        margin: const EdgeInsets.only(
-                          right: 8,
+                      if (price.compareAtPrice != null) ...[
+                        Image.asset('lib/assets/images/Sale.png',
+                            height: 16, width: 16),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${price.currency.symbol}${price.compareAtPrice}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                  decoration: TextDecoration.lineThrough,
+                                  color: Theme.of(context).colorScheme.error),
                         ),
-                        width: 16,
-                        height: 16,
-                        decoration: const BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage('lib/assets/images/Sale.png'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          if (price.compareAtPrice != null) ...[
-                            Text(
-                              '${price.currency.symbol}${price.compareAtPrice}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    decoration: TextDecoration.lineThrough,
-                                  ),
-                            ),
-                            const SizedBox(width: 4),
-                          ],
-                          Text(
-                            '${price.currency.symbol}${price.amount}',
-                            style: const TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 12,
-                            ),
-                          )
-                        ],
+                        const SizedBox(width: 4),
+                      ],
+                      Text(
+                        '${price.currency.symbol}${price.amount}',
+                        style: Theme.of(context).textTheme.bodySmall?.apply(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontWeightDelta: 2),
                       )
                     ],
                   ),
                   const SizedBox(height: 8),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       FutureBuilder(
                         future: addedByName,
                         builder: (BuildContext context, snapshot) {
-                          return Text(
-                            'Added by ${snapshot.data ?? '(Deleted User)'} at $timeString',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.outline,
-                              fontFamily: 'Poppins',
-                              fontSize: 12,
-                              fontStyle: FontStyle.italic,
+                          return Text.rich(
+                            TextSpan(
+                              text: 'Added by ',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.apply(
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                  ),
+                              children: [
+                                TextSpan(
+                                  text: snapshot.data ?? 'Unknown',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.apply(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                        fontWeightDelta: 2,
+                                      ),
+                                ),
+                                TextSpan(
+                                  text: ' at $timeString',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.apply(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                      ),
+                                ),
+                              ],
                             ),
                           );
                         },
                       ),
-                      const SizedBox(width: 8),
                       GestureDetector(
-                        onTap: () {
-                          widget.snapshot.reference.delete();
+                        onTap: () async {
+                          final willDelete = await showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Delete Item'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                      'Are you sure you want to delete this item?'),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    name,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.apply(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface,
+                                          fontWeightDelta: 2,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (willDelete == true) {
+                            await widget.snapshot.reference.delete();
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Item deleted'),
+                                ),
+                              );
+                            }
+                          }
                         },
-                        child: const Text('Delete'),
+                        child: Text('Delete',
+                            style: Theme.of(context).textTheme.bodySmall?.apply(
+                                  color: Theme.of(context).colorScheme.error,
+                                )),
                       ),
-                      const SizedBox(width: 8),
                     ],
                   ),
                 ],
               ),
             ),
           ),
-          Container(
-            margin: const EdgeInsets.all(
-              4,
+          if (photoURL != null)
+            Image.network(
+              photoURL!,
+              height: 100,
+              width: 100,
+              fit: BoxFit.cover,
+            )
+          else
+            Image.asset(
+              'lib/assets/images/tomyum.jpg',
+              height: 100,
+              width: 100,
+              fit: BoxFit.cover,
             ),
-            width: 90,
-            height: 90,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(photoURL ?? 'lib/assets/images/tomyum.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
         ],
       ),
     );

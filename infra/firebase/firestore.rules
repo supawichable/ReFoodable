@@ -33,8 +33,6 @@ service cloud.firestore {
           request.resource.data.added_by == request.auth.uid &&
           request.auth.uid == get(/databases/$(database)/documents/stores/$(store)).data.owner_id;
       }
-
-
     }
 
     // Anyone can read user data but on the get method only
