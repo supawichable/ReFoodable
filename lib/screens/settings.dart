@@ -130,6 +130,8 @@ class _EmailChangeDialogState extends State<EmailChangeDialog> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  bool _isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -174,42 +176,54 @@ class _EmailChangeDialogState extends State<EmailChangeDialog> {
           },
           child: const Text('Cancel'),
         ),
-        TextButton(
-          onPressed: () async {
-            if (_formKey.currentState!.validate()) {
-              try {
-                await FirebaseAuth.instance.currentUser!
-                    .reauthenticateWithCredential(
-                  EmailAuthProvider.credential(
-                    email: FirebaseAuth.instance.currentUser!.email!,
-                    password: _passwordController.text,
-                  ),
-                );
-                await FirebaseAuth.instance.currentUser!
-                    .updateEmail(_emailController.text);
-                await FirebaseAuth.instance.currentUser!
-                    .reauthenticateWithCredential(
-                  EmailAuthProvider.credential(
-                    email: _emailController.text,
-                    password: _passwordController.text,
-                  ),
-                );
-                await FirebaseAuth.instance.currentUser!
-                    .sendEmailVerification();
-                if (mounted) {
-                  Navigator.of(context).pop();
+        if (_isLoading)
+          const TextButton(
+            onPressed: null,
+            child: CircularProgressIndicator(),
+          )
+        else
+          TextButton(
+            onPressed: () async {
+              if (_formKey.currentState!.validate()) {
+                setState(() {
+                  _isLoading = true;
+                });
+                try {
+                  await FirebaseAuth.instance.currentUser!
+                      .reauthenticateWithCredential(
+                    EmailAuthProvider.credential(
+                      email: FirebaseAuth.instance.currentUser!.email!,
+                      password: _passwordController.text,
+                    ),
+                  );
+                  await FirebaseAuth.instance.currentUser!
+                      .updateEmail(_emailController.text);
+                  await FirebaseAuth.instance.currentUser!
+                      .reauthenticateWithCredential(
+                    EmailAuthProvider.credential(
+                      email: _emailController.text,
+                      password: _passwordController.text,
+                    ),
+                  );
+                  await FirebaseAuth.instance.currentUser!
+                      .sendEmailVerification();
+                  if (mounted) {
+                    setState(() {
+                      _isLoading = false;
+                    });
+                    Navigator.of(context).pop();
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(e.toString()),
+                    ),
+                  );
                 }
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(e.toString()),
-                  ),
-                );
               }
-            }
-          },
-          child: const Text('Change'),
-        ),
+            },
+            child: const Text('Change'),
+          ),
       ],
     );
   }

@@ -47,7 +47,7 @@ class _StoreFormPageState extends State<StoreFormPage> {
 
   // if storeId is not null, then we are editing a store
   String? _targetStoreId;
-  bool isLoading = true;
+  bool _isLoading = true;
   String? _serverPhotoURL;
 
   @override
@@ -71,14 +71,14 @@ class _StoreFormPageState extends State<StoreFormPage> {
           _location = store.location;
           _serverPhotoURL = store.photoURL;
           setState(() {
-            isLoading = false;
+            _isLoading = false;
             _targetStoreId = storeId;
           });
         }
       }).catchError((e) {});
     } else {
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
     }
   }
@@ -233,59 +233,68 @@ class _StoreFormPageState extends State<StoreFormPage> {
                         },
                       ),
                       const SizedBox(height: 12),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate() &&
-                                _location != null) {
-                              late final DocumentReference<Store> storeRef;
-                              if (_targetStoreId == null) {
-                                final store = Store(
-                                  name: _nameController.text,
-                                  location: _location!,
-                                  address: _addressController.text,
-                                  email: _emailController.text,
-                                  phone: _phoneController.text,
-                                  category: _categoryList,
-                                  ownerId:
-                                      FirebaseAuth.instance.currentUser!.uid,
-                                );
-                                storeRef = await FirebaseFirestore
-                                    .instance.stores
-                                    .add(store);
+                      if (_isLoading)
+                        const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      else
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate() &&
+                                  _location != null) {
+                                setState(() {
+                                  _isLoading = true;
+                                });
 
-                                _targetStoreId = storeRef.id;
-                              } else {
-                                storeRef = FirebaseFirestore.instance.stores
-                                    .doc(_targetStoreId);
-                                await storeRef.updateStore(
-                                  name: _nameController.text,
-                                  location: _location!,
-                                  address: _addressController.text,
-                                  email: _emailController.text,
-                                  phone: _phoneController.text,
-                                  category: _categoryList,
-                                );
-                              }
-                              if (_coverPhoto != null) {
-                                final coverPhotoRef = FirebaseStorage.instance
-                                    .ref()
-                                    .child(
-                                        'stores/${storeRef.id}/cover_photo.jpg');
-                                await coverPhotoRef.putFile(_coverPhoto!);
-                                final coverPhotoUrl =
-                                    await coverPhotoRef.getDownloadURL();
-                                await storeRef.updateStore(
-                                    photoURL: coverPhotoUrl);
-                              }
+                                late final DocumentReference<Store> storeRef;
+                                if (_targetStoreId == null) {
+                                  final store = Store(
+                                    name: _nameController.text,
+                                    location: _location!,
+                                    address: _addressController.text,
+                                    email: _emailController.text,
+                                    phone: _phoneController.text,
+                                    category: _categoryList,
+                                    ownerId:
+                                        FirebaseAuth.instance.currentUser!.uid,
+                                  );
+                                  storeRef = await FirebaseFirestore
+                                      .instance.stores
+                                      .add(store);
 
-                              // ignore: use_build_context_synchronously
-                              Navigator.of(context).pop();
-                            }
-                          },
-                          child: const Text('Submit'),
+                                  _targetStoreId = storeRef.id;
+                                } else {
+                                  storeRef = FirebaseFirestore.instance.stores
+                                      .doc(_targetStoreId);
+                                  await storeRef.updateStore(
+                                    name: _nameController.text,
+                                    location: _location!,
+                                    address: _addressController.text,
+                                    email: _emailController.text,
+                                    phone: _phoneController.text,
+                                    category: _categoryList,
+                                  );
+                                }
+                                if (_coverPhoto != null) {
+                                  final coverPhotoRef = FirebaseStorage.instance
+                                      .ref()
+                                      .child(
+                                          'stores/${storeRef.id}/cover_photo.jpg');
+                                  await coverPhotoRef.putFile(_coverPhoto!);
+                                  final coverPhotoUrl =
+                                      await coverPhotoRef.getDownloadURL();
+                                  await storeRef.updateStore(
+                                      photoURL: coverPhotoUrl);
+                                }
+
+                                // ignore: use_build_context_synchronously
+                                Navigator.of(context).pop();
+                              }
+                            },
+                            child: const Text('Submit'),
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
