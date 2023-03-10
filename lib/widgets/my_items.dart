@@ -69,45 +69,6 @@ class _MyItemsState extends State<MyItems> {
           ),
           Column(
             children: [
-              ItemCard(
-                  item: Item(
-                name: 'BentoBenjai',
-                price: const Price(
-                  amount: 300,
-                  compareAtPrice: 500,
-                  currency: Currency.jpy,
-                ),
-                addedBy: 'atomicativesjai',
-                createdAt: DateTime.parse('2022-10-05 13:20:00'),
-                updatedAt: DateTime.parse('2022-10-05 13:20:00'),
-                photoURL: 'lib/assets/images/tomyum.jpg',
-              )),
-              ItemCard(
-                  item: Item(
-                name: 'BentoJa',
-                price: const Price(
-                  amount: 200,
-                  compareAtPrice: 500,
-                  currency: Currency.jpy,
-                ),
-                addedBy: 'atomicativesjai',
-                createdAt: DateTime.parse('2022-10-05 13:20:00'),
-                updatedAt: DateTime.parse('2022-10-05 13:20:00'),
-                photoURL: 'lib/assets/images/tomyum.jpg',
-              )),
-              ItemCard(
-                  item: Item(
-                name: 'BentoBenjai',
-                price: const Price(
-                  amount: 300,
-                  compareAtPrice: 500,
-                  currency: Currency.jpy,
-                ),
-                addedBy: 'atomicativesjai',
-                createdAt: DateTime.parse('2022-10-05 13:20:00'),
-                updatedAt: DateTime.parse('2022-10-05 13:20:00'),
-                photoURL: 'lib/assets/images/tomyum.jpg',
-              )),
               GestureDetector(
                 onTap: () {
                   // Navigate to the new page

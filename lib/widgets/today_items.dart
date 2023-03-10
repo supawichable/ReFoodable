@@ -1,5 +1,7 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/widgets/item_card.dart';
@@ -18,6 +20,13 @@ class TodayItems extends StatefulWidget {
 }
 
 class _TodayItemsState extends State<TodayItems> {
+  late Stream<QuerySnapshot<Item>> top3Items = FirebaseFirestore.instance.stores
+      .doc(widget.storeId)
+      .todaysItems
+      .orderBy('updated_at', descending: true)
+      .limit(3)
+      .snapshots();
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -73,45 +82,31 @@ class _TodayItemsState extends State<TodayItems> {
           ),
           Column(
             children: [
-              ItemCard(
-                  item: Item(
-                name: 'BentoBenjai',
-                price: const Price(
-                  amount: 300,
-                  compareAtPrice: 500,
-                  currency: Currency.jpy,
-                ),
-                addedBy: 'atomicativesjai',
-                createdAt: DateTime.parse('2022-10-05 13:20:00'),
-                updatedAt: DateTime.parse('2022-10-05 13:20:00'),
-                photoURL: 'lib/assets/images/tomyum.jpg',
-              )),
-              ItemCard(
-                  item: Item(
-                name: 'BentoJa',
-                price: const Price(
-                  amount: 200,
-                  compareAtPrice: 500,
-                  currency: Currency.jpy,
-                ),
-                addedBy: 'atomicativesjai',
-                createdAt: DateTime.parse('2022-10-05 13:20:00'),
-                updatedAt: DateTime.parse('2022-10-05 13:20:00'),
-                photoURL: 'lib/assets/images/tomyum.jpg',
-              )),
-              ItemCard(
-                  item: Item(
-                name: 'BentoBenjai',
-                price: const Price(
-                  amount: 300,
-                  compareAtPrice: 500,
-                  currency: Currency.jpy,
-                ),
-                addedBy: 'atomicativesjai',
-                createdAt: DateTime.parse('2022-10-05 13:20:00'),
-                updatedAt: DateTime.parse('2022-10-05 13:20:00'),
-                photoURL: 'lib/assets/images/tomyum.jpg',
-              )),
+              StreamBuilder(
+                stream: top3Items,
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot<Item>> snapshot) {
+                  if (snapshot.hasError) {
+                    return const Text('Something went wrong');
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  return Column(
+                    children: snapshot.data!.docs
+                        .map((DocumentSnapshot<Item> snapshot) {
+                      return ItemCard(
+                        key: ValueKey(snapshot.id),
+                        snapshot: snapshot,
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
               GestureDetector(
                 onTap: () {
                   // Navigate to the new page

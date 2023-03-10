@@ -5,10 +5,12 @@ import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/widgets/big_text_bold.dart';
 
 class ItemCard extends StatefulWidget {
-  final Item item;
+  final DocumentSnapshot<Item> snapshot;
+  // final User user;
   const ItemCard({
     Key? key,
-    required this.item,
+    required this.snapshot,
+    // required this.user,
   }) : super(key: key);
 
   @override
@@ -17,7 +19,8 @@ class ItemCard extends StatefulWidget {
 
 class _ItemCardState extends State<ItemCard> {
   // Deconstructing the item
-  late final item = widget.item;
+  late final item = widget.snapshot.data()!;
+  late final storeId = widget.snapshot.reference.parent.parent!.id;
   late final String name = item.name!;
   late final Price price = item.price!;
   late final String addedBy = item.addedBy!;
@@ -113,7 +116,16 @@ class _ItemCardState extends State<ItemCard> {
                     ),
                     const SizedBox(width: 8),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        // ❌
+                        // FirebaseFirestore.instance.stores
+                        //     .doc(storeId)
+                        //     .todaysItems
+                        //     .doc(widget.snapshot.id)
+                        //     .delete();
+                        // ✅
+                        widget.snapshot.reference.delete();
+                      },
                       child: Text(
                         'Delete',
                         maxLines: 1, // making sure overflow works propperly

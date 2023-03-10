@@ -51,16 +51,6 @@ class _TodayItemsListState extends State<TodayItemsList> {
         .doc(widget.storeId)
         .todaysItems
         .snapshots();
-    final item = Item(
-      name: 'BentoBenjai',
-      price: const Price(
-        amount: 300,
-        compareAtPrice: 500,
-        currency: Currency.jpy,
-      ),
-      addedBy: FirebaseAuth.instance.currentUser!.uid,
-    );
-    FirebaseFirestore.instance.stores.doc(widget.storeId).todaysItems.add(item);
   }
 
   @override
@@ -74,13 +64,11 @@ class _TodayItemsListState extends State<TodayItemsList> {
 
           return SizedBox(
             height: MediaQuery.of(context).size.height,
-            child: ListView.builder(
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                final item = snapshot.data!.docs[index].data();
-                return ItemCard(item: item);
-              },
-            ),
+            child: ListView(
+                children: snapshot.data!.docs
+                    .map((snapshot) => ItemCard(
+                        key: ValueKey(snapshot.id), snapshot: snapshot))
+                    .toList()),
           );
         });
   }

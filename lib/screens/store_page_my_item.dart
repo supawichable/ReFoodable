@@ -58,84 +58,13 @@ class _StoreInfoState extends State<StoreInfo> {
 
   @override
   Widget build(BuildContext context) {
-    List<Item> items = [
-      Item(
-        name: 'BentoBenjai',
-        price: const Price(
-          amount: 300,
-          compareAtPrice: 500,
-          currency: Currency.jpy,
-        ),
-        addedBy: 'atomicativesjai',
-        createdAt: DateTime.parse('2022-10-05 13:20:00'),
-        updatedAt: DateTime.parse('2022-10-05 13:20:00'),
-        photoURL: 'lib/assets/images/tomyum.jpg',
-      ),
-      Item(
-        name: 'BentoJa',
-        price: const Price(
-          amount: 200,
-          compareAtPrice: 500,
-          currency: Currency.jpy,
-        ),
-        addedBy: 'atomicativesjai',
-        createdAt: DateTime.parse('2022-10-05 13:20:00'),
-        updatedAt: DateTime.parse('2022-10-05 13:20:00'),
-        photoURL: 'lib/assets/images/tomyum.jpg',
-      ),
-      Item(
-        name: 'BentoBenjai',
-        price: const Price(
-          amount: 300,
-          compareAtPrice: 500,
-          currency: Currency.jpy,
-        ),
-        addedBy: 'atomicativesjai',
-        createdAt: DateTime.parse('2022-10-05 13:20:00'),
-        updatedAt: DateTime.parse('2022-10-05 13:20:00'),
-        photoURL: 'lib/assets/images/tomyum.jpg',
-      ),
-      Item(
-        name: 'BentoBenjai',
-        price: const Price(
-          amount: 300,
-          compareAtPrice: 500,
-          currency: Currency.jpy,
-        ),
-        addedBy: 'atomicativesjai',
-        createdAt: DateTime.parse('2022-10-05 13:20:00'),
-        updatedAt: DateTime.parse('2022-10-05 13:20:00'),
-        photoURL: 'lib/assets/images/tomyum.jpg',
-      ),
-      Item(
-        name: 'BentoBenjai',
-        price: const Price(
-          amount: 300,
-          compareAtPrice: 500,
-          currency: Currency.jpy,
-        ),
-        addedBy: 'atomicativesjai',
-        createdAt: DateTime.parse('2022-10-05 13:20:00'),
-        updatedAt: DateTime.parse('2022-10-05 13:20:00'),
-        photoURL: 'lib/assets/images/tomyum.jpg',
-      ),
-    ];
-
-    List<ItemCard> itemCards = [];
-
-    for (int i = 0; i < items.length; i++) {
-      Item item = items[i];
-      ItemCard itemCard = ItemCard(item: item);
-      itemCards.add(itemCard);
-    }
-
     return StreamBuilder<DocumentSnapshot<Store>>(
         stream: _storeStream,
         builder: (context, snapshot) {
           final store = snapshot.data?.data();
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Column(children: itemCards),
+            child: Column(children: []),
           );
         });
   }
