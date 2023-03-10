@@ -101,9 +101,9 @@ void main() {
         'stores',
       );
       expect(firestore.stores.doc(storeDoc.id).path, 'stores/${storeDoc.id}');
-      expect(firestore.stores.doc(storeDoc.id).items.path,
+      expect(firestore.stores.doc(storeDoc.id).todaysItems.path,
           'stores/${storeDoc.id}/items');
-      expect(firestore.stores.doc(storeDoc.id).items.doc('egg').path,
+      expect(firestore.stores.doc(storeDoc.id).todaysItems.doc('egg').path,
           'stores/${storeDoc.id}/items/egg');
     });
 
@@ -121,9 +121,10 @@ void main() {
         addedBy: auth.currentUser!.uid,
       );
       // Add a store by this current user.
-      await firestore.stores.doc(storeDoc.id).items.add(item);
+      await firestore.stores.doc(storeDoc.id).todaysItems.add(item);
 
-      final itemsSnapshot = await firestore.stores.doc(storeDoc.id).items.get();
+      final itemsSnapshot =
+          await firestore.stores.doc(storeDoc.id).todaysItems.get();
       final itemData = itemsSnapshot.docs.map((e) => e.data()).toList().first;
 
       expect(itemData.name, item.name);

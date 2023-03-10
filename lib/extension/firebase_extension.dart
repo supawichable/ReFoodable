@@ -11,7 +11,8 @@ part 'user.dart';
 
 enum ApiPath {
   stores,
-  items,
+  todays,
+  myItems,
   usersPrivate,
   usersPublic;
 }
@@ -22,8 +23,10 @@ extension ApiPathExtension on ApiPath {
     switch (this) {
       case ApiPath.stores:
         return 'stores';
-      case ApiPath.items:
-        return 'items';
+      case ApiPath.todays:
+        return 'todays_items';
+      case ApiPath.myItems:
+        return 'my_items';
       case ApiPath.usersPrivate:
         return 'users_private';
       case ApiPath.usersPublic:

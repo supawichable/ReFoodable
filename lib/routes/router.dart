@@ -13,6 +13,8 @@ import 'package:gdsctokyo/screens/home/home.dart';
 import 'package:gdsctokyo/screens/auth/signin.dart';
 import 'package:gdsctokyo/screens/splash.dart';
 import 'package:gdsctokyo/screens/store_page.dart';
+import 'package:gdsctokyo/screens/store_page_my_item.dart';
+import 'package:gdsctokyo/screens/store_page_today_item.dart';
 
 @MaterialAutoRouter(
   replaceInRouteName: 'Page,Route',
@@ -31,6 +33,8 @@ import 'package:gdsctokyo/screens/store_page.dart';
     AutoRoute(
         page: StoreFormPage, path: '/store-form/:storeId', guards: [AuthGuard]),
     AutoRoute(page: StorePage, path: '/store/:storeId'),
+    AutoRoute(page: StoreTodayItemPage, path: '/store/:storeId/today-item'),
+    AutoRoute(page: StoreMyItemPage, path: '/store/:storeId/my-item'),
   ],
 )
 class $AppRouter {}

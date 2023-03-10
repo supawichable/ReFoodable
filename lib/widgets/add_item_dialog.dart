@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
-import 'package:gdsctokyo/theme/color_schemes.dart';
 
 class AddItemDialog extends StatefulWidget {
   final String storeId;
@@ -232,7 +231,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                   });
                   final itemDoc = FirebaseFirestore.instance.stores
                       .doc(widget.storeId)
-                      .items
+                      .todaysItems
                       .doc();
 
                   final Item item = Item(
