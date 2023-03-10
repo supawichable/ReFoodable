@@ -21,6 +21,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   @override
   void initState() {
     super.initState();
+
     // Future.delayed(const Duration(seconds: 2), () {
     if (!_redirecting) {
       _redirecting = true;

@@ -4,13 +4,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
-import 'package:gdsctokyo/providers/store_in_view.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/widgets/add_item_dialog.dart';
 import 'package:gdsctokyo/widgets/icon_text.dart';
 import 'package:gdsctokyo/widgets/item_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
+import 'package:gdsctokyo/widgets/store_info.dart';
 
 class StorePage extends StatefulWidget {
   final String storeId;
@@ -57,22 +57,35 @@ class _StorePageState extends State<StorePage> {
   }
 }
 
-class StoreInfo extends HookConsumerWidget {
+class StoreInfo extends StatefulWidget {
   final String storeId;
 
   const StoreInfo({super.key, required this.storeId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final storeFuture = ref.watch(storeInViewProvider(storeId).future);
-    return FutureBuilder<DocumentSnapshot<Store>>(
-        future: storeFuture,
+  State<StoreInfo> createState() => _StoreInfoState();
+}
+
+class _StoreInfoState extends State<StoreInfo> {
+  late Stream<DocumentSnapshot<Store>> _storeStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _storeStream =
+        FirebaseFirestore.instance.stores.doc(widget.storeId).snapshots();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<DocumentSnapshot<Store>>(
+        stream: _storeStream,
         builder: (context, snapshot) {
           final store = snapshot.data?.data();
           return Column(
             children: [
               Container(
-                height: MediaQuery.of(context).size.width * 2 / 3,
+                height: MediaQuery.of(context).size.width * 2 / 6,
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: NetworkImage(
@@ -82,7 +95,7 @@ class StoreInfo extends HookConsumerWidget {
                     ),
                     fit: BoxFit.cover,
                     colorFilter: ColorFilter.mode(
-                        Colors.black.withOpacity(0.1), BlendMode.darken),
+                        Colors.black.withOpacity(0.2), BlendMode.darken),
                   ),
                 ),
                 child: Align(
@@ -106,53 +119,20 @@ class StoreInfo extends HookConsumerWidget {
                     )),
               ),
               const SizedBox(height: 4),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Flexible(
-                        flex: 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(
-                                bottom: 8,
-                              ),
-                              child: IconText(
-                                  icon: Icons.location_pin,
-                                  text: snapshot.connectionState ==
-                                          ConnectionState.waiting
-                                      ? 'Loading...'
-                                      : store != null
-                                          ? store.address ?? '(No address)'
-                                          : 'Error fetching store'),
-                            ),
-                            const IconText(icon: Icons.bento, text: 'Bento'),
-                          ],
-                        ),
-                      ),
-                      Flexible(
-                        flex: 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(
-                                bottom: 8,
-                              ),
-                              child: const IconText(
-                                  icon: Icons.schedule, text: '11:00 - 23:00'),
-                            ),
-                            const IconText(
-                                icon: Icons.discount,
-                                text: '40% - 80% discount'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Column(
+                  children: [
+                    snapshot.hasError
+                        ? Text('Error: ${snapshot.error}')
+                        : snapshot.hasData
+                            ? StoreCard(
+                                data: store,
+                                edit: FirebaseAuth.instance.currentUser?.uid ==
+                                    store?.ownerId)
+                            : const Text('Loading...')
+                  ],
                 ),
               ),
 
@@ -169,7 +149,7 @@ class StoreInfo extends HookConsumerWidget {
                         ElevatedButton(
                           onPressed: () {
                             context.router.push(StoreFormRoute(
-                              storeId: storeId,
+                              storeId: widget.storeId,
                             ));
                           },
                           child: const Text('Edit Store Info'),
