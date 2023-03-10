@@ -1,17 +1,31 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/widgets/description_text.dart';
 
-class StoreInfo extends StatefulWidget {
-  const StoreInfo({
+class StoreCard extends StatefulWidget {
+  final dynamic data;
+  final bool edit;
+
+  const StoreCard({
     Key? key,
+    required this.data,
+    required this.edit,
   }) : super(key: key);
 
   @override
-  State<StoreInfo> createState() => _StoreInfoState();
+  State<StoreCard> createState() => _StoreCardState();
 }
 
-class _StoreInfoState extends State<StoreInfo> {
+class _StoreCardState extends State<StoreCard> {
+  late final String ownerId;
+  late final DocumentReference ownerRef;
   @override
+  void initState() {
+    super.initState();
+    ownerId = widget.data.ownerId;
+    ownerRef = FirebaseFirestore.instance.collection('owners').doc(ownerId);
+  }
+
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
@@ -39,28 +53,30 @@ class _StoreInfoState extends State<StoreInfo> {
                   fontFamily: 'Poppins',
                 ),
               ),
-              TextButton(
-                onPressed: () {},
-                style: ButtonStyle(
-                  minimumSize: MaterialStateProperty.all(Size.zero),
-                  visualDensity: VisualDensity.compact,
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      EdgeInsets.zero),
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.transparent),
-                ),
-                child: Text(
-                  'edit',
-                  maxLines: 1, // making sure overflow works propperly
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-              )
+              widget.edit
+                  ? TextButton(
+                      onPressed: () {},
+                      style: ButtonStyle(
+                        minimumSize: MaterialStateProperty.all(Size.zero),
+                        visualDensity: VisualDensity.compact,
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                            EdgeInsets.zero),
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            Colors.transparent),
+                      ),
+                      child: Text(
+                        'edit',
+                        maxLines: 1, // making sure overflow works propperly
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    )
+                  : SizedBox.shrink()
             ],
           ),
           Container(
@@ -97,7 +113,13 @@ class _StoreInfoState extends State<StoreInfo> {
                             size: 20,
                           ),
                         ),
-                        const DescriptionText(size: 16, text: '東京都目黒区大岡山')
+                        Text(
+                          widget.data.address,
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.shadow,
+                                  ),
+                        )
                       ],
                     ),
                   ),
@@ -158,8 +180,12 @@ class _StoreInfoState extends State<StoreInfo> {
                           size: 20,
                         ),
                       ),
-                      const DescriptionText(
-                          size: 16, text: 'tonklalor2544@gmail.com')
+                      Text(
+                        widget.data.email,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.shadow,
+                            ),
+                      )
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -174,7 +200,12 @@ class _StoreInfoState extends State<StoreInfo> {
                           size: 20,
                         ),
                       ),
-                      const DescriptionText(size: 16, text: '07013432321')
+                      Text(
+                        widget.data.phone,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.shadow,
+                            ),
+                      )
                     ],
                   ),
                 ],
