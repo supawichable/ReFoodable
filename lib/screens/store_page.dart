@@ -135,7 +135,20 @@ class _StoreInfoState extends State<StoreInfo> {
                   ],
                 ),
               ),
-
+              if (FirebaseAuth.instance.currentUser?.uid == store?.ownerId) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: MyItems(
+                    storeId: widget.storeId,
+                  ),
+                ),
+              ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: TodayItems(
+                  storeId: widget.storeId,
+                ),
+              ),
               // "You're the owner of this store" => Edit Store Info
               if (FirebaseAuth.instance.currentUser?.uid == store?.ownerId) ...[
                 Card(
