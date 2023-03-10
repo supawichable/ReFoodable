@@ -8,7 +8,9 @@ import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/providers/store_in_view.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/widgets/icon_text.dart';
+import 'package:gdsctokyo/widgets/store_info.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import '';
 
 class StorePage extends StatelessWidget {
   final String storeId;
@@ -56,7 +58,7 @@ class StoreInfo extends HookConsumerWidget {
           return Column(
             children: [
               Container(
-                height: MediaQuery.of(context).size.width * 2 / 3,
+                height: MediaQuery.of(context).size.width * 2 / 6,
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: NetworkImage(
@@ -89,53 +91,20 @@ class StoreInfo extends HookConsumerWidget {
                     )),
               ),
               const SizedBox(height: 4),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Flexible(
-                        flex: 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(
-                                bottom: 8,
-                              ),
-                              child: IconText(
-                                  icon: Icons.location_pin,
-                                  text: snapshot.connectionState ==
-                                          ConnectionState.waiting
-                                      ? 'Loading...'
-                                      : store != null
-                                          ? store.address ?? '(No address)'
-                                          : 'Error fetching store'),
-                            ),
-                            const IconText(icon: Icons.bento, text: 'Bento'),
-                          ],
-                        ),
-                      ),
-                      Flexible(
-                        flex: 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(
-                                bottom: 8,
-                              ),
-                              child: const IconText(
-                                  icon: Icons.schedule, text: '11:00 - 23:00'),
-                            ),
-                            const IconText(
-                                icon: Icons.discount,
-                                text: '40% - 80% discount'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                child: Column(
+                  children: [
+                    snapshot.hasError
+                        ? Text('Error: ${snapshot.error}')
+                        : snapshot.hasData
+                            ? StoreCard(
+                                data: store,
+                                edit: FirebaseAuth.instance.currentUser?.uid ==
+                                    store?.ownerId)
+                            : Text('Loading...')
+                  ],
                 ),
               ),
 
