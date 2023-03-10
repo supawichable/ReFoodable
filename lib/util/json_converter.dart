@@ -58,7 +58,7 @@ class PriceConverter extends JsonConverter<Price, Map<String, dynamic>> {
       currency: Currency.values.firstWhere(
         (e) => e.toString() == 'Currency.${json['currency']}',
       ),
-      compareAtPrice: (json['compare_at_price'] as num).toDouble(),
+      compareAtPrice: (json['compare_at_price'] as num?)?.toDouble(),
     );
   }
 

@@ -5,19 +5,34 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:gdsctokyo/widgets/add_item_dialog.dart';
+import 'package:gdsctokyo/widgets/icon_text.dart';
+import 'package:gdsctokyo/widgets/item_card.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/widgets/store_info.dart';
 
-import '../widgets/my_items.dart';
-import '../widgets/today_items.dart';
-
-class StorePage extends StatelessWidget {
+class StorePage extends StatefulWidget {
   final String storeId;
 
   const StorePage({super.key, @PathParam('storeId') required this.storeId});
 
   @override
+  State<StorePage> createState() => _StorePageState();
+}
+
+class _StorePageState extends State<StorePage> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showDialog(
+            context: context,
+            builder: (context) => AddItemDialog(
+                  storeId: widget.storeId,
+                )),
+        child: const Icon(Icons.add),
+      ),
       appBar: AppBar(
         actions: [
           IconButton(
@@ -34,7 +49,8 @@ class StorePage extends StatelessWidget {
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
         children: [
-          StoreInfo(storeId: storeId),
+          StoreInfo(storeId: widget.storeId),
+          ItemList(storeId: widget.storeId),
         ],
       ),
     );
@@ -87,18 +103,19 @@ class _StoreInfoState extends State<StoreInfo> {
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                          snapshot.connectionState == ConnectionState.waiting
-                              ? 'Loading...'
-                              : store != null
-                                  ? store.name ?? '(Untitled)'
-                                  : 'Error fetching store',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
-                              ?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              )),
+                        snapshot.connectionState == ConnectionState.waiting
+                            ? 'Loading...'
+                            : store != null
+                                ? store.name ?? '(Untitled)'
+                                : 'Error fetching store',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
                     )),
               ),
               const SizedBox(height: 4),
@@ -159,5 +176,62 @@ class _StoreInfoState extends State<StoreInfo> {
             ],
           );
         });
+  }
+}
+
+class ItemList extends StatefulWidget {
+  final String storeId;
+  const ItemList({super.key, required this.storeId});
+
+  @override
+  State<ItemList> createState() => _ItemListState();
+}
+
+class _ItemListState extends State<ItemList> {
+  late final Stream<QuerySnapshot<Item>> itemsStream;
+  late final String userId;
+
+  @override
+  void initState() {
+    super.initState();
+    itemsStream =
+        FirebaseFirestore.instance.stores.doc(widget.storeId).items.snapshots();
+    userId = FirebaseAuth.instance.currentUser!.uid;
+    // final Item item = Item(
+    //   name: 'Bento',
+    //   price: Price(amount: 100, currency: Currency.jpy),
+    //   addedBy: FirebaseAuth.instance.currentUser!.uid,
+    // );
+    // FirebaseFirestore.instance.stores.doc(widget.storeId).items.doc('aLF72ZRQt1MYOMrrwdFQ').delete();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot<Item>>(
+      stream: itemsStream,
+      builder: (BuildContext context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        if (snapshot.hasData) {
+          final items = snapshot.data!.docs;
+          return Column(
+            children: [
+              for (final item in items)
+                ItemCard(
+                  key: ValueKey(item.id),
+                  snapshot: item,
+                ),
+            ],
+          );
+        }
+        return const Text('null');
+      },
+    );
   }
 }
