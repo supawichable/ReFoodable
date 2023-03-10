@@ -9,6 +9,7 @@ import 'package:gdsctokyo/providers/image_upload.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 const kplaceholderImage =
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png';
@@ -182,7 +183,10 @@ class UploadableProfileImage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: () async {
-        final imageUploadState = await ImageUploader(ref).handleImageUpload();
+        final imageUploadState = await ImageUploader(ref,
+            options: const ImageUploadOptions(
+              aspectRatio: CropAspectRatio(ratioX: 3, ratioY: 1),
+            )).handleImageUpload();
 
         await imageUploadState.whenOrNull(error: (error) {
           ScaffoldMessenger.of(context)

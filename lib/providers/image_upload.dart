@@ -84,15 +84,21 @@ class ImageUploader {
 
 class ImageUploadOptions {
   final List<CropAspectRatioPreset> aspectRatioPresets;
+  final CropAspectRatio? aspectRatio;
 
   /// Options for [ImageUploadNotifier] \
   /// \
   /// [aspectRatioPresets] is the list of aspect ratios to show in the cropper.
-  /// If not provided, then the cropper will only show the square option.
+  /// If not provided, then the cropper will only show the
+  /// [CropAspectRatioPreset.original] option. \
+  /// [aspectRatio] is the custom aspect ratio to show in the cropper. \
+  ///
+  /// If both [aspectRatioPresets] and [aspectRatio] are provided, then
+  /// [aspectRatio] will be used as the default aspect ratio.
+  /// (So don't?)
   const ImageUploadOptions({
-    this.aspectRatioPresets = const [
-      CropAspectRatioPreset.square,
-    ],
+    this.aspectRatio,
+    this.aspectRatioPresets = const [CropAspectRatioPreset.original],
   });
 }
 
@@ -107,7 +113,6 @@ class ImageUploadNotifier extends StateNotifier<ImageUpload> {
   ImageUploadNotifier(this.uploader) : super(const ImageUpload.standBy());
 
   Future<void> _controlCenter() async {
-    logger.d('Current state: $state');
     await state.whenOrNull<Future<void>>(
       standBy: _handleImageUpload,
       prompt: _prompt,
@@ -116,11 +121,6 @@ class ImageUploadNotifier extends StateNotifier<ImageUpload> {
       },
       error: (error) {
         Navigator.of(uploader.ref.context).pop();
-        ScaffoldMessenger.of(uploader.ref.context).showSnackBar(
-          SnackBar(
-            content: Text(error.message),
-          ),
-        );
         switch (error) {
           case ImagePickerError.stepError:
             break;
@@ -162,14 +162,13 @@ class ImageUploadNotifier extends StateNotifier<ImageUpload> {
         final croppedFile = await ImageCropper().cropImage(
             sourcePath: sourceFile.path,
             aspectRatioPresets: options.aspectRatioPresets,
+            aspectRatio: options.aspectRatio,
             uiSettings: [
               AndroidUiSettings(
                 toolbarTitle: 'Crop Image',
                 toolbarColor: Theme.of(context).colorScheme.primaryContainer,
                 toolbarWidgetColor:
                     Theme.of(context).colorScheme.onPrimaryContainer,
-                initAspectRatio: CropAspectRatioPreset.original,
-                lockAspectRatio: false,
               ),
               IOSUiSettings(
                 title: 'Crop Image',

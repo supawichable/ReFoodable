@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:auto_route/annotations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -163,13 +164,25 @@ class _StoreFormPageState extends State<StoreFormPage> {
                       const SizedBox(height: 12),
                       const Text('Location'),
                       const SizedBox(height: 12),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _location = const GeoPoint(0, 0);
-                          });
-                        },
-                        child: const Text('Set Location'),
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                // latitude and longitude to random number in valid range
+                                final lat = Random().nextInt(180) - 90;
+                                final lon = Random().nextInt(360) - 180;
+                                _location =
+                                    GeoPoint(lat.toDouble(), lon.toDouble());
+                              });
+                            },
+                            child: const Text('Set Location'),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(_location != null
+                              ? '${_location!.latitude}, ${_location!.longitude}'
+                              : 'No location set'),
+                        ],
                       ),
                       const SizedBox(height: 12),
                       const Text('Address'),
@@ -325,8 +338,8 @@ class CoverPhoto extends HookConsumerWidget {
               child: InkWell(
                 onTap: () async {
                   final imageUpload = await ImageUploader(ref,
-                      options: ImageUploadOptions(
-                        aspectRatioPresets: [CropAspectRatioPreset.ratio3x2],
+                      options: const ImageUploadOptions(
+                        aspectRatio: CropAspectRatio(ratioX: 3, ratioY: 1),
                       )).handleImageUpload();
                   imageUpload.whenOrNull(
                       cropped: (file) => setFile(File(file.path)),
