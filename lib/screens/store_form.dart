@@ -244,6 +244,8 @@ class _StoreFormPageState extends ConsumerState<StoreFormPage> {
                                 storeRef = await FirebaseFirestore
                                     .instance.stores
                                     .add(store);
+
+                                _targetStoreId = storeRef.id;
                               } else {
                                 storeRef = FirebaseFirestore.instance.stores
                                     .doc(_targetStoreId);
