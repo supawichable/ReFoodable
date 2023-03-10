@@ -105,7 +105,7 @@ class _StoreCardState extends State<StoreCard> {
                           ),
                         ),
                         Text(
-                          widget.store!.address ?? '(No address)',
+                          widget.store?.address ?? '(No address)',
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium

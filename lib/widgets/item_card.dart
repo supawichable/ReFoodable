@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/widgets/big_text_bold.dart';
 
@@ -19,6 +21,11 @@ class _ItemCardState extends State<ItemCard> {
   late final String name = item.name!;
   late final Price price = item.price!;
   late final String addedBy = item.addedBy!;
+  late final Future<String?> addedByName = FirebaseFirestore
+      .instance.usersPublic
+      .doc(addedBy)
+      .get()
+      .then((value) => value.data()?.displayName);
   late final DateTime createdAt = item.createdAt!;
   late final DateTime updatedAt = item.updatedAt!;
   late final String? photoURL = item.photoURL;
@@ -90,14 +97,19 @@ class _ItemCardState extends State<ItemCard> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Text(
-                      'Added by $addedBy at $timeString',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.outline,
-                        fontFamily: 'Poppins',
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
-                      ),
+                    FutureBuilder(
+                      future: addedByName,
+                      builder: (BuildContext context, snapshot) {
+                        return Text(
+                          'Added by ${snapshot.data ?? '(Deleted User)'} at $timeString',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.outline,
+                            fontFamily: 'Poppins',
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(width: 8),
                     GestureDetector(
@@ -126,7 +138,7 @@ class _ItemCardState extends State<ItemCard> {
             height: 90,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(photoURL ?? 'lib/assets/images/tomyum.png'),
+                image: AssetImage(photoURL ?? 'lib/assets/images/tomyum.jpg'),
                 fit: BoxFit.cover,
               ),
             ),

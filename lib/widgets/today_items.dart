@@ -1,9 +1,10 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
+import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/widgets/item_card.dart';
-
-import '../screens/store_page_my_item.dart';
-import '../screens/store_page_today_item.dart';
+import 'package:gdsctokyo/screens/store_page_my_item.dart';
+import 'package:gdsctokyo/screens/store_page_today_item.dart';
 
 class TodayItems extends StatefulWidget {
   const TodayItems({
@@ -43,7 +44,11 @@ class _TodayItemsState extends State<TodayItems> {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.pushRoute(StoreTodayItemRoute(
+                    storeId: widget.storeId,
+                  ));
+                },
                 style: ButtonStyle(
                   minimumSize: MaterialStateProperty.all(Size.zero),
                   visualDensity: VisualDensity.compact,
@@ -113,7 +118,7 @@ class _TodayItemsState extends State<TodayItems> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => StorePageTodayItem(
+                        builder: (context) => StoreTodayItemPage(
                               storeId: widget.storeId,
                             )),
                   );

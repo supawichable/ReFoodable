@@ -114,7 +114,7 @@ class _MyItemsState extends State<MyItems> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => StorePageMyItem(
+                        builder: (context) => StoreMyItemPage(
                               storeId: widget.storeId,
                             )),
                   );

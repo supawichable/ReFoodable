@@ -12,10 +12,10 @@ import '../widgets/item_card.dart';
 import '../widgets/my_items.dart';
 import '../widgets/today_items.dart';
 
-class StorePageMyItem extends StatelessWidget {
+class StoreMyItemPage extends StatelessWidget {
   final String storeId;
 
-  const StorePageMyItem(
+  const StoreMyItemPage(
       {super.key, @PathParam('storeId') required this.storeId});
 
   @override
