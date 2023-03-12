@@ -6,7 +6,7 @@ import 'package:gdsctokyo/widgets/item_card.dart';
 import 'package:gdsctokyo/screens/store_page_my_item.dart';
 
 import '../screens/store_page_my_item.dart';
-import '../screens/store_page_today_item.dart';
+import 'package:gdsctokyo/screens/store_page_today_item.dart';
 
 class MyItems extends StatefulWidget {
   const MyItems({
