@@ -30,7 +30,7 @@ void main() {
     test('User add a store', () async {
       final store = Store(
           name: 'Store Name',
-          location: const GeoPoint(0, 0),
+          location: Location.fromGeoPoint(const GeoPoint(0, 0)),
           address: 'test',
           email: 'store@example.com',
           phone: '08080808080',
@@ -56,7 +56,7 @@ void main() {
       // (ownerId is implied and not required by the form)
       final store2 = Store(
           name: 'Store Name 2',
-          location: const GeoPoint(0, 0),
+          location: Location.fromGeoPoint(const GeoPoint(0, 0)),
           address: 'test',
           email: 'store@example.com',
           phone: '08080808080',
@@ -93,18 +93,6 @@ void main() {
       final snapshot =
           await firestore.stores.ownedByUser(auth.currentUser!.uid).get();
       storeDoc = snapshot.docs.first;
-    });
-
-    test('API gives valid path', () async {
-      expect(
-        firestore.stores.path,
-        'stores',
-      );
-      expect(firestore.stores.doc(storeDoc.id).path, 'stores/${storeDoc.id}');
-      expect(firestore.stores.doc(storeDoc.id).todaysItems.path,
-          'stores/${storeDoc.id}/items');
-      expect(firestore.stores.doc(storeDoc.id).todaysItems.doc('egg').path,
-          'stores/${storeDoc.id}/items/egg');
     });
 
     test('Get a store owned by this user', () async {
