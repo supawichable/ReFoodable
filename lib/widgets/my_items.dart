@@ -40,7 +40,7 @@ class _MyItemsState extends State<MyItems> {
         ),
         GestureDetector(
           onTap: () {
-            context.router.push(StoreTodayItemRoute(
+            context.router.push(StoreMyItemRoute(
               storeId: widget.storeId,
             ));
           },
