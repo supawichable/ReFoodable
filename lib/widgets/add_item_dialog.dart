@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +8,10 @@ import 'package:gdsctokyo/models/item/_item.dart';
 
 class AddItemDialog extends StatefulWidget {
   final String storeId;
+  final bool isToday;
 
-  const AddItemDialog({super.key, required this.storeId});
+  const AddItemDialog(
+      {super.key, required this.storeId, required this.isToday});
 
   @override
   State<AddItemDialog> createState() => _AddItemDialogState();
@@ -229,10 +233,16 @@ class _AddItemDialogState extends State<AddItemDialog> {
                     discountedPrice =
                         double.parse(_controllerDiscountedPrice.text);
                   });
-                  final itemDoc = FirebaseFirestore.instance.stores
-                      .doc(widget.storeId)
-                      .todaysItems
-                      .doc();
+
+                  final itemDoc = widget.isToday
+                      ? FirebaseFirestore.instance.stores
+                          .doc(widget.storeId)
+                          .todaysItems
+                          .doc()
+                      : FirebaseFirestore.instance.stores
+                          .doc(widget.storeId)
+                          .myItems
+                          .doc();
 
                   final Item item = Item(
                     name: menuName,
