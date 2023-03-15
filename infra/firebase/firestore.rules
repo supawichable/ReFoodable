@@ -10,7 +10,7 @@ service cloud.firestore {
     match /stores/{store} {
       allow read;
       allow create: if request.auth != null && request.resource.data.owner_id == request.auth.uid;
-      allow update, delete: if request.auth != null && request.auth.uid == request.resource.data.owner_id;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.owner_id;
       
       // Anyone can read today's item data
       // Anyone can add an today's item as long as

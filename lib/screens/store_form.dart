@@ -10,7 +10,6 @@ import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/providers/image_upload.dart';
-import 'package:gdsctokyo/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 

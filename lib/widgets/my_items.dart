@@ -24,6 +24,7 @@ class _MyItemsState extends State<MyItems> {
       .orderBy('updated_at', descending: true)
       .limit(3)
       .snapshots();
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -36,6 +37,14 @@ class _MyItemsState extends State<MyItems> {
                   .textTheme
                   .headlineSmall
                   ?.apply(fontWeightDelta: 2),
+            ),
+            const Spacer(),
+            // setState button
+            IconButton(
+              onPressed: () {
+                setState(() {});
+              },
+              icon: const Icon(Icons.refresh),
             ),
           ],
         ),
@@ -85,11 +94,13 @@ class _MyItemsState extends State<MyItems> {
                 : Column(
                     children: snapshot.data!.docs
                         .map((DocumentSnapshot<Item> snapshot) {
-                      return ItemCard(
-                        key: ValueKey(snapshot.id),
-                        snapshot: snapshot,
-                      );
-                    }).toList(),
+                          return ItemCard(
+                            key: ValueKey(snapshot.id),
+                            snapshot: snapshot,
+                          );
+                        })
+                        .toList()
+                        .cast(),
                   );
           },
         ),

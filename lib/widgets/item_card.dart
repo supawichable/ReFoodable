@@ -2,10 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
-import 'package:gdsctokyo/util/logger.dart';
-import 'package:gdsctokyo/widgets/big_text_bold.dart';
-
-import 'add_item_dialog.dart';
+import 'package:gdsctokyo/widgets/add_item_dialog.dart';
 
 class ItemCard extends StatefulWidget {
   final DocumentSnapshot<Item> snapshot;
@@ -45,9 +42,8 @@ class _ItemCardState extends State<ItemCard> {
             context: context,
             builder: (context) => AddItemDialog(
                   storeId: storeId,
-                  isToday: false,
-                  item: item,
                   itemId: widget.snapshot.id,
+                  bucket: widget.snapshot.reference.parent.id,
                 ));
       },
       child: Container(
