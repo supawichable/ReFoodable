@@ -13,17 +13,21 @@ class LocationListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ListTile(
+        Material(
+          child: ListTile(
+            tileColor: Colors.white,
             onTap: press,
             horizontalTitleGap: 0,
             title: Text(
               location,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-            )),
+            )
+          ),
+        ),
         const Divider(
-          height: 2,
-          thickness: 2,
+          height: 0,
+          thickness: 1,
           color: Color(0xFFF8F8F8),
         )
       ],
