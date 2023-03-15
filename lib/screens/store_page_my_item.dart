@@ -20,7 +20,7 @@ class StoreMyItemPage extends StatelessWidget {
             context: context,
             builder: (context) => AddItemDialog(
                   storeId: storeId,
-                  isToday: false,
+                  bucket: ItemBucket.my,
                 )),
         child: const Icon(Icons.add),
       ),
@@ -70,13 +70,20 @@ class _MyItemState extends State<MyItem> {
             return const LinearProgressIndicator();
           }
 
-          return SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: ListView(
-                children: snapshot.data!.docs
-                    .map((snapshot) => ItemCard(
-                        key: ValueKey(snapshot.id), snapshot: snapshot))
-                    .toList()),
+          if (snapshot.hasData) {
+            return SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: ListView(
+                  children: snapshot.data!.docs
+                      .map(
+                        (snapshot) => ItemCard(snapshot: snapshot),
+                      )
+                      .toList(),
+                ));
+          }
+
+          return const Center(
+            child: Text('No items'),
           );
         });
   }

@@ -2,12 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
-import 'package:gdsctokyo/util/logger.dart';
-import 'package:gdsctokyo/widgets/big_text_bold.dart';
+import 'package:gdsctokyo/widgets/add_item_dialog.dart';
 
-import 'add_item_dialog.dart';
-
-class ItemCard extends StatefulWidget {
+class ItemCard extends StatelessWidget {
   final DocumentSnapshot<Item> snapshot;
   // final User user;
   const ItemCard({
@@ -17,38 +14,32 @@ class ItemCard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ItemCard> createState() => _ItemCardState();
-}
-
-class _ItemCardState extends State<ItemCard> {
-  // Deconstructing the item
-  late final item = widget.snapshot.data()!;
-  late final storeId = widget.snapshot.reference.parent.parent!.id;
-  late final String name = item.name!;
-  late final Price price = item.price!;
-  late final String addedBy = item.addedBy!;
-  late final Future<String?> addedByName = FirebaseFirestore
-      .instance.usersPublic
-      .doc(addedBy)
-      .get()
-      .then((value) => value.data()?.displayName);
-  late final DateTime? createdAt = item.createdAt;
-  late final DateTime? updatedAt = item.updatedAt;
-  late final String? photoURL = item.photoURL;
-
-  late String? timeString = createdAt?.toLocal().toString().substring(11, 16);
-
-  @override
   Widget build(BuildContext context) {
+    late final item = snapshot.data()!;
+    late final storeId = snapshot.reference.parent.parent!.id;
+    late final String name = item.name!;
+    late final Price price = item.price!;
+    late final String addedBy = item.addedBy!;
+    late final Future<String?> addedByName = FirebaseFirestore.instance.users
+        .doc(addedBy)
+        .get()
+        .then((value) => value.data()?.displayName);
+    late final DateTime? createdAt = item.createdAt;
+    late final DateTime? updatedAt = item.updatedAt;
+    late final String? photoURL = item.photoURL;
+
+    late String? timeString = createdAt?.toLocal().toString().substring(11, 16);
+
     return GestureDetector(
       onTap: () {
         showDialog(
             context: context,
             builder: (context) => AddItemDialog(
                   storeId: storeId,
-                  isToday: false,
-                  item: item,
-                  itemId: widget.snapshot.id,
+                  itemId: snapshot.id,
+                  bucket: snapshot.reference.parent.id == ApiPath.myItems
+                      ? ItemBucket.my
+                      : ItemBucket.today,
                 ));
       },
       child: Container(
@@ -191,8 +182,8 @@ class _ItemCardState extends State<ItemCard> {
                               ),
                             );
                             if (willDelete == true) {
-                              await widget.snapshot.reference.delete();
-                              if (mounted) {
+                              await snapshot.reference.delete();
+                              if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Item deleted'),
@@ -217,7 +208,7 @@ class _ItemCardState extends State<ItemCard> {
             ),
             if (photoURL != null)
               Image.network(
-                photoURL!,
+                photoURL,
                 height: 100,
                 width: 100,
                 fit: BoxFit.cover,

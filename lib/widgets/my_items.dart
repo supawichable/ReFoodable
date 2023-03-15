@@ -85,11 +85,13 @@ class _MyItemsState extends State<MyItems> {
                 : Column(
                     children: snapshot.data!.docs
                         .map((DocumentSnapshot<Item> snapshot) {
-                      return ItemCard(
-                        key: ValueKey(snapshot.id),
-                        snapshot: snapshot,
-                      );
-                    }).toList(),
+                          return ItemCard(
+                            key: ValueKey(snapshot.id),
+                            snapshot: snapshot,
+                          );
+                        })
+                        .toList()
+                        .cast(),
                   );
           },
         ),

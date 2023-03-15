@@ -22,7 +22,7 @@ class StoreCard extends StatefulWidget {
 
 class _StoreCardState extends State<StoreCard> {
   late final String? ownerId = widget.store?.ownerId;
-  late final Future<String?> ownerName = FirebaseFirestore.instance.usersPublic
+  late final Future<String?> ownerName = FirebaseFirestore.instance.users
       .doc(widget.store?.ownerId)
       .get()
       .then((snapshot) {
