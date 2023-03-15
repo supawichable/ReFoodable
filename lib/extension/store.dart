@@ -4,7 +4,7 @@ typedef StoreReference = DocumentReference<Store>;
 typedef StoresReference = CollectionReference<Store>;
 
 extension StoreReferenceX on StoreReference {
-  /// Get a collection reference of soday's items in a store document.
+  /// Get a collection reference of today's items in a store document.
   ///
   /// Example (gets, get, add):
   /// ```dart
@@ -30,7 +30,7 @@ extension StoreReferenceX on StoreReference {
   /// final newItemRef = await todaysItemsRef.add(newItem);
   /// ```
   CollectionReference<Item> get todaysItems =>
-      collection(ApiPath.todays.name).withConverter(
+      collection(ApiPath.todaysItems).withConverter(
           fromFirestore: (snapshot, _) => Item.fromFirestore(snapshot),
           toFirestore: (item, _) => item.toFirestore());
 
@@ -63,7 +63,7 @@ extension StoreReferenceX on StoreReference {
   /// final newItemRef = await myItemsRef.add(newItem);
   /// ```
   CollectionReference<Item> get myItems =>
-      collection(ApiPath.myItems.name).withConverter(
+      collection(ApiPath.myItems).withConverter(
           fromFirestore: (snapshot, _) => Item.fromFirestore(snapshot),
           toFirestore: (item, _) => item.toFirestore());
 
