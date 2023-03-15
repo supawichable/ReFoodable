@@ -78,7 +78,7 @@ extension StoreReferenceX on StoreReference {
   /// ```
   Future<void> updateStore({
     String? name,
-    GeoPoint? location,
+    Location? location,
     String? address,
     List<FoodCategory>? category,
     String? email,
