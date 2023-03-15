@@ -85,16 +85,23 @@ extension StoreReferenceX on StoreReference {
     String? phone,
     String? photoURL,
   }) async {
-    final store = Store(
-      name: name,
-      location: location,
-      address: address,
-      category: category,
-      email: email,
-      phone: phone,
-      photoURL: photoURL,
-    );
-    await update(store.toFirestore());
+    FirebaseFirestore.instance.runTransaction((transaction) async {
+      final snapshot = await transaction.get(this);
+      final store = snapshot.data();
+      if (store == null) {
+        return;
+      }
+      final updatedStore = store.copyWith(
+          name: name,
+          location: location,
+          address: address,
+          category: category,
+          email: email,
+          phone: phone,
+          photoURL: photoURL,
+          updatedAt: null);
+      transaction.update(this, updatedStore.toFirestore());
+    });
   }
 }
 
@@ -116,11 +123,15 @@ extension ItemReferenceX on ItemReference {
     Price? price,
     String? photoURL,
   }) async {
-    final item = Item(
-      name: name,
-      price: price,
-      photoURL: photoURL,
-    );
-    await update(item.toFirestore());
+    FirebaseFirestore.instance.runTransaction((transaction) async {
+      final snapshot = await transaction.get(this);
+      final item = snapshot.data();
+      if (item == null) {
+        return;
+      }
+      final updatedItem = item.copyWith(
+          name: name, price: price, photoURL: photoURL, updatedAt: null);
+      transaction.update(this, updatedItem.toFirestore());
+    });
   }
 }
