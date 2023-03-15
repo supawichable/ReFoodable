@@ -37,7 +37,9 @@ class ItemCard extends StatelessWidget {
             builder: (context) => AddItemDialog(
                   storeId: storeId,
                   itemId: snapshot.id,
-                  bucket: snapshot.reference.parent.id,
+                  bucket: snapshot.reference.parent.id == ApiPath.myItems
+                      ? ItemBucket.my
+                      : ItemBucket.today,
                 ));
       },
       child: Container(
