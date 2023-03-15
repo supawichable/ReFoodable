@@ -56,15 +56,41 @@ class _TodayItemsState extends State<TodayItems> {
               );
             }
 
-            return Column(
-              children:
-                  snapshot.data!.docs.map((DocumentSnapshot<Item> snapshot) {
-                return ItemCard(
-                  key: ValueKey(snapshot.id),
-                  snapshot: snapshot,
-                );
-              }).toList(),
-            );
+            return (snapshot.data == null || snapshot.data!.docs.isEmpty)
+                ? GestureDetector(
+                    onTap: () {
+                      context.router.push(StoreTodayItemRoute(
+                        storeId: widget.storeId,
+                      ));
+                    },
+                    child: Container(
+                      height: 64,
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context)
+                                  .shadowColor
+                                  .withOpacity(0.25),
+                              spreadRadius: 2,
+                              blurRadius: 4,
+                              offset: const Offset(0, 3),
+                            )
+                          ]),
+                      child: Center(
+                        child: Text("Today's Items Are Empty."),
+                      ),
+                    ),
+                  )
+                : Column(
+                    children: snapshot.data!.docs
+                        .map((DocumentSnapshot<Item> snapshot) {
+                      return ItemCard(
+                        key: ValueKey(snapshot.id),
+                        snapshot: snapshot,
+                      );
+                    }).toList(),
+                  );
           },
         ),
         GestureDetector(
