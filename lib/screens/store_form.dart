@@ -38,7 +38,7 @@ class _StoreFormPageState extends State<StoreFormPage> {
   // controller
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
-  GeoPoint? _location;
+  Location? _location;
   late final TextEditingController _addressController;
   late final TextEditingController _emailController;
   late final TextEditingController _phoneController;
@@ -169,15 +169,15 @@ class _StoreFormPageState extends State<StoreFormPage> {
                                 // latitude and longitude to random number in valid range
                                 final lat = Random().nextInt(180) - 90;
                                 final lon = Random().nextInt(360) - 180;
-                                _location =
-                                    GeoPoint(lat.toDouble(), lon.toDouble());
+                                _location = Location.fromGeoPoint(
+                                    GeoPoint(lat.toDouble(), lon.toDouble()));
                               });
                             },
                             child: const Text('Set Location'),
                           ),
                           const SizedBox(width: 12),
-                          Text(_location != null
-                              ? '${_location!.latitude}, ${_location!.longitude}'
+                          Text(_location?.geoPoint != null
+                              ? '${_location!.geoPoint!.latitude}, ${_location!.geoPoint!.longitude}'
                               : 'No location set'),
                         ],
                       ),

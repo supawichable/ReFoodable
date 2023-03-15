@@ -289,6 +289,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  dart_geohash:
+    dependency: "direct main"
+    description:
+      name: dart_geohash
+      sha256: "1b77fdaa2c91d3ed35d04dc1f965ea0962817820c6587c08f11b7683bd8535bc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   dart_jsonwebtoken:
     dependency: transitive
     description:
@@ -786,14 +794,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
-  image_crop:
-    dependency: "direct main"
-    description:
-      name: image_crop
-      sha256: a580010f9e90b20581ecf5e8f4e9aa838cb935ea1497f9d1b196baa382b84a6d
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.4.1"
   image_cropper:
     dependency: "direct main"
     description:
