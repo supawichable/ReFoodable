@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
-import 'package:gdsctokyo/util/logger.dart';
-import 'package:gdsctokyo/widgets/big_text_bold.dart';
 
 class ItemCard extends StatefulWidget {
   final DocumentSnapshot<Item> snapshot;

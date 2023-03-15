@@ -5,7 +5,6 @@ import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/widgets/item_card.dart';
-import 'package:gdsctokyo/screens/store_page_today_item.dart';
 
 class TodayItems extends StatefulWidget {
   const TodayItems({
@@ -77,7 +76,7 @@ class _TodayItemsState extends State<TodayItems> {
                               offset: const Offset(0, 3),
                             )
                           ]),
-                      child: Center(
+                      child: const Center(
                         child: Text("Today's Items Are Empty."),
                       ),
                     ),

@@ -5,10 +5,6 @@ import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/widgets/item_card.dart';
-import 'package:gdsctokyo/screens/store_page_my_item.dart';
-
-import '../screens/store_page_my_item.dart';
-import '../screens/store_page_today_item.dart';
 
 class MyItems extends StatefulWidget {
   const MyItems({
@@ -81,8 +77,8 @@ class _MyItemsState extends State<MyItems> {
                               offset: const Offset(0, 3),
                             )
                           ]),
-                      child: Center(
-                        child: Text("My Items Are Empty."),
+                      child: const Center(
+                        child: Text('My Items Are Empty.'),
                       ),
                     ),
                   )
