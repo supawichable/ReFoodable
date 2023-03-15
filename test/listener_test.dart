@@ -25,7 +25,7 @@ void main() {
   group('runUserPublicUpdate test', () {
     test('initial user', () async {
       // check if user_public is created
-      final userPublicRef = firestore.usersPublic.doc(auth.currentUser!.uid);
+      final userPublicRef = firestore.users.doc(auth.currentUser!.uid);
       final userPublicSnapshot = await userPublicRef.get();
 
       expect(userPublicSnapshot.exists, true);
@@ -37,7 +37,7 @@ void main() {
       expect(auth.currentUser!.displayName, 'Stonk2');
 
       // check if user_public is updated
-      final userPublicRef = firestore.usersPublic.doc(auth.currentUser!.uid);
+      final userPublicRef = firestore.users.doc(auth.currentUser!.uid);
       final userPublicSnapshot = await userPublicRef.get();
 
       expect(userPublicSnapshot.exists, true);

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/util/logger.dart';
@@ -231,7 +230,7 @@ class ImageUploadDialog extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    late final ImageUploadNotifier _notifier =
+    late final ImageUploadNotifier notifier =
         ref.read(imageUploadProvider(uploader).notifier);
     late final ImageUpload state = ref.watch(imageUploadProvider(uploader));
 
@@ -251,13 +250,13 @@ class ImageUploadDialog extends HookConsumerWidget {
                 const SizedBox.shrink(),
             TextButton(
               onPressed: () async {
-                await _notifier._pickImage();
+                await notifier._pickImage();
               },
               child: const Text('Pick from gallery'),
             ),
             TextButton(
               onPressed: () async {
-                await _notifier._takePhoto();
+                await notifier._takePhoto();
               },
               child: const Text('Take a photo'),
             ),
@@ -266,14 +265,14 @@ class ImageUploadDialog extends HookConsumerWidget {
         actions: [
           TextButton(
             onPressed: () async {
-              await _notifier._throwError(ImagePickerError.userCancelled);
+              await notifier._throwError(ImagePickerError.userCancelled);
             },
             child: const Text('Cancel'),
           ),
           if (state is ImageUploadCropped)
             TextButton(
               onPressed: () async {
-                await _notifier._save();
+                await notifier._save();
               },
               child: const Text('Save'),
             ),

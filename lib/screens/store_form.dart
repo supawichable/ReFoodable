@@ -46,10 +46,8 @@ class _StoreFormPageState extends State<StoreFormPage> {
   List<FoodCategory> _categoryList = [];
 
   // if storeId is not null, then we are editing a store
-  String? _targetStoreId;
+  DocumentSnapshot<Store>? _originalSnapshot;
   bool _isLoading = true;
-  String? _serverPhotoURL;
-
   @override
   void initState() {
     super.initState();
@@ -60,8 +58,9 @@ class _StoreFormPageState extends State<StoreFormPage> {
 
     final storeId = widget.storeId;
     if (storeId != null) {
-      FirebaseFirestore.instance.stores.doc(storeId).get().then((value) {
-        final store = value.data();
+      FirebaseFirestore.instance.stores.doc(storeId).get().then((snapshot) {
+        _originalSnapshot = snapshot;
+        final store = snapshot.data();
         if (store != null) {
           _nameController.text = store.name ?? '';
           _addressController.text = store.address ?? '';
@@ -69,10 +68,8 @@ class _StoreFormPageState extends State<StoreFormPage> {
           _phoneController.text = store.phone ?? '';
           _categoryList = store.category ?? [];
           _location = store.location;
-          _serverPhotoURL = store.photoURL;
           setState(() {
             _isLoading = false;
-            _targetStoreId = storeId;
           });
         }
       }).catchError((e) {});
@@ -121,7 +118,7 @@ class _StoreFormPageState extends State<StoreFormPage> {
                       width: MediaQuery.of(context).size.width,
                       height: 148,
                       child: CoverPhoto(
-                        serverPhotoURL: _serverPhotoURL,
+                        serverPhotoURL: _originalSnapshot?.data()?.photoURL,
                         coverPhoto: _coverPhoto,
                         setFile: _setFile,
                       ),
@@ -247,35 +244,35 @@ class _StoreFormPageState extends State<StoreFormPage> {
                                   _isLoading = true;
                                 });
 
-                                late final DocumentReference<Store> storeRef;
-                                if (_targetStoreId == null) {
-                                  final store = Store(
+                                final storeRef = _originalSnapshot?.reference ??
+                                    FirebaseFirestore.instance.stores.doc();
+
+                                final store = Store(
                                     name: _nameController.text,
-                                    location: _location!,
                                     address: _addressController.text,
                                     email: _emailController.text,
                                     phone: _phoneController.text,
                                     category: _categoryList,
+                                    location: _location,
+                                    photoURL:
+                                        _originalSnapshot?.data()?.photoURL,
                                     ownerId:
                                         FirebaseAuth.instance.currentUser!.uid,
-                                  );
-                                  storeRef = await FirebaseFirestore
-                                      .instance.stores
-                                      .add(store);
+                                    createdAt:
+                                        _originalSnapshot?.data()?.createdAt);
 
-                                  _targetStoreId = storeRef.id;
-                                } else {
-                                  storeRef = FirebaseFirestore.instance.stores
-                                      .doc(_targetStoreId);
-                                  await storeRef.updateStore(
-                                    name: _nameController.text,
-                                    location: _location!,
-                                    address: _addressController.text,
-                                    email: _emailController.text,
-                                    phone: _phoneController.text,
-                                    category: _categoryList,
-                                  );
+                                try {
+                                  await storeRef.set(store);
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text('Error adding store')));
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                  return;
                                 }
+
                                 if (_coverPhoto != null) {
                                   final coverPhotoRef = FirebaseStorage.instance
                                       .ref()
@@ -287,6 +284,10 @@ class _StoreFormPageState extends State<StoreFormPage> {
                                   await storeRef.updateStore(
                                       photoURL: coverPhotoUrl);
                                 }
+
+                                setState(() {
+                                  _isLoading = false;
+                                });
 
                                 // ignore: use_build_context_synchronously
                                 Navigator.of(context).pop();

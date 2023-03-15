@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 
@@ -22,13 +21,13 @@ class StoreTodayItemPage extends StatelessWidget {
             context: context,
             builder: (context) => AddItemDialog(
                   storeId: storeId,
+                  bucket: ItemBucket.today,
                 )),
         child: const Icon(Icons.add),
       ),
       appBar: AppBar(
         title: const Text('Today Items'),
         centerTitle: true,
-        actions: [],
       ),
       body: ListView(
         scrollDirection: Axis.vertical,
@@ -76,7 +75,9 @@ class _TodayItemsListState extends State<TodayItemsList> {
             child: ListView(
                 children: snapshot.data!.docs
                     .map((snapshot) => ItemCard(
-                        key: ValueKey(snapshot.id), snapshot: snapshot))
+                          key: ValueKey(snapshot.id),
+                          snapshot: snapshot,
+                        ))
                     .toList()),
           );
         });

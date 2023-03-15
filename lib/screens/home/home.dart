@@ -10,7 +10,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static List<String> titles = ['Store', 'Explore', 'My Page'];
+  static List<String> titles = ['Saved', 'Explore', 'My Page'];
 
   @override
   Widget build(BuildContext context) {

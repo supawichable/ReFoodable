@@ -1,10 +1,8 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 
+// TODO: Use Price constructor instead of Map
 class NewPopUpComponent extends StatefulWidget {
   const NewPopUpComponent({super.key});
-  
 
   @override
   State<NewPopUpComponent> createState() => NewPopUpComponentState();
@@ -39,41 +37,39 @@ class NewPopUpComponentState extends State<NewPopUpComponent> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-        children: [
-          Text(menuName!),
-          Text(normalPrice!),
-          Text(discountedPrice!),
-          
-          
-          ElevatedButton(
-            child: Text('add menu'),
-            onPressed: () async {
-              final menuContent = await openDialog();
+    return Column(children: [
+      Text(menuName!),
+      Text(normalPrice!),
+      Text(discountedPrice!),
+      ElevatedButton(
+          child: const Text('add menu'),
+          onPressed: () async {
+            final menuContent = await openDialog();
 
-              menuName = menuContent!['menuName'];
-              normalPrice = menuContent['normalPrice'];
-              discountedPrice = menuContent['discountedPrice'];
+            menuName = menuContent!['menuName'];
+            normalPrice = menuContent['normalPrice'];
+            discountedPrice = menuContent['discountedPrice'];
 
-              if (menuName == null ||
-                  normalPrice == null ||
-                  discountedPrice == null) {
-                return;
-              }
+            // TODO: return and then what?
+            if (menuName == null ||
+                normalPrice == null ||
+                discountedPrice == null) {
+              return;
+            }
 
-              setState(() {
-                this.menuName = menuName;
-                this.normalPrice = normalPrice;
-                this.discountedPrice = discountedPrice;
-
-              });
-            })]);
+            setState(() {
+              menuName = menuName;
+              normalPrice = normalPrice;
+              discountedPrice = discountedPrice;
+            });
+          })
+    ]);
   }
 
   Future<Map<String, String>?> openDialog() => showDialog<Map<String, String>>(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('some title'),
+          title: const Text('some title'),
           content: Column(
             children: [
               TextField(
@@ -104,7 +100,7 @@ class NewPopUpComponentState extends State<NewPopUpComponent> {
                     'discountedPrice': _controllerDiscountedPrice.text
                   });
                 },
-                child: Text('submit'))
+                child: const Text('submit'))
           ],
         ),
       );
