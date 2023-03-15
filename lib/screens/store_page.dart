@@ -18,10 +18,7 @@ class StorePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.bookmark_border),
-          ),
+          _BookMarkButton(storeId: storeId),
           IconButton(
             onPressed: () {},
             icon: const Icon(Icons.share),
@@ -36,6 +33,81 @@ class StorePage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _addToBookmark() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return;
+    }
+    await FirebaseFirestore.instance.users
+        .doc(user.uid)
+        .bookmarks
+        .doc(storeId)
+        .set({});
+  }
+}
+
+class _BookMarkButton extends StatefulWidget {
+  final String storeId;
+
+  const _BookMarkButton({super.key, required this.storeId});
+
+  @override
+  State<_BookMarkButton> createState() => __BookMarkButtonState();
+}
+
+class __BookMarkButtonState extends State<_BookMarkButton> {
+  late Stream<DocumentSnapshot> _bookmarkStream;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return;
+    }
+    _bookmarkStream = FirebaseFirestore.instance.users
+        .doc(user.uid)
+        .bookmarks
+        .doc(widget.storeId)
+        .snapshots();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<DocumentSnapshot>(
+        stream: _bookmarkStream,
+        builder: (context, snapshot) {
+          return IconButton(
+            onPressed: () async {
+              if (snapshot.data?.exists == true) {
+                await FirebaseFirestore.instance.users
+                    .doc(FirebaseAuth.instance.currentUser?.uid)
+                    .bookmarks
+                    .doc(widget.storeId)
+                    .delete();
+              } else {
+                await _addToBookmark();
+              }
+            },
+            icon: Icon(snapshot.data?.exists == true
+                ? Icons.bookmark
+                : Icons.bookmark_border),
+          );
+        });
+  }
+
+  Future<void> _addToBookmark() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return;
+    }
+    await FirebaseFirestore.instance.users
+        .doc(user.uid)
+        .bookmarks
+        .doc(widget.storeId)
+        .set({});
   }
 }
 

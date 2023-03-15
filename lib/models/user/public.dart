@@ -1,4 +1,4 @@
-part of '_public.dart';
+part of '_user.dart';
 
 @freezed
 class UserPublic with _$UserPublic {

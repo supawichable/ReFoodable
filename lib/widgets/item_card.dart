@@ -23,8 +23,7 @@ class _ItemCardState extends State<ItemCard> {
   late final String name = item.name!;
   late final Price price = item.price!;
   late final String addedBy = item.addedBy!;
-  late final Future<String?> addedByName = FirebaseFirestore
-      .instance.usersPublic
+  late final Future<String?> addedByName = FirebaseFirestore.instance.users
       .doc(addedBy)
       .get()
       .then((value) => value.data()?.displayName);

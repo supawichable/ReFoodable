@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
-import 'package:gdsctokyo/models/public/_public.dart';
+import 'package:gdsctokyo/models/user/_user.dart';
 
 class FirebaseListener {
   late StreamSubscription<User?> _userPublicUpdateListener;
@@ -45,7 +45,7 @@ class FirebaseListener {
       if (user == null) {
         return;
       }
-      await _firestore.usersPublic.doc(user.uid).set(UserPublic(
+      await _firestore.users.doc(user.uid).set(UserPublic(
             displayName: user.displayName,
             photoURL: user.photoURL,
           ));
