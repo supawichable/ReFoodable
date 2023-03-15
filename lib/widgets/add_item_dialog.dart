@@ -6,10 +6,16 @@ import 'package:gdsctokyo/models/item/_item.dart';
 
 class AddItemDialog extends StatefulWidget {
   final String storeId;
+  final String? itemId;
+  final Item? item;
   final bool isToday;
 
   const AddItemDialog(
-      {super.key, required this.storeId, required this.isToday});
+      {super.key,
+      required this.storeId,
+      required this.isToday,
+      this.item,
+      this.itemId});
 
   @override
   State<AddItemDialog> createState() => _AddItemDialogState();
@@ -28,9 +34,14 @@ class _AddItemDialogState extends State<AddItemDialog> {
   void initState() {
     super.initState();
 
-    _controllerMenuName = TextEditingController();
-    _controllerNormalPrice = TextEditingController();
-    _controllerDiscountedPrice = TextEditingController();
+    _controllerMenuName = TextEditingController(
+        text: widget.item != null ? widget.item?.name : '');
+    _controllerNormalPrice = TextEditingController(
+        text: widget.item != null
+            ? widget.item?.price?.compareAtPrice.toString()
+            : '');
+    _controllerDiscountedPrice = TextEditingController(
+        text: widget.item != null ? widget.item?.price?.amount.toString() : '');
   }
 
   @override
@@ -231,16 +242,16 @@ class _AddItemDialogState extends State<AddItemDialog> {
                     discountedPrice =
                         double.parse(_controllerDiscountedPrice.text);
                   });
-
+                  print(widget.itemId);
                   final itemDoc = widget.isToday
                       ? FirebaseFirestore.instance.stores
                           .doc(widget.storeId)
                           .todaysItems
-                          .doc()
+                          .doc(widget.itemId)
                       : FirebaseFirestore.instance.stores
                           .doc(widget.storeId)
                           .myItems
-                          .doc();
+                          .doc(widget.itemId);
 
                   final Item item = Item(
                     name: menuName,
@@ -250,8 +261,9 @@ class _AddItemDialogState extends State<AddItemDialog> {
                         currency: Currency.jpy),
                     addedBy: FirebaseAuth.instance.currentUser!.uid,
                   );
-
-                  itemDoc.set(item);
+                  widget.item != null
+                      ? itemDoc.updateItem(name: item.name, price: item.price)
+                      : itemDoc.set(item);
 
                   Navigator.pop(context);
                 },
