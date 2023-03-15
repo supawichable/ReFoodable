@@ -34,24 +34,12 @@ class StorePage extends StatelessWidget {
       ),
     );
   }
-
-  Future<void> _addToBookmark() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      return;
-    }
-    await FirebaseFirestore.instance.users
-        .doc(user.uid)
-        .bookmarks
-        .doc(storeId)
-        .set({});
-  }
 }
 
 class _BookMarkButton extends StatefulWidget {
   final String storeId;
 
-  const _BookMarkButton({super.key, required this.storeId});
+  const _BookMarkButton({required this.storeId});
 
   @override
   State<_BookMarkButton> createState() => __BookMarkButtonState();
