@@ -16,7 +16,7 @@ class AddItemDialog extends StatefulWidget {
   final String? itemId;
 
   /// Use [ApiPath.todaysItems] or [ApiPath.myItems]
-  final String bucket;
+  final ItemBucket bucket;
 
   const AddItemDialog({
     super.key,

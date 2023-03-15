@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
-import 'package:gdsctokyo/util/logger.dart';
 import 'package:gdsctokyo/widgets/add_item_dialog.dart';
 import 'package:gdsctokyo/widgets/item_card.dart';
 
@@ -21,7 +20,7 @@ class StoreMyItemPage extends StatelessWidget {
             context: context,
             builder: (context) => AddItemDialog(
                   storeId: storeId,
-                  bucket: ApiPath.myItems,
+                  bucket: ItemBucket.my,
                 )),
         child: const Icon(Icons.add),
       ),
