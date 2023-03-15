@@ -28,7 +28,6 @@ class _ExplorePageState extends State<ExplorePage> {
 
   List<AutocompletePrediction> placePredictions = [];
 
-  // static const LatLng currentLocation = LatLng(60.521563, -122.677433);
   LocationData? currentLocation;
 
   void _onMapCreated(GoogleMapController controller) {
@@ -37,38 +36,11 @@ class _ExplorePageState extends State<ExplorePage> {
 
   void getCurrentLocation() {
     Location location = Location();
-    // bool _serviceEnabled;
-    // PermissionStatus _permissionGranted;
-    // LocationData _locationData;
-
-    // debugPrint('HERE');
-    // _serviceEnabled = await location.serviceEnabled();
-    // debugPrint('serviceEnabled: $_serviceEnabled');
-    // if (!_serviceEnabled) {
-    //   _serviceEnabled = await location.requestService();
-    //   if (!_serviceEnabled) {
-    //     return;
-    //   }
-    // }
-
-    // _permissionGranted = await location.hasPermission();
-    // if (_permissionGranted == PermissionStatus.denied) {
-    //   _permissionGranted = await location.requestPermission();
-    //   if (_permissionGranted != PermissionStatus.granted) {
-    //     return;
-    //   }
-    // }
-
-    // debugPrint('permissionGranted: $_permissionGranted');
-
-    // currentLocation = await location.getLocation();
-    // debugPrint(dotenv.get("ANDROID_GOOGLE_API_KEY"));
     location
         .getLocation()
         .then((location) => {
               setState(() {
                 currentLocation = location;
-                // debugPrint('currentLocation: $currentLocation');
               }),
             })
         // ignore: body_might_complete_normally_catch_error
@@ -113,60 +85,56 @@ class _ExplorePageState extends State<ExplorePage> {
           body: currentLocation == null
               ? const Center(child: Text('Loading'))
               : Stack(children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    width: double.infinity,
-                    child: GoogleMap(
-                      onMapCreated: _onMapCreated,
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(currentLocation!.latitude!,
-                            currentLocation!.longitude!),
-                        zoom: 13.5,
-                      ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  width: double.infinity,
+                  child: GoogleMap(
+                    onMapCreated: _onMapCreated,
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(currentLocation!.latitude!,
+                          currentLocation!.longitude!),
+                      zoom: 13.5,
                     ),
                   ),
-                  Column(children: [
-                    // LocationSearchBox(),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                          onChanged: (value) {
-                            placeAutocomplete(value);
-                          },
-                          textInputAction: TextInputAction.search,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            hintText: 'Search Location',
-                            suffixIcon: Icon(Icons.search),
-                            contentPadding: EdgeInsets.only(left: 20, bottom: 5, right: 5),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                          )),
+                ),
+                Column(children: [
+                  // LocationSearchBox(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      onChanged: (value) {
+                        placeAutocomplete(value);
+                      },
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        hintText: 'Search Location',
+                        suffixIcon: Icon(Icons.search),
+                        contentPadding: EdgeInsets.only(left: 20, bottom: 5, right: 5),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                      )
                     ),
-                    UseMyLocationButton(),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: placePredictions.length,
-                        itemBuilder: (context, index) => LocationListTile(
-                          location: placePredictions[index].description!,
-                          press: () {}
-                        )
-                      ),
+                  ),
+                    // UseMyLocationButton(),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: placePredictions.length,
+                      itemBuilder: (context, index) => LocationListTile(
+                        location: placePredictions[index].description!,
+                        press: () {}
+                      )
                     ),
-                    // LocationListTile(
-                    //   location: "Banasree, Dhaka",
-                    //   press: () {},
-                    // )
-                  ])
-                ]
-              ),
+                  ),
+                ]),
+              ]),
           panelBuilder: (controller) {
             return Column(
               children: [
