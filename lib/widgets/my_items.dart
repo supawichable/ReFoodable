@@ -38,14 +38,6 @@ class _MyItemsState extends State<MyItems> {
                   .headlineSmall
                   ?.apply(fontWeightDelta: 2),
             ),
-            const Spacer(),
-            // setState button
-            IconButton(
-              onPressed: () {
-                setState(() {});
-              },
-              icon: const Icon(Icons.refresh),
-            ),
           ],
         ),
         const SizedBox(

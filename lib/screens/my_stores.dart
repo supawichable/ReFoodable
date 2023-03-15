@@ -70,7 +70,9 @@ class _MyStoresPageState extends State<MyStoresPage> {
                     );
                   }
                   return StoreCard(
-                      snapshot.docs[index].id, snapshot.docs[index].data());
+                      key: ValueKey(snapshot.docs[index].id),
+                      snapshot.docs[index].id,
+                      snapshot.docs[index].data());
                 },
               );
             }

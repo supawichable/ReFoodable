@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
+import 'package:gdsctokyo/util/logger.dart';
 import 'package:gdsctokyo/widgets/add_item_dialog.dart';
 import 'package:gdsctokyo/widgets/item_card.dart';
 
@@ -55,6 +56,7 @@ class _MyItemState extends State<MyItem> {
   @override
   void initState() {
     super.initState();
+
     _storeStream = FirebaseFirestore.instance.stores
         .doc(widget.storeId)
         .myItems
@@ -70,13 +72,20 @@ class _MyItemState extends State<MyItem> {
             return const LinearProgressIndicator();
           }
 
-          return SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: ListView(
-                children: snapshot.data!.docs
-                    .map((snapshot) => ItemCard(
-                        key: ValueKey(snapshot.id), snapshot: snapshot))
-                    .toList()),
+          if (snapshot.hasData) {
+            return SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: ListView(
+                  children: snapshot.data!.docs
+                      .map(
+                        (snapshot) => ItemCard(snapshot: snapshot),
+                      )
+                      .toList(),
+                ));
+          }
+
+          return const Center(
+            child: Text('No items'),
           );
         });
   }

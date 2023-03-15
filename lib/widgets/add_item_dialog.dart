@@ -9,6 +9,8 @@ enum ItemBucket {
   my,
 }
 
+final _stores = FirebaseFirestore.instance.stores;
+
 class AddItemDialog extends StatefulWidget {
   final String storeId;
   final String? itemId;
@@ -18,8 +20,8 @@ class AddItemDialog extends StatefulWidget {
 
   const AddItemDialog({
     super.key,
-    required this.storeId,
     this.itemId,
+    required this.storeId,
     required this.bucket,
   });
 
@@ -28,16 +30,11 @@ class AddItemDialog extends StatefulWidget {
 }
 
 class _AddItemDialogState extends State<AddItemDialog> {
-  late final String? itemId = widget.itemId;
-  late final CollectionReference items = widget.bucket == ApiPath.todaysItems
-      ? FirebaseFirestore.instance.stores.doc(widget.storeId).todaysItems
-      : FirebaseFirestore.instance.stores.doc(widget.storeId).myItems;
-  late final Future<DocumentSnapshot<Item>>? itemSnapshotFuture = itemId != null
-      ? items
-          .doc(itemId)
-          .get()
-          .then((snapshot) => snapshot as DocumentSnapshot<Item>)
-      : null;
+  late final String itemId = widget.itemId ?? _stores.doc().id;
+  late final CollectionReference<Item> items =
+      widget.bucket == ApiPath.todaysItems
+          ? _stores.doc(widget.storeId).todaysItems
+          : _stores.doc(widget.storeId).myItems;
 
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _controllerMenuName =
@@ -48,23 +45,36 @@ class _AddItemDialogState extends State<AddItemDialog> {
       TextEditingController();
 
   DocumentSnapshot<Item>? _itemSnapshot;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
 
-    itemSnapshotFuture?.then(
-      (snapshot) {
-        if (snapshot.exists) {
-          _itemSnapshot = snapshot;
-          _controllerMenuName.text = snapshot.data()?.name ?? '';
-          _controllerNormalPrice.text =
-              snapshot.data()?.price?.compareAtPrice?.toString() ?? '';
-          _controllerDiscountedPrice.text =
-              snapshot.data()?.price?.amount.toString() ?? '';
-        }
-      },
-    );
+    if (widget.itemId != null) {
+      setState(() {
+        _isLoading = true;
+      });
+      items.doc(widget.itemId).get().then(
+        (snapshot) {
+          if (snapshot.exists) {
+            _itemSnapshot = snapshot;
+            _controllerMenuName.text = snapshot.data()?.name ?? '';
+            _controllerNormalPrice.text =
+                snapshot.data()?.price?.compareAtPrice?.toString() ?? '';
+            _controllerDiscountedPrice.text =
+                snapshot.data()?.price?.amount.toString() ?? '';
+          }
+          setState(() {
+            _isLoading = false;
+          });
+        },
+      ).catchError((e) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }
   }
 
   @override
@@ -103,65 +113,120 @@ class _AddItemDialogState extends State<AddItemDialog> {
           width: 400,
           color: Theme.of(context).colorScheme.background,
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          height: 240,
+          height: 250,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Menu name',
-                      style: Theme.of(context).textTheme.labelLarge),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  SizedBox(
-                    height: 40,
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 10),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color:
-                                  Theme.of(context).colorScheme.outlineVariant),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.outline),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        hintText: 'menu name',
-                      ),
-                      controller: _controllerMenuName,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter menu name';
-                        }
-                        return null;
-                      },
+              if (_isLoading)
+                const Center(
+                  child: CircularProgressIndicator(),
+                )
+              else ...[
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Menu name',
+                        style: Theme.of(context).textTheme.labelLarge),
+                    const SizedBox(
+                      height: 8,
                     ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Normal price',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith()),
-                        const SizedBox(
-                          height: 8,
+                    SizedBox(
+                      height: 40,
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 10),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Theme.of(context).colorScheme.outline),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          hintText: 'menu name',
                         ),
-                        SizedBox(
-                          height: 40,
-                          child: TextFormField(
+                        controller: _controllerMenuName,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter menu name';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Normal price',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith()),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          SizedBox(
+                            height: 40,
+                            child: TextFormField(
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 0, horizontal: 10),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .outlineVariant),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .outline),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  hintText: 'normal',
+                                ),
+                                controller: _controllerNormalPrice,
+                                // check if is double
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter normal price';
+                                  }
+                                  if (double.tryParse(value) == null) {
+                                    return 'Please enter valid price';
+                                  }
+                                  return null;
+                                }),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Discounted price',
+                              style: Theme.of(context).textTheme.labelLarge),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          SizedBox(
+                            height: 40,
+                            child: TextFormField(
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.symmetric(
                                     vertical: 0, horizontal: 10),
@@ -179,100 +244,54 @@ class _AddItemDialogState extends State<AddItemDialog> {
                                           .outline),
                                   borderRadius: BorderRadius.circular(5),
                                 ),
-                                hintText: 'normal',
+                                hintText: 'discounted',
                               ),
-                              controller: _controllerNormalPrice,
+                              controller: _controllerDiscountedPrice,
                               // check if is double
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter normal price';
+                                  return 'Please enter discounted price';
                                 }
                                 if (double.tryParse(value) == null) {
                                   return 'Please enter valid price';
                                 }
                                 return null;
-                              }),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Discounted price',
-                            style: Theme.of(context).textTheme.labelLarge),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                        SizedBox(
-                          height: 40,
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 0, horizontal: 10),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .outlineVariant),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.outline),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              hintText: 'discounted',
+                              },
                             ),
-                            controller: _controllerDiscountedPrice,
-                            // check if is double
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter discounted price';
-                              }
-                              if (double.tryParse(value) == null) {
-                                return 'Please enter valid price';
-                              }
-                              return null;
-                            },
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Menu name',
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith()),
-                const SizedBox(
-                  height: 8,
+                  ],
                 ),
-                Row(children: [
-                  Flexible(
-                    flex: 4,
-                    child: Container(
-                      height: 50,
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                    ),
-                  ),
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('Menu name',
+                      style:
+                          Theme.of(context).textTheme.labelLarge?.copyWith()),
                   const SizedBox(
-                    width: 20,
+                    height: 8,
                   ),
-                  Flexible(
-                    flex: 1,
-                    child: Container(
-                      height: 50,
-                      color: Theme.of(context).colorScheme.primaryContainer,
+                  Row(children: [
+                    Flexible(
+                      flex: 4,
+                      child: Container(
+                        height: 50,
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                      ),
                     ),
-                  ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: Container(
+                        height: 50,
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                      ),
+                    ),
+                  ]),
                 ]),
-              ]),
+              ],
             ],
           ),
         ),
@@ -280,7 +299,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
       actions: [
         Container(
           padding: const EdgeInsets.only(right: 10),
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
+          color: Theme.of(context).colorScheme.primaryContainer,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -291,36 +310,45 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 child: const Text('cancel'),
               ),
               TextButton(
-                onPressed: () async {
-                  final name = _controllerMenuName.text;
-                  final compareAtPrice =
-                      double.parse(_controllerNormalPrice.text);
-                  final amount = double.parse(_controllerDiscountedPrice.text);
-
-                  if (_formKey.currentState!.validate()) {
-                    final originalItem = _itemSnapshot?.data() ?? const Item();
-                    final item = originalItem.copyWith(
-                        name: name,
-                        price: Price(
-                            amount: amount,
-                            compareAtPrice: compareAtPrice,
-                            currency: Currency.jpy),
-                        addedBy: FirebaseAuth.instance.currentUser!.uid,
-                        updatedAt: null);
-
-                    await items.doc(itemId).set(item);
-                  }
-
-                  if (mounted) {
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Text('submit'),
+                onPressed: _submit,
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text('submit'),
               ),
             ],
           ),
         ),
       ],
     );
+  }
+
+  Future<void> _submit() async {
+    final name = _controllerMenuName.text;
+    final compareAtPrice = double.parse(_controllerNormalPrice.text);
+    final amount = double.parse(_controllerDiscountedPrice.text);
+
+    if (_formKey.currentState!.validate()) {
+      final originalItem = _itemSnapshot?.data() ?? const Item();
+      final item = originalItem.copyWith(
+          name: name,
+          price: Price(
+              amount: amount,
+              compareAtPrice: compareAtPrice,
+              currency: Currency.jpy),
+          addedBy: FirebaseAuth.instance.currentUser!.uid,
+          updatedAt: null);
+
+      await items.doc(itemId).set(item);
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
   }
 }
