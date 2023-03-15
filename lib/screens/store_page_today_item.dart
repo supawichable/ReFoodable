@@ -75,7 +75,9 @@ class _TodayItemsListState extends State<TodayItemsList> {
             child: ListView(
                 children: snapshot.data!.docs
                     .map((snapshot) => ItemCard(
-                        key: ValueKey(snapshot.id), snapshot: snapshot))
+                          key: ValueKey(snapshot.id),
+                          snapshot: snapshot,
+                        ))
                     .toList()),
           );
         });
