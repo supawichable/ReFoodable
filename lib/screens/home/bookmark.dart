@@ -1,24 +1,21 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
-import 'package:gdsctokyo/models/store/_store.dart';
+import 'package:gdsctokyo/providers/current_user.dart';
 import 'package:gdsctokyo/widgets/store_card.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class BookmarkPage extends StatefulWidget {
+class BookmarkPage extends StatefulHookConsumerWidget {
   const BookmarkPage({super.key});
 
   @override
-  State<BookmarkPage> createState() => _BookmarkPageState();
+  ConsumerState<BookmarkPage> createState() => _BookmarkPageState();
 }
 
-class _BookmarkPageState extends State<BookmarkPage> {
-  late final Stream<QuerySnapshot<Bookmark>> _bookmarkStream = FirebaseFirestore
-      .instance.users
-      .doc(FirebaseAuth.instance.currentUser?.uid)
-      .bookmarks
-      .snapshots();
+class _BookmarkPageState extends ConsumerState<BookmarkPage> {
+  late final uid = ref.watch(currentUserProvider).value?.uid;
+  late final Stream<QuerySnapshot<Bookmark>> _bookmarkStream =
+      FirebaseFirestore.instance.users.doc(uid).bookmarks.snapshots();
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +23,8 @@ class _BookmarkPageState extends State<BookmarkPage> {
         body: Center(
             child: Column(
       children: [
-        if (FirebaseAuth.instance.currentUser == null)
-          const Text('Please sign in to use bookmark feature.'),
-        if (FirebaseAuth.instance.currentUser != null)
+        if (uid == null) const Text('Please sign in to use bookmark feature.'),
+        if (uid != null)
           StreamBuilder<QuerySnapshot<Bookmark>>(
               stream: _bookmarkStream,
               builder: (context, snapshot) {
