@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
-import 'package:gdsctokyo/util/logger.dart';
-import 'package:gdsctokyo/widgets/description_text.dart';
 
 class StoreCard extends StatefulWidget {
   final String storeId;

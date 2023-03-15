@@ -2,11 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
-import 'package:gdsctokyo/models/store/_store.dart';
-
-import '../models/item/_item.dart';
-import '../widgets/add_item_dialog.dart';
-import '../widgets/item_card.dart';
+import 'package:gdsctokyo/models/item/_item.dart';
+import 'package:gdsctokyo/widgets/add_item_dialog.dart';
+import 'package:gdsctokyo/widgets/item_card.dart';
 
 class StoreMyItemPage extends StatelessWidget {
   final String storeId;
