@@ -15,7 +15,8 @@ class AddItemDialog extends StatefulWidget {
   final String storeId;
   final String? itemId;
 
-  /// Use [ApiPath.todaysItems] or [ApiPath.myItems]
+  /// Changed to enum [ItemBucket]
+  /// use either [ItemBucket.today] or [ItemBucket.my]
   final ItemBucket bucket;
 
   const AddItemDialog({
@@ -31,10 +32,9 @@ class AddItemDialog extends StatefulWidget {
 
 class _AddItemDialogState extends State<AddItemDialog> {
   late final String itemId = widget.itemId ?? _stores.doc().id;
-  late final CollectionReference<Item> items =
-      widget.bucket == ApiPath.todaysItems
-          ? _stores.doc(widget.storeId).todaysItems
-          : _stores.doc(widget.storeId).myItems;
+  late final CollectionReference<Item> items = widget.bucket == ItemBucket.today
+      ? _stores.doc(widget.storeId).todaysItems
+      : _stores.doc(widget.storeId).myItems;
 
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _controllerMenuName =
@@ -98,7 +98,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
       title: Container(
         alignment: Alignment.center,
         child: Text(
-          widget.bucket == ApiPath.todaysItems
+          widget.bucket == ItemBucket.today
               ? 'Add to today\'s menu'
               : 'Add to my menu',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
