@@ -4,44 +4,67 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 
+enum ItemBucket {
+  today,
+  my,
+}
+
 class AddItemDialog extends StatefulWidget {
   final String storeId;
   final String? itemId;
-  final Item? item;
-  final bool isToday;
 
-  const AddItemDialog(
-      {super.key,
-      required this.storeId,
-      required this.isToday,
-      this.item,
-      this.itemId});
+  /// Use [ApiPath.todaysItems] or [ApiPath.myItems]
+  final String bucket;
+
+  const AddItemDialog({
+    super.key,
+    required this.storeId,
+    this.itemId,
+    required this.bucket,
+  });
 
   @override
   State<AddItemDialog> createState() => _AddItemDialogState();
 }
 
 class _AddItemDialogState extends State<AddItemDialog> {
-  late TextEditingController _controllerMenuName;
-  late TextEditingController _controllerNormalPrice;
-  late TextEditingController _controllerDiscountedPrice;
+  late final String? itemId = widget.itemId;
+  late final CollectionReference items = widget.bucket == ApiPath.todaysItems
+      ? FirebaseFirestore.instance.stores.doc(widget.storeId).todaysItems
+      : FirebaseFirestore.instance.stores.doc(widget.storeId).myItems;
+  late final Future<DocumentSnapshot<Item>>? itemSnapshotFuture = itemId != null
+      ? items
+          .doc(itemId)
+          .get()
+          .then((snapshot) => snapshot as DocumentSnapshot<Item>)
+      : null;
 
-  String? menuName;
-  double? normalPrice;
-  double? discountedPrice;
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _controllerMenuName =
+      TextEditingController();
+  late final TextEditingController _controllerNormalPrice =
+      TextEditingController();
+  late final TextEditingController _controllerDiscountedPrice =
+      TextEditingController();
+
+  DocumentSnapshot<Item>? _itemSnapshot;
 
   @override
   void initState() {
     super.initState();
 
-    _controllerMenuName = TextEditingController(
-        text: widget.item != null ? widget.item?.name : '');
-    _controllerNormalPrice = TextEditingController(
-        text: widget.item != null
-            ? widget.item?.price?.compareAtPrice.toString()
-            : '');
-    _controllerDiscountedPrice = TextEditingController(
-        text: widget.item != null ? widget.item?.price?.amount.toString() : '');
+    itemSnapshotFuture?.then(
+      (snapshot) {
+        if (snapshot.exists) {
+          _itemSnapshot = snapshot;
+          _controllerMenuName.text = snapshot.data()?.name ?? '';
+          _controllerNormalPrice.text =
+              snapshot.data()?.price?.compareAtPrice?.toString() ?? '';
+          _controllerDiscountedPrice.text =
+              snapshot.data()?.price?.amount.toString() ?? '';
+        }
+      },
+    );
   }
 
   @override
@@ -65,160 +88,193 @@ class _AddItemDialogState extends State<AddItemDialog> {
       title: Container(
         alignment: Alignment.center,
         child: Text(
-          'Add to my list',
+          widget.bucket == ApiPath.todaysItems
+              ? 'Add to today\'s menu'
+              : 'Add to my menu',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
         ),
       ),
-      content: Container(
-        width: 400,
-        color: Theme.of(context).colorScheme.background,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        height: 240,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+      content: Form(
+        key: _formKey,
+        child: Container(
+          width: 400,
+          color: Theme.of(context).colorScheme.background,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          height: 240,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Menu name',
+                      style: Theme.of(context).textTheme.labelLarge),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  SizedBox(
+                    height: 40,
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 10),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color:
+                                  Theme.of(context).colorScheme.outlineVariant),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.outline),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        hintText: 'menu name',
+                      ),
+                      controller: _controllerMenuName,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter menu name';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Normal price',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith()),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        SizedBox(
+                          height: 40,
+                          child: TextFormField(
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 0, horizontal: 10),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outlineVariant),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outline),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                hintText: 'normal',
+                              ),
+                              controller: _controllerNormalPrice,
+                              // check if is double
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter normal price';
+                                }
+                                if (double.tryParse(value) == null) {
+                                  return 'Please enter valid price';
+                                }
+                                return null;
+                              }),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Discounted price',
+                            style: Theme.of(context).textTheme.labelLarge),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        SizedBox(
+                          height: 40,
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 0, horizontal: 10),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .outlineVariant),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color:
+                                        Theme.of(context).colorScheme.outline),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              hintText: 'discounted',
+                            ),
+                            controller: _controllerDiscountedPrice,
+                            // check if is double
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter discounted price';
+                              }
+                              if (double.tryParse(value) == null) {
+                                return 'Please enter valid price';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('Menu name',
-                    style: Theme.of(context).textTheme.labelLarge),
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith()),
                 const SizedBox(
                   height: 8,
                 ),
-                SizedBox(
-                  height: 40,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 10),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color:
-                                Theme.of(context).colorScheme.outlineVariant),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.outline),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      hintText: 'menu name',
+                Row(children: [
+                  Flexible(
+                    flex: 4,
+                    child: Container(
+                      height: 50,
+                      color: Theme.of(context).colorScheme.primaryContainer,
                     ),
-                    controller: _controllerMenuName,
                   ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Normal price',
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith()),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      SizedBox(
-                        height: 40,
-                        child: TextField(
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 0, horizontal: 10),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .outlineVariant),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.outline),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            hintText: 'normal',
-                          ),
-                          controller: _controllerNormalPrice,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(
+                    width: 20,
                   ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Discounted price',
-                          style: Theme.of(context).textTheme.labelLarge),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      SizedBox(
-                        height: 40,
-                        child: TextField(
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 0, horizontal: 10),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .outlineVariant),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.outline),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            hintText: 'discounted',
-                          ),
-                          controller: _controllerDiscountedPrice,
-                        ),
-                      ),
-                    ],
+                  Flexible(
+                    flex: 1,
+                    child: Container(
+                      height: 50,
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Menu name',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith()),
-              const SizedBox(
-                height: 8,
-              ),
-              Row(children: [
-                Flexible(
-                  flex: 4,
-                  child: Container(
-                    height: 50,
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                  ),
-                ),
-                const SizedBox(
-                  width: 20,
-                ),
-                Flexible(
-                  flex: 1,
-                  child: Container(
-                    height: 50,
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                  ),
-                ),
+                ]),
               ]),
-            ]),
-          ],
+            ],
+          ),
         ),
       ),
       actions: [
@@ -235,37 +291,29 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 child: const Text('cancel'),
               ),
               TextButton(
-                onPressed: () {
-                  setState(() {
-                    menuName = _controllerMenuName.text;
-                    normalPrice = double.parse(_controllerNormalPrice.text);
-                    discountedPrice =
-                        double.parse(_controllerDiscountedPrice.text);
-                  });
-                  print(widget.itemId);
-                  final itemDoc = widget.isToday
-                      ? FirebaseFirestore.instance.stores
-                          .doc(widget.storeId)
-                          .todaysItems
-                          .doc(widget.itemId)
-                      : FirebaseFirestore.instance.stores
-                          .doc(widget.storeId)
-                          .myItems
-                          .doc(widget.itemId);
+                onPressed: () async {
+                  final name = _controllerMenuName.text;
+                  final compareAtPrice =
+                      double.parse(_controllerNormalPrice.text);
+                  final amount = double.parse(_controllerDiscountedPrice.text);
 
-                  final Item item = Item(
-                    name: menuName,
-                    price: Price(
-                        amount: discountedPrice!,
-                        compareAtPrice: normalPrice,
-                        currency: Currency.jpy),
-                    addedBy: FirebaseAuth.instance.currentUser!.uid,
-                  );
-                  widget.item != null
-                      ? itemDoc.updateItem(name: item.name, price: item.price)
-                      : itemDoc.set(item);
+                  if (_formKey.currentState!.validate()) {
+                    final originalItem = _itemSnapshot?.data() ?? const Item();
+                    final item = originalItem.copyWith(
+                        name: name,
+                        price: Price(
+                            amount: amount,
+                            compareAtPrice: compareAtPrice,
+                            currency: Currency.jpy),
+                        addedBy: FirebaseAuth.instance.currentUser!.uid,
+                        updatedAt: null);
 
-                  Navigator.pop(context);
+                    await items.doc(itemId).set(item);
+                  }
+
+                  if (mounted) {
+                    Navigator.pop(context);
+                  }
                 },
                 child: const Text('submit'),
               ),

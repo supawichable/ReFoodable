@@ -21,7 +21,7 @@ class StoreTodayItemPage extends StatelessWidget {
             context: context,
             builder: (context) => AddItemDialog(
                   storeId: storeId,
-                  isToday: true,
+                  bucket: ApiPath.todaysItems,
                 )),
         child: const Icon(Icons.add),
       ),
