@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gdsctokyo/components/network_utility.dart';
 import 'package:location/location.dart';
 import 'package:gdsctokyo/widgets/description_text.dart';
 import 'package:gdsctokyo/widgets/panel_widget.dart';
 import 'package:gdsctokyo/widgets/sorting_tab.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import '../../components/location_list_tile.dart';
+import '../../models/place_autocomplete/autocomplete_prediction.dart';
+import '../../models/place_autocomplete/place_auto_complete_response.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -18,6 +25,8 @@ class _ExplorePageState extends State<ExplorePage> {
   final PanelController panelController = PanelController();
 
   late GoogleMapController mapController;
+
+  List<AutocompletePrediction> placePredictions = [];
 
   // static const LatLng currentLocation = LatLng(60.521563, -122.677433);
   LocationData? currentLocation;
@@ -53,6 +62,7 @@ class _ExplorePageState extends State<ExplorePage> {
     // debugPrint('permissionGranted: $_permissionGranted');
 
     // currentLocation = await location.getLocation();
+    // debugPrint(dotenv.get("ANDROID_GOOGLE_API_KEY"));
     location
         .getLocation()
         .then((location) => {
@@ -65,6 +75,24 @@ class _ExplorePageState extends State<ExplorePage> {
         .catchError((error) {
       debugPrint('Error caught in getCurrentLocation: $error');
     });
+  }
+
+  void placeAutocomplete(String query) async {
+    Uri uri =
+        Uri.https("maps.googleapis.com", "maps/api/place/autocomplete/json", {
+      "input": query,
+      "key": dotenv.get("ANDROID_GOOGLE_API_KEY"),
+    });
+    String? response = await NetworkUtility.fetchUrl(uri);
+    if (response != null) {
+      PlaceAutocompleteResponse result =
+          PlaceAutocompleteResponse.parseAutocompleteResult(response);
+      if (result.predictions != null) {
+        setState(() {
+          placePredictions = result.predictions!;
+        });
+      }
+    }
   }
 
   @override
@@ -97,36 +125,48 @@ class _ExplorePageState extends State<ExplorePage> {
                       ),
                     ),
                   ),
-                  const TextField(
-                    decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: 'Search Location',
-                        suffixIcon: Icon(Icons.search)),
-                  )
-                ]),
-          // body: Column(
-          //   children: [
-          //     Container(
-          //       margin: EdgeInsets.only(left: 10, right: 10),
-          //       child: AnimSearchBar(
-          //         width: 400,
-          //         textController: textController,
-          //         onSuffixTap: () {
-          //           setState(() {
-          //             textController.clear();
-          //           });
-          //         },
-          //         autoFocus: true,
-          //         closeSearchOnSuffixTap: true,
-          //         animationDurationInMilli: 100,
-          //         onSubmitted: (string) {
-          //           return debugPrint('do nothing');
-          //         },
-          //       ),
-          //     )
-          //   ],
-          // ),
+                  Column(children: [
+                    // LocationSearchBox(),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(
+                          onChanged: (value) {
+                            placeAutocomplete(value);
+                          },
+                          textInputAction: TextInputAction.search,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: 'Search Location',
+                            suffixIcon: Icon(Icons.search),
+                            contentPadding: EdgeInsets.only(left: 20, bottom: 5, right: 5),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          )),
+                    ),
+                    UseMyLocationButton(),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: placePredictions.length,
+                        itemBuilder: (context, index) => LocationListTile(
+                          location: placePredictions[index].description!,
+                          press: () {}
+                        )
+                      ),
+                    ),
+                    // LocationListTile(
+                    //   location: "Banasree, Dhaka",
+                    //   press: () {},
+                    // )
+                  ])
+                ]
+              ),
           panelBuilder: (controller) {
             return Column(
               children: [
@@ -175,6 +215,58 @@ class _ExplorePageState extends State<ExplorePage> {
               ],
             );
           }),
+    );
+  }
+}
+
+class UseMyLocationButton extends StatelessWidget {
+  const UseMyLocationButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ElevatedButton.icon(
+          onPressed: () {
+          },
+          icon: SvgPicture.asset(
+            "assets/icons/location.svg",
+            height: 16,
+          ),
+          label: const Text("Use my Current Location"),
+        ));
+  }
+}
+
+class LocationSearchBox extends StatelessWidget {
+  const LocationSearchBox({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextFormField(
+          onChanged: (value) {},
+          textInputAction: TextInputAction.search,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            hintText: 'Search Location',
+            suffixIcon: Icon(Icons.search),
+            contentPadding: EdgeInsets.only(left: 20, bottom: 5, right: 5),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: Colors.white),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: Colors.white),
+            ),
+          )),
     );
   }
 }
