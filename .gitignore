@@ -23,9 +23,6 @@ migrate_working_dir/
 
 # Flutter/Dart/Pub related
 **/doc/api/
-**/ios/Flutter/.last_build_id
-**/ios/Flutter/flutter_export_environment *.sh
-**/ios/Flutter/Generated *.xcconfig
 .dart_tool/
 .flutter-plugins
 .flutter-plugins *
@@ -36,6 +33,12 @@ migrate_working_dir/
 .pub/
 /build/
 /build */
+
+# iOS/XCode
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/flutter_export_environment *.sh
+**/ios/Flutter/Generated *.xcconfig
+**/macos/Flutter/GeneratedPluginRegistrant.swift
 
 # Symbolication related
 app.*.symbols
