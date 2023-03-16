@@ -30,8 +30,9 @@ class _ExplorePageState extends State<ExplorePage> {
   List<AutocompletePrediction> placePredictions = [];
 
   LocationData? currentLocation;
-  double currLat = 0.0;
-  double currLng = 0.0;
+  LatLng currLatLng = const LatLng(0.0, 0.0);
+
+  bool searchWidgetSwitch = false;
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -44,8 +45,7 @@ class _ExplorePageState extends State<ExplorePage> {
         .then((location) => {
               setState(() {
                 currentLocation = location;
-                currLat = location.latitude!;
-                currLng = location.longitude!;
+                currLatLng = LatLng(location.latitude!, location.longitude!);
               }),
             })
         // ignore: body_might_complete_normally_catch_error
@@ -83,8 +83,10 @@ class _ExplorePageState extends State<ExplorePage> {
           PlaceDetailsResponse.parsePlaceDetails(response);
       if (result.lat != null && result.lng != null) {
         setState(() {
-          currLat = result.lat!;
-          currLng = result.lng!;
+          currLatLng = LatLng(result.lat!, result.lng!);
+          mapController.animateCamera(CameraUpdate.newCameraPosition(
+              CameraPosition(target: currLatLng, zoom: 13.5)));
+          searchWidgetSwitch = false;
         });
       }
     }
@@ -111,21 +113,33 @@ class _ExplorePageState extends State<ExplorePage> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height,
                     width: double.infinity,
-                    child: GoogleMap(
-                      onMapCreated: _onMapCreated,
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(currLat, currLng),
-                        zoom: 13.5,
-                      ),
-                    ),
+                    child: searchWidgetSwitch
+                        ? Container(
+                            color: Colors.white,
+                          )
+                        : GoogleMap(
+                            onMapCreated: _onMapCreated,
+                            initialCameraPosition: CameraPosition(
+                              target: currLatLng,
+                              zoom: 13.5,
+                            ),
+                          ),
                   ),
                   Column(children: [
-                    // LocationSearchBox(),
+                    // LocationSearchBox(),sdlj
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(
+                          onTap: () {
+                            setState(() {
+                              searchWidgetSwitch = true;
+                            });
+                          },
                           onChanged: (value) {
                             placeAutocomplete(value);
+                            setState(() {
+                              searchWidgetSwitch = true;
+                            });
                           },
                           textInputAction: TextInputAction.search,
                           decoration: InputDecoration(
@@ -147,15 +161,18 @@ class _ExplorePageState extends State<ExplorePage> {
                     ),
                     // UseMyLocationButton(),
                     Expanded(
-                      child: ListView.builder(
-                          itemCount: placePredictions.length,
-                          itemBuilder: (context, index) => LocationListTile(
-                              location: placePredictions[index].description!,
-                              press: () {
-                                String placeId =
-                                    placePredictions[index].placeId!;
-                                setMapCameraviewToPlaceId(placeId);
-                              })),
+                      child: searchWidgetSwitch
+                          ? ListView.builder(
+                              itemCount: placePredictions.length,
+                              itemBuilder: (context, index) => LocationListTile(
+                                  location:
+                                      placePredictions[index].description!,
+                                  press: () {
+                                    String placeId =
+                                        placePredictions[index].placeId!;
+                                    setMapCameraviewToPlaceId(placeId);
+                                  }))
+                          : const SizedBox.shrink(),
                     ),
                   ]),
                 ]),
