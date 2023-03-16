@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
@@ -47,11 +46,12 @@ class _StoreTodayItemPageState extends State<StoreTodayItemPage> {
       ),
       body: Column(
         children: [
+          const SizedBox(height: 10),
           FilterTab(
             storeId: widget.storeId,
             onSelectionChanged: _onFilterSelectionChanged,
           ),
-          const SizedBox(height: 20,),
+          const SizedBox(height: 10,),
           Expanded(
             child: TodayItemsList(
               storeId: widget.storeId,
@@ -106,7 +106,7 @@ class _TodayItemsListState extends State<TodayItemsList> {
     if (widget.isCheapestSelected) {
       query = query.orderBy('price.amount');
     } else if (widget.isNearestSelected) {
-      query = query.orderBy('amount');
+      query = query.orderBy('updated_at', descending: true,);
     }
 
     _todaysStream = query.snapshots();
@@ -191,7 +191,7 @@ class FilterTabState extends State<FilterTab> {
           }),
           children: const [
             SizedBox(width: 80, child: Center(child: Text('cheapest'))),
-            SizedBox(width: 80, child: Center(child: Text('nearest'))),
+            SizedBox(width: 100, child: Center(child: Text('most recent'))),
           ],
         ),
         
