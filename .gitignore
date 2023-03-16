@@ -52,12 +52,12 @@ app.*.map.json
 /android/app/release
 
 # Generated files
-/*/**/*.g.dart
-/*/**/*.g *.dart
-/*/**/*.freezed.dart
-/*/**/*.freezed *.dart
-/*/**/*.gr.dart
-/*/**/*.gr *.dart
+*.g.dart
+*.g *.dart
+*.freezed.dart
+*.freezed *.dart
+*.gr.dart
+*.gr *.dart
 
 # Environment variables
 .env

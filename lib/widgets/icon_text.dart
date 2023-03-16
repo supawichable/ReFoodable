@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/widgets/description_text.dart';
 
 class IconText extends StatelessWidget {
   final Color? color;
@@ -21,6 +20,7 @@ class IconText extends StatelessWidget {
         Icon(
           icon,
           size: 16,
+          color: iconColor,
         ),
         const SizedBox(
           width: 5,

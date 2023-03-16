@@ -4,7 +4,7 @@ part of '_store.dart';
 class Store with _$Store {
   const factory Store({
     String? name,
-    @GeoPointConverter() GeoPoint? location,
+    @LocationConverter() Location? location,
     String? ownerId,
     @TimestampConverter() DateTime? createdAt,
     @TimestampConverter() DateTime? updatedAt,
@@ -27,8 +27,7 @@ extension StoreX on Store {
   Map<String, dynamic> toFirestore() => toJson()
     ..update('updated_at', (_) => FieldValue.serverTimestamp(),
         ifAbsent: FieldValue.serverTimestamp)
-    ..update('created_at', (_) => FieldValue.serverTimestamp(),
-        ifAbsent: FieldValue.serverTimestamp);
+    ..putIfAbsent('created_at', FieldValue.serverTimestamp);
 }
 
 /// enums for food category

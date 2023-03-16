@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/util/logger.dart';
@@ -72,24 +71,34 @@ import 'package:image_cropper/image_cropper.dart';
 /// ```
 class ImageUploader {
   final WidgetRef ref;
-  final ImageUploadOptions? options;
+  final ImageUploadOptions options;
 
-  ImageUploader(this.ref, {this.options});
+  ImageUploader(this.ref, {this.options = const ImageUploadOptions()});
 
   Future<ImageUpload> handleImageUpload() async {
     final imageUploadNotifier = ref.read(imageUploadProvider(this).notifier);
-    return await imageUploadNotifier._controlCenter();
+    return await imageUploadNotifier._handleImageUpload();
   }
 }
 
 class ImageUploadOptions {
-  final List<CropAspectRatioPreset>? aspectRatioPresets;
+  final List<CropAspectRatioPreset> aspectRatioPresets;
+  final CropAspectRatio? aspectRatio;
 
   /// Options for [ImageUploadNotifier] \
   /// \
   /// [aspectRatioPresets] is the list of aspect ratios to show in the cropper.
-  /// If not provided, then the cropper will only show the square option.
-  ImageUploadOptions({this.aspectRatioPresets});
+  /// If not provided, then the cropper will only show the
+  /// [CropAspectRatioPreset.original] option. \
+  /// [aspectRatio] is the custom aspect ratio to show in the cropper. \
+  ///
+  /// If both [aspectRatioPresets] and [aspectRatio] are provided, then
+  /// [aspectRatio] will be used as the default aspect ratio.
+  /// (So don't?)
+  const ImageUploadOptions({
+    this.aspectRatio,
+    this.aspectRatioPresets = const [CropAspectRatioPreset.original],
+  });
 }
 
 final imageUploadProvider = StateNotifierProvider.family<
@@ -100,106 +109,48 @@ final imageUploadProvider = StateNotifierProvider.family<
 class ImageUploadNotifier extends StateNotifier<ImageUpload> {
   final ImageUploader uploader;
 
-  ImageUploadNotifier(this.uploader) : super(const ImageUpload.prompt());
+  ImageUploadNotifier(this.uploader) : super(const ImageUpload.standBy());
 
-  final imageDialogKey = GlobalKey<State<StatefulWidget>>();
-
-  Future<ImageUpload> _controlCenter() async {
+  Future<void> _controlCenter() async {
     await state.whenOrNull<Future<void>>(
+      standBy: _handleImageUpload,
       prompt: _prompt,
-      picked: (pickedFile) async {
-        logger.i('Picked file: ${pickedFile.path}');
-        await _cropImage();
-      },
-      cropped: (croppedFile) async {
-        logger.i('Cropped file: ${croppedFile.path}');
-        // I know what I am doing.
-        // ignore: invalid_use_of_protected_member
-        imageDialogKey.currentState?.setState(() {});
+      picked: (_) async {
+        _cropImage();
       },
       error: (error) {
-        if (error != ImagePickerError.userCancelled) {
-          Navigator.of(uploader.ref.context).pop();
+        Navigator.of(uploader.ref.context).pop();
+        switch (error) {
+          case ImagePickerError.stepError:
+            break;
+          case ImagePickerError.pickerError:
+            state = const ImageUpload.prompt();
+            break;
+          case ImagePickerError.cropperError:
+            state = const ImageUpload.prompt();
+            break;
+          case ImagePickerError.userCancelled:
+            break;
         }
+        return null;
       },
     );
+  }
+
+  Future<ImageUpload> _handleImageUpload() async {
+    final context = uploader.ref.context;
+    state = const ImageUpload.prompt();
+
+    await showDialog(
+      context: context,
+      builder: (context) => ImageUploadDialog(uploader: uploader),
+    );
+
     return state;
   }
 
   Future<void> _prompt() async {
-    final context = uploader.ref.context;
-    state = const ImageUpload.prompt();
-    await showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-          key: imageDialogKey,
-          builder: (context, setState) {
-            return WillPopScope(
-              onWillPop: () async {
-                return false;
-              },
-              child: AlertDialog(
-                title: const Text('Pick an image'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    state.whenOrNull(
-                          error: (error) => Text(error.message),
-                          cropped: (croppedFile) =>
-                              Image.file(File(croppedFile.path)),
-                        ) ??
-                        const SizedBox.shrink(),
-                    TextButton(
-                      onPressed: () async {
-                        await _pickImage();
-                      },
-                      child: const Text('Pick from gallery'),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        await _takePhoto();
-                      },
-                      child: const Text('Take a photo'),
-                    ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () async {
-                      state = const ImageUpload.error(
-                          ImagePickerError.userCancelled);
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Save'),
-                  ),
-                ],
-              ),
-            );
-          }),
-    );
-    _controlCenter();
-  }
-
-  Future<void> _pickImage() async {
-    await state.whenOrNull(
-      prompt: () async {
-        final pickedFile =
-            await ImagePicker().pickImage(source: ImageSource.gallery);
-        if (pickedFile != null) {
-          state = ImageUpload.picked(pickedFile);
-          await _cropImage();
-        } else {
-          state = const ImageUpload.error(ImagePickerError.pickerError);
-        }
-      },
-    );
-    _controlCenter();
+    logger.w('Something went wrong but rest assured, it is not your fault.');
   }
 
   Future<void> _cropImage() async {
@@ -209,18 +160,14 @@ class ImageUploadNotifier extends StateNotifier<ImageUpload> {
       picked: (sourceFile) async {
         final croppedFile = await ImageCropper().cropImage(
             sourcePath: sourceFile.path,
-            aspectRatioPresets: options?.aspectRatioPresets ??
-                const [
-                  CropAspectRatioPreset.square,
-                ],
+            aspectRatioPresets: options.aspectRatioPresets,
+            aspectRatio: options.aspectRatio,
             uiSettings: [
               AndroidUiSettings(
                 toolbarTitle: 'Crop Image',
                 toolbarColor: Theme.of(context).colorScheme.primaryContainer,
                 toolbarWidgetColor:
                     Theme.of(context).colorScheme.onPrimaryContainer,
-                initAspectRatio: CropAspectRatioPreset.original,
-                lockAspectRatio: false,
               ),
               IOSUiSettings(
                 title: 'Crop Image',
@@ -230,6 +177,21 @@ class ImageUploadNotifier extends StateNotifier<ImageUpload> {
           state = ImageUpload.cropped(croppedFile);
         } else {
           state = const ImageUpload.error(ImagePickerError.cropperError);
+        }
+      },
+    );
+    // _controlCenter();
+  }
+
+  Future<void> _pickImage() async {
+    await state.whenOrNull(
+      prompt: () async {
+        final pickedFile =
+            await ImagePicker().pickImage(source: ImageSource.gallery);
+        if (pickedFile != null) {
+          state = ImageUpload.picked(pickedFile);
+        } else {
+          state = const ImageUpload.error(ImagePickerError.pickerError);
         }
       },
     );
@@ -248,5 +210,74 @@ class ImageUploadNotifier extends StateNotifier<ImageUpload> {
       return state;
     });
     _controlCenter();
+  }
+
+  Future<void> _throwError(ImagePickerError error) async {
+    state = ImageUpload.error(error);
+    _controlCenter();
+  }
+
+  Future<void> _save() async {
+    state.whenOrNull(cropped: (croppedFile) async {
+      Navigator.of(uploader.ref.context).pop();
+    });
+  }
+}
+
+class ImageUploadDialog extends HookConsumerWidget {
+  final ImageUploader uploader;
+  const ImageUploadDialog({super.key, required this.uploader});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    late final ImageUploadNotifier notifier =
+        ref.read(imageUploadProvider(uploader).notifier);
+    late final ImageUpload state = ref.watch(imageUploadProvider(uploader));
+
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: AlertDialog(
+        title: const Text('Pick an image'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            state.whenOrNull(
+                  error: (error) => Text(error.message),
+                  cropped: (croppedFile) => Image.file(File(croppedFile.path)),
+                ) ??
+                const SizedBox.shrink(),
+            TextButton(
+              onPressed: () async {
+                await notifier._pickImage();
+              },
+              child: const Text('Pick from gallery'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await notifier._takePhoto();
+              },
+              child: const Text('Take a photo'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await notifier._throwError(ImagePickerError.userCancelled);
+            },
+            child: const Text('Cancel'),
+          ),
+          if (state is ImageUploadCropped)
+            TextButton(
+              onPressed: () async {
+                await notifier._save();
+              },
+              child: const Text('Save'),
+            ),
+        ],
+      ),
+    );
   }
 }

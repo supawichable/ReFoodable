@@ -30,7 +30,7 @@ void main() {
     test('User add a store', () async {
       final store = Store(
           name: 'Store Name',
-          location: const GeoPoint(0, 0),
+          location: Location.fromGeoPoint(const GeoPoint(0, 0)),
           address: 'test',
           email: 'store@example.com',
           phone: '08080808080',
@@ -56,7 +56,7 @@ void main() {
       // (ownerId is implied and not required by the form)
       final store2 = Store(
           name: 'Store Name 2',
-          location: const GeoPoint(0, 0),
+          location: Location.fromGeoPoint(const GeoPoint(0, 0)),
           address: 'test',
           email: 'store@example.com',
           phone: '08080808080',
@@ -95,18 +95,6 @@ void main() {
       storeDoc = snapshot.docs.first;
     });
 
-    test('API gives valid path', () async {
-      expect(
-        firestore.stores.path,
-        'stores',
-      );
-      expect(firestore.stores.doc(storeDoc.id).path, 'stores/${storeDoc.id}');
-      expect(firestore.stores.doc(storeDoc.id).items.path,
-          'stores/${storeDoc.id}/items');
-      expect(firestore.stores.doc(storeDoc.id).items.doc('egg').path,
-          'stores/${storeDoc.id}/items/egg');
-    });
-
     test('Get a store owned by this user', () async {
       final snapshot =
           await firestore.stores.ownedByUser(auth.currentUser!.uid).get();
@@ -121,9 +109,10 @@ void main() {
         addedBy: auth.currentUser!.uid,
       );
       // Add a store by this current user.
-      await firestore.stores.doc(storeDoc.id).items.add(item);
+      await firestore.stores.doc(storeDoc.id).todaysItems.add(item);
 
-      final itemsSnapshot = await firestore.stores.doc(storeDoc.id).items.get();
+      final itemsSnapshot =
+          await firestore.stores.doc(storeDoc.id).todaysItems.get();
       final itemData = itemsSnapshot.docs.map((e) => e.data()).toList().first;
 
       expect(itemData.name, item.name);

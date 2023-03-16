@@ -4,17 +4,31 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
-import 'package:gdsctokyo/providers/current_user.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
-import 'package:gdsctokyo/util/logger.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:gdsctokyo/widgets/store_card.dart';
 
-class MyStoresPage extends HookConsumerWidget {
+class MyStoresPage extends StatefulWidget {
   const MyStoresPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final storesFuture = ref.watch(ownedStoresProvider.future);
+  State<MyStoresPage> createState() => _MyStoresPageState();
+}
+
+class _MyStoresPageState extends State<MyStoresPage> {
+  late Stream<QuerySnapshot<Store>> _storesStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _storesStream = FirebaseFirestore.instance.stores
+        .ownedByUser(
+          FirebaseAuth.instance.currentUser!.uid,
+        )
+        .snapshots();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Stores'),
@@ -29,8 +43,8 @@ class MyStoresPage extends HookConsumerWidget {
         width: double.infinity,
         // screen height - app bar height
         height: MediaQuery.of(context).size.height,
-        child: FutureBuilder<QuerySnapshot<Store>>(
-          future: storesFuture,
+        child: StreamBuilder<QuerySnapshot<Store>>(
+          stream: _storesStream,
           builder: (BuildContext context, primarySnapshot) {
             if (primarySnapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -47,9 +61,7 @@ class MyStoresPage extends HookConsumerWidget {
               return ListView.separated(
                 itemCount: snapshot.docs.length + 1,
                 separatorBuilder: (BuildContext context, int index) {
-                  return const Divider(
-                    height: 2,
-                  );
+                  return const Divider();
                 },
                 itemBuilder: (BuildContext context, int index) {
                   if (index == snapshot.docs.length) {
@@ -57,27 +69,10 @@ class MyStoresPage extends HookConsumerWidget {
                       height: 80,
                     );
                   }
-                  late final Store store;
-                  try {
-                    store = snapshot.docs[index].data();
-                  } catch (e, stackTrace) {
-                    // TODO What's going on?
-                    logger.e('Error while parsing store data', e, stackTrace);
-                    return const ListTile(
-                      leading: Icon(Icons.error),
-                      title: Text('Loading...'),
-                    );
-                  }
-                  return ListTile(
-                    leading: const Icon(Icons.store),
-                    key: ObjectKey(store),
-                    title: Text(store.name ?? '(Untitled)'),
-                    subtitle: Text(store.address ?? ''),
-                    onTap: () {
-                      context.router
-                          .push(StoreRoute(storeId: snapshot.docs[index].id));
-                    },
-                  );
+                  return StoreCard(
+                      key: ValueKey(snapshot.docs[index].id),
+                      snapshot.docs[index].id,
+                      snapshot.docs[index].data());
                 },
               );
             }
@@ -92,94 +87,6 @@ class MyStoresPage extends HookConsumerWidget {
           },
         ),
       ),
-    );
-  }
-}
-
-class AddStoreDialogDebug extends StatefulWidget {
-  const AddStoreDialogDebug({super.key});
-
-  @override
-  State<AddStoreDialogDebug> createState() => _AddStoreDialogDebugState();
-}
-
-class _AddStoreDialogDebugState extends State<AddStoreDialogDebug> {
-  late final TextEditingController _nameController;
-  late final TextEditingController _latitudeController;
-  late final TextEditingController _longitudeController;
-  final _formKey = GlobalKey<FormState>();
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController();
-    _latitudeController = TextEditingController();
-    _longitudeController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _latitudeController.dispose();
-    _longitudeController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Add Store'),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Store Name',
-              ),
-              controller: _nameController,
-            ),
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Latitude',
-              ),
-              controller: _latitudeController,
-            ),
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Longitude',
-              ),
-              controller: _longitudeController,
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: () {
-            // add store to firestore
-            final store = Store(
-              name: _nameController.text,
-              location: GeoPoint(
-                double.parse(_latitudeController.text),
-                double.parse(_longitudeController.text),
-              ),
-              ownerId: FirebaseAuth.instance.currentUser!.uid,
-            );
-            FirebaseFirestore.instance.stores.add(store);
-
-            Navigator.of(context).pop();
-          },
-          child: const Text('Add'),
-        ),
-      ],
     );
   }
 }

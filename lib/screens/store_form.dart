@@ -1,30 +1,27 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:auto_route/annotations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
-import 'package:gdsctokyo/providers/current_user.dart';
 import 'package:gdsctokyo/providers/image_upload.dart';
-import 'package:gdsctokyo/providers/store_in_view.dart';
-import 'package:gdsctokyo/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 
-class StoreFormPage extends StatefulHookConsumerWidget {
+class StoreFormPage extends StatefulWidget {
   final String? storeId;
   const StoreFormPage({super.key, @PathParam('storeId') this.storeId});
 
   @override
-  ConsumerState<StoreFormPage> createState() => _StoreFormPageState();
+  State<StoreFormPage> createState() => _StoreFormPageState();
 }
 
-class _StoreFormPageState extends ConsumerState<StoreFormPage> {
+class _StoreFormPageState extends State<StoreFormPage> {
   // To add a store, we need these fields:
   // - photo (optional)
   // - name (required)
@@ -41,7 +38,7 @@ class _StoreFormPageState extends ConsumerState<StoreFormPage> {
   // controller
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
-  GeoPoint? _location;
+  Location? _location;
   late final TextEditingController _addressController;
   late final TextEditingController _emailController;
   late final TextEditingController _phoneController;
@@ -49,10 +46,8 @@ class _StoreFormPageState extends ConsumerState<StoreFormPage> {
   List<FoodCategory> _categoryList = [];
 
   // if storeId is not null, then we are editing a store
-  String? _targetStoreId;
-  bool isLoading = true;
-  String? _serverPhotoURL;
-
+  DocumentSnapshot<Store>? _originalSnapshot;
+  bool _isLoading = true;
   @override
   void initState() {
     super.initState();
@@ -63,8 +58,9 @@ class _StoreFormPageState extends ConsumerState<StoreFormPage> {
 
     final storeId = widget.storeId;
     if (storeId != null) {
-      ref.read(storeInViewProvider(storeId).future).then((value) {
-        final store = value.data();
+      FirebaseFirestore.instance.stores.doc(storeId).get().then((snapshot) {
+        _originalSnapshot = snapshot;
+        final store = snapshot.data();
         if (store != null) {
           _nameController.text = store.name ?? '';
           _addressController.text = store.address ?? '';
@@ -72,16 +68,14 @@ class _StoreFormPageState extends ConsumerState<StoreFormPage> {
           _phoneController.text = store.phone ?? '';
           _categoryList = store.category ?? [];
           _location = store.location;
-          _serverPhotoURL = store.photoURL;
           setState(() {
-            isLoading = false;
-            _targetStoreId = storeId;
+            _isLoading = false;
           });
         }
       }).catchError((e) {});
     } else {
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
     }
   }
@@ -108,145 +102,205 @@ class _StoreFormPageState extends ConsumerState<StoreFormPage> {
         title: const Text('Add a Store'),
       ),
       body: SingleChildScrollView(
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          child: Form(
-              key: _formKey,
-              // child is a grid view of the fields
-              // fields will consist of a label and a text field
-              // except the cover photo on the top spanning the whole width
-              // the location will be a button that will set the coordinates to
-              // GeoPoint(0, 0) for now
-              // and the category field which will be a dropdown menu
-              child: LayoutGrid(
-                areas: '''
-              photo             photo
-              name_label        name_field
-              location_label    location_field
-              address_label     address_field
-              email_label       email_field
-              phone_label       phone_field
-              category_label    category_field
-              submit_button     submit_button
-            ''',
-                columnSizes: [100.px, auto],
-                rowSizes: [
-                  300.px,
-                  1.fr,
-                  1.fr,
-                  1.fr,
-                  1.fr,
-                  1.fr,
-                  1.fr,
-                  1.fr,
-                ],
-                children: [
-                  CoverPhoto(
-                    serverPhotoURL: _serverPhotoURL,
-                    coverPhoto: _coverPhoto,
-                    setFile: _setFile,
-                  ).inGridArea('photo'),
-                  const Text('Name').inGridArea('name_label'),
-                  TextFormField(
-                    controller: _nameController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a name';
-                      }
-                      return null;
-                    },
-                  ).inGridArea('name_field'),
-                  const Text('Location').inGridArea('location_label'),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _location = const GeoPoint(0, 0);
-                      });
-                    },
-                    child: const Text('Set Location'),
-                  ).inGridArea('location_field'),
-                  const Text('Address').inGridArea('address_label'),
-                  TextFormField(
-                    controller: _addressController,
-                  ).inGridArea('address_field'),
-                  const Text('Email').inGridArea('email_label'),
-                  TextFormField(
-                    controller: _emailController,
-                  ).inGridArea('email_field'),
-                  const Text('Phone').inGridArea('phone_label'),
-                  TextFormField(
-                    controller: _phoneController,
-                  ).inGridArea('phone_field'),
-                  const Text('Category').inGridArea('category_label'),
-                  DropdownButton<FoodCategory>(
-                    value: _categoryList.isEmpty ? null : _categoryList.first,
-                    items: FoodCategory.values
-                        .map((e) => DropdownMenuItem(
-                              value: e,
-                              child: Text(e.name),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _categoryList = [value!];
-                      });
-                    },
-                  ).inGridArea('category_field'),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate() &&
-                          _location != null) {
-                        bool isSuccessful = false;
-                        late final DocumentReference<Store> storeRef;
-                        if (_targetStoreId == null) {
-                          final store = Store(
-                            name: _nameController.text,
-                            location: _location!,
-                            address: _addressController.text,
-                            email: _emailController.text,
-                            phone: _phoneController.text,
-                            category: _categoryList,
-                            ownerId: FirebaseAuth.instance.currentUser!.uid,
-                          );
-                          storeRef = await FirebaseFirestore.instance.stores
-                              .add(store);
-                        } else {
-                          storeRef = FirebaseFirestore.instance.stores
-                              .doc(_targetStoreId);
-                          await storeRef.updateStore(
-                            name: _nameController.text,
-                            location: _location!,
-                            address: _addressController.text,
-                            email: _emailController.text,
-                            phone: _phoneController.text,
-                            category: _categoryList,
-                          );
+        child: Form(
+            key: _formKey,
+            // child is a grid view of the fields
+            // fields will consist of a label and a text field
+            // except the cover photo on the top spanning the whole width
+            // the location will be a button that will set the coordinates to
+            // GeoPoint(0, 0) for now
+            // and the category field which will be a dropdown menu
+            child: Column(
+              children: [
+                Stack(
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: 148,
+                      child: CoverPhoto(
+                        serverPhotoURL: _originalSnapshot?.data()?.photoURL,
+                        coverPhoto: _coverPhoto,
+                        setFile: _setFile,
+                      ),
+                    ),
+                    const Align(
+                      alignment: Alignment.topRight,
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: Colors.white,
+                          child: Icon(
+                            Icons.upload,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Name'),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a name';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      const Text('Location'),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                // latitude and longitude to random number in valid range
+                                final lat = Random().nextInt(180) - 90;
+                                final lon = Random().nextInt(360) - 180;
+                                _location = Location.fromGeoPoint(
+                                    GeoPoint(lat.toDouble(), lon.toDouble()));
+                              });
+                            },
+                            child: const Text('Set Location'),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(_location?.geoPoint != null
+                              ? '${_location!.geoPoint!.latitude}, ${_location!.geoPoint!.longitude}'
+                              : 'No location set'),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      const Text('Address'),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _addressController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text('Email'),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text('Phone'),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _phoneController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text('Category'),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<FoodCategory>(
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                        value:
+                            _categoryList.isEmpty ? null : _categoryList.first,
+                        items: FoodCategory.values
+                            .map((e) => DropdownMenuItem(
+                                  value: e,
+                                  child: Text(e.name),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _categoryList = [value!];
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      if (_isLoading)
+                        const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      else
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate() &&
+                                  _location != null) {
+                                setState(() {
+                                  _isLoading = true;
+                                });
 
-                          ref.invalidate(storeInViewProvider(_targetStoreId!));
-                          ref.invalidate(ownedStoresProvider);
-                        }
-                        if (_coverPhoto != null) {
-                          final coverPhotoRef = FirebaseStorage.instance
-                              .ref()
-                              .child('stores/${storeRef.id}/cover_photo.jpg');
-                          await coverPhotoRef.putFile(_coverPhoto!);
-                          final coverPhotoUrl =
-                              await coverPhotoRef.getDownloadURL();
-                          await storeRef.updateStore(photoURL: coverPhotoUrl);
-                          logger.i('Uploaded cover photo');
-                        } else {
-                          logger.i('No cover photo');
-                        }
-                      }
-                      // ignore: use_build_context_synchronously
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Submit'),
-                  ).inGridArea('submit_button'),
-                ],
-              )),
-        ),
+                                final storeRef = _originalSnapshot?.reference ??
+                                    FirebaseFirestore.instance.stores.doc();
+
+                                final store = Store(
+                                    name: _nameController.text,
+                                    address: _addressController.text,
+                                    email: _emailController.text,
+                                    phone: _phoneController.text,
+                                    category: _categoryList,
+                                    location: _location,
+                                    photoURL:
+                                        _originalSnapshot?.data()?.photoURL,
+                                    ownerId:
+                                        FirebaseAuth.instance.currentUser!.uid,
+                                    createdAt:
+                                        _originalSnapshot?.data()?.createdAt);
+
+                                try {
+                                  await storeRef.set(store);
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text('Error adding store')));
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                  return;
+                                }
+
+                                if (_coverPhoto != null) {
+                                  final coverPhotoRef = FirebaseStorage.instance
+                                      .ref()
+                                      .child(
+                                          'stores/${storeRef.id}/cover_photo.jpg');
+                                  await coverPhotoRef.putFile(_coverPhoto!);
+                                  final coverPhotoUrl =
+                                      await coverPhotoRef.getDownloadURL();
+                                  await storeRef.updateStore(
+                                      photoURL: coverPhotoUrl);
+                                }
+
+                                setState(() {
+                                  _isLoading = false;
+                                });
+
+                                // ignore: use_build_context_synchronously
+                                Navigator.of(context).pop();
+                              }
+                            },
+                            child: const Text('Submit'),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            )),
       ),
     );
   }
@@ -294,8 +348,8 @@ class CoverPhoto extends HookConsumerWidget {
               child: InkWell(
                 onTap: () async {
                   final imageUpload = await ImageUploader(ref,
-                      options: ImageUploadOptions(
-                        aspectRatioPresets: [CropAspectRatioPreset.ratio3x2],
+                      options: const ImageUploadOptions(
+                        aspectRatio: CropAspectRatio(ratioX: 3, ratioY: 1),
                       )).handleImageUpload();
                   imageUpload.whenOrNull(
                       cropped: (file) => setFile(File(file.path)),

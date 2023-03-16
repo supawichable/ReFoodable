@@ -1,15 +1,36 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
+import 'package:gdsctokyo/models/store/_store.dart';
 
 class GeoPointConverter extends JsonConverter<GeoPoint, GeoPoint> {
   const GeoPointConverter();
 
   @override
-  GeoPoint fromJson(json) => json;
+  GeoPoint fromJson(GeoPoint json) => json;
 
   @override
   GeoPoint toJson(GeoPoint object) => object;
+}
+
+class LocationConverter extends JsonConverter<Location, Map<String, dynamic>> {
+  const LocationConverter();
+
+  @override
+  Location fromJson(Map<String, dynamic> json) {
+    return Location(
+      geoPoint: json['geo_point'] as GeoPoint?,
+      geoHash: json['geo_hash'] as String?,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson(Location object) {
+    return {
+      'geo_point': object.geoPoint,
+      'geo_hash': object.geoHash,
+    };
+  }
 }
 
 class TimestampConverter extends JsonConverter<DateTime, Timestamp> {
@@ -58,7 +79,7 @@ class PriceConverter extends JsonConverter<Price, Map<String, dynamic>> {
       currency: Currency.values.firstWhere(
         (e) => e.toString() == 'Currency.${json['currency']}',
       ),
-      compareAtPrice: (json['compare_at_price'] as num).toDouble(),
+      compareAtPrice: (json['compare_at_price'] as num?)?.toDouble(),
     );
   }
 

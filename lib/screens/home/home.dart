@@ -10,7 +10,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static List<String> titles = ['Store', 'Explore', 'My Page'];
+  static List<String> titles = ['Saved', 'Explore', 'My Page'];
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +26,15 @@ class _HomePageState extends State<HomePage> {
             appBar: AppBar(
               title: Text(titles[tabsRouter.activeIndex]),
               elevation: 2,
+              actions: [
+                if (tabsRouter.activeIndex == 2)
+                  IconButton(
+                    onPressed: () {
+                      context.router.push(const SettingsRoute());
+                    },
+                    icon: const Icon(Icons.settings_outlined),
+                  ),
+              ],
             ),
             body: SlideTransition(
               position: animation.drive(
