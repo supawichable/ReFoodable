@@ -12,6 +12,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../../components/location_list_tile.dart';
 import '../../models/place_autocomplete/autocomplete_prediction.dart';
 import '../../models/place_autocomplete/place_auto_complete_response.dart';
+import '../../models/place_details/place_details_response.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -29,6 +30,8 @@ class _ExplorePageState extends State<ExplorePage> {
   List<AutocompletePrediction> placePredictions = [];
 
   LocationData? currentLocation;
+  double currLat = 0.0;
+  double currLng = 0.0;
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -41,6 +44,8 @@ class _ExplorePageState extends State<ExplorePage> {
         .then((location) => {
               setState(() {
                 currentLocation = location;
+                currLat = location.latitude!;
+                currLng = location.longitude!;
               }),
             })
         // ignore: body_might_complete_normally_catch_error
@@ -67,6 +72,24 @@ class _ExplorePageState extends State<ExplorePage> {
     }
   }
 
+  void setMapCameraviewToPlaceId(String placeId) async {
+    Uri uri = Uri.https("maps.googleapis.com", "maps/api/place/details/json", {
+      "place_id": placeId,
+      "key": dotenv.get("ANDROID_GOOGLE_API_KEY"),
+    });
+    String? response = await NetworkUtility.fetchUrl(uri);
+    if (response != null) {
+      PlaceDetailsResponse result =
+          PlaceDetailsResponse.parsePlaceDetails(response);
+      if (result.lat != null && result.lng != null) {
+        setState(() {
+          currLat = result.lat!;
+          currLng = result.lng!;
+        });
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -85,56 +108,57 @@ class _ExplorePageState extends State<ExplorePage> {
           body: currentLocation == null
               ? const Center(child: Text('Loading'))
               : Stack(children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  width: double.infinity,
-                  child: GoogleMap(
-                    onMapCreated: _onMapCreated,
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(currentLocation!.latitude!,
-                          currentLocation!.longitude!),
-                      zoom: 13.5,
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    width: double.infinity,
+                    child: GoogleMap(
+                      onMapCreated: _onMapCreated,
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(currLat, currLng),
+                        zoom: 13.5,
+                      ),
                     ),
                   ),
-                ),
-                Column(children: [
-                  // LocationSearchBox(),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      onChanged: (value) {
-                        placeAutocomplete(value);
-                      },
-                      textInputAction: TextInputAction.search,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: 'Search Location',
-                        suffixIcon: Icon(Icons.search),
-                        contentPadding: EdgeInsets.only(left: 20, bottom: 5, right: 5),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                      )
+                  Column(children: [
+                    // LocationSearchBox(),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(
+                          onChanged: (value) {
+                            placeAutocomplete(value);
+                          },
+                          textInputAction: TextInputAction.search,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: 'Search Location',
+                            suffixIcon: Icon(Icons.search),
+                            contentPadding:
+                                EdgeInsets.only(left: 20, bottom: 5, right: 5),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          )),
                     ),
-                  ),
                     // UseMyLocationButton(),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: placePredictions.length,
-                      itemBuilder: (context, index) => LocationListTile(
-                        location: placePredictions[index].description!,
-                        press: () {}
-                      )
+                    Expanded(
+                      child: ListView.builder(
+                          itemCount: placePredictions.length,
+                          itemBuilder: (context, index) => LocationListTile(
+                              location: placePredictions[index].description!,
+                              press: () {
+                                String placeId =
+                                    placePredictions[index].placeId!;
+                                setMapCameraviewToPlaceId(placeId);
+                              })),
                     ),
-                  ),
+                  ]),
                 ]),
-              ]),
           panelBuilder: (controller) {
             return Column(
               children: [
@@ -197,8 +221,7 @@ class UseMyLocationButton extends StatelessWidget {
     return Padding(
         padding: const EdgeInsets.all(8.0),
         child: ElevatedButton.icon(
-          onPressed: () {
-          },
+          onPressed: () {},
           icon: SvgPicture.asset(
             "assets/icons/location.svg",
             height: 16,
