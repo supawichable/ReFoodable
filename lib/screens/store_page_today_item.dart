@@ -36,13 +36,13 @@ class _StoreTodayItemPageState extends State<StoreTodayItemPage> {
             context: context,
             builder: (context) => AddItemDialog(
                   storeId: widget.storeId,
+                  bucket: ItemBucket.today,
                 )),
         child: const Icon(Icons.add),
       ),
       appBar: AppBar(
         title: const Text('Today Items'),
         centerTitle: true,
-        actions: [],
       ),
       body: Column(
         children: [
@@ -125,8 +125,10 @@ class _TodayItemsListState extends State<TodayItemsList> {
       height: MediaQuery.of(context).size.height,
       child: ListView(
         children: snapshot.data!.docs.map((snapshot) => ItemCard(
-          key: ValueKey(snapshot.id),
+            key: ValueKey(snapshot.id),
+                         
           snapshot: snapshot,
+                        ,
         )).toList(),
       ),
     );

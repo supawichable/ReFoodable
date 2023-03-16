@@ -11,12 +11,11 @@ class InputTextField extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _InputTextFieldState createState() => _InputTextFieldState();
+  State<InputTextField> createState() => _InputTextFieldState();
 }
 
 class _InputTextFieldState extends State<InputTextField> {
   final _textController = TextEditingController();
-
 
   @override
   Widget build(BuildContext context) {

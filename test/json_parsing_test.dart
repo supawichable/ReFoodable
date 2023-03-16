@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gdsctokyo/extension/geo_fire.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 
@@ -7,7 +8,7 @@ void main() {
   group('store', () {
     final store = Store(
         name: 'Store 1',
-        location: const GeoPoint(50.0, 128.0),
+        location: Location.fromGeoPoint(const GeoPoint(50.0, 50.0)),
         createdAt: DateTime(2021, 1, 1),
         updatedAt: DateTime(2021, 1, 1),
         address: 'test',
@@ -18,7 +19,10 @@ void main() {
 
     final json = {
       'name': 'Store 1',
-      'location': const GeoPoint(50.0, 128.0),
+      'location': {
+        'geo_hash': GeoFire.getGeoHashForLocation(50.0, 50.0),
+        'geo_point': const GeoPoint(50.0, 50.0),
+      },
       'created_at': Timestamp.fromDate(DateTime(2021, 1, 1)),
       'updated_at': Timestamp.fromDate(DateTime(2021, 1, 1)),
       'address': 'test',

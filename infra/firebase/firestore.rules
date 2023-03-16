@@ -10,7 +10,7 @@ service cloud.firestore {
     match /stores/{store} {
       allow read;
       allow create: if request.auth != null && request.resource.data.owner_id == request.auth.uid;
-      allow update, delete: if request.auth != null && request.auth.uid == request.resource.data.owner_id;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.owner_id;
       
       // Anyone can read today's item data
       // Anyone can add an today's item as long as
@@ -30,7 +30,6 @@ service cloud.firestore {
         allow read, write: if 
           request.auth != null &&
           exists(/databases/$(database)/documents/stores/$(store)) &&
-          request.resource.data.added_by == request.auth.uid &&
           request.auth.uid == get(/databases/$(database)/documents/stores/$(store)).data.owner_id;
       }
     }
@@ -39,16 +38,16 @@ service cloud.firestore {
     // You cannot query user data
     // Only the user can update and delete their own data
     // document id is the user id
-    match /users_public/{user} {
+    match /users/{user} {
       allow get;
       allow create: if request.auth != null && request.auth.uid == request.resource.id;
       allow update, delete: if request.auth != null && request.auth.uid == request.resource.id;
-    }
 
-    // Only the user can read and write their own private data
-    // document id is the user id
-    match /users_private/{user} {
-      allow read, write: if request.auth != null && request.auth.uid == request.resource.id;
+      // Only the user can read and write their own private data
+      // document id is the user id
+      match /bookmarks/{bookmark} {
+        allow read, write: if request.auth != null && request.auth.uid == user;
+      }
     }
   }
 }

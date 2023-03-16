@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
-import 'package:gdsctokyo/util/logger.dart';
-import 'package:gdsctokyo/widgets/description_text.dart';
 
 class StoreCard extends StatefulWidget {
   final String storeId;
@@ -24,7 +22,7 @@ class StoreCard extends StatefulWidget {
 
 class _StoreCardState extends State<StoreCard> {
   late final String? ownerId = widget.store?.ownerId;
-  late final Future<String?> ownerName = FirebaseFirestore.instance.usersPublic
+  late final Future<String?> ownerName = FirebaseFirestore.instance.users
       .doc(widget.store?.ownerId)
       .get()
       .then((snapshot) {
