@@ -71,13 +71,15 @@ class _MyItemState extends State<MyItem> {
             return const LinearProgressIndicator();
           }
 
-          if (snapshot.hasData) {
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
             return SizedBox(
                 height: MediaQuery.of(context).size.height,
                 child: ListView(
                   children: snapshot.data!.docs
                       .map(
-                        (snapshot) => ItemCard(snapshot: snapshot),
+                        (snapshot) => ItemCard(
+                          key: ValueKey(snapshot.id),
+                        snapshot: snapshot),
                       )
                       .toList(),
                 ));

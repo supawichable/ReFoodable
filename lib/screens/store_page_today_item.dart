@@ -70,15 +70,21 @@ class _TodayItemsListState extends State<TodayItemsList> {
             return const LinearProgressIndicator();
           }
 
-          return SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: ListView(
-                children: snapshot.data!.docs
-                    .map((snapshot) => ItemCard(
-                          key: ValueKey(snapshot.id),
-                          snapshot: snapshot,
-                        ))
-                    .toList()),
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+            return SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: ListView(
+                  children: snapshot.data!.docs
+                      .map((snapshot) => ItemCard(
+                            key: ValueKey(snapshot.id),
+                            snapshot: snapshot,
+                          ))
+                      .toList()),
+            );
+          }
+
+          return const Center(
+            child: Text('No items'),
           );
         });
   }
