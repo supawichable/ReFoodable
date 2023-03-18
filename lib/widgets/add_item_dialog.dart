@@ -47,13 +47,13 @@ class _AddItemDialogState extends State<AddItemDialog> {
   late final TextEditingController _controllerDiscountedPercent =
       TextEditingController();
 
-  String currentDiscountView = "By Price";
+  DiscountView currentDiscountView = DiscountView.byPrice;
 
-  void _handleDiscountViewChanged(String newView) {
+  void _handleDiscountViewChanged(Set<DiscountView> newView) {
     setState(() {
-      currentDiscountView = newView;
+      currentDiscountView = newView.first;
     });
-    print('The new discount view is: $newView');
+    debugPrint('The new discount view is: $newView');
   }
 
   DocumentSnapshot<Item>? _itemSnapshot;
@@ -108,7 +108,6 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 _controllerDiscountedPercent.text =
                     discountedPercent.toStringAsFixed(2);
               }
-              ;
             });
           }
           setState(
@@ -166,7 +165,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 if (_isLoading)
                   const Center(
                     child: CircularProgressIndicator(),
@@ -211,17 +210,13 @@ class _AddItemDialogState extends State<AddItemDialog> {
                       ),
                     ],
                   ),
-                  widget.bucket == ItemBucket.today
-                      ? Column(
-                          children: [
-                            SizedBox(height: 8),
-                            SingleChoice(
-                                onDiscountViewChanged:
-                                    _handleDiscountViewChanged),
-                          ],
-                        )
-                      : SizedBox.shrink(),
-                  SizedBox(height: 8),
+                  if (widget.bucket == ItemBucket.today) ...[
+                    const SizedBox(height: 8),
+                    SingleChoice(
+                        onDiscountViewChanged: _handleDiscountViewChanged,
+                        discountView: currentDiscountView),
+                  ],
+                  const SizedBox(height: 8),
                   Row(
                     children: [
                       Flexible(
@@ -229,7 +224,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                                currentDiscountView == "By Price"
+                                currentDiscountView == DiscountView.byPrice
                                     ? 'Normal price'
                                     : 'Normal price*',
                                 style: Theme.of(context)
@@ -276,108 +271,94 @@ class _AddItemDialogState extends State<AddItemDialog> {
                           ],
                         ),
                       ),
-                      widget.bucket == ItemBucket.today
-                          ? const SizedBox(
-                              width: 10,
-                            )
-                          : SizedBox.shrink(),
-                      widget.bucket == ItemBucket.today
-                          ? Flexible(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                      currentDiscountView == "By Price"
-                                          ? 'Discounted price*'
-                                          : 'Discounted %*',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelLarge),
-                                  const SizedBox(
-                                    height: 8,
-                                  ),
-                                  SizedBox(
-                                    height: 40,
-                                    child: Stack(
-                                      alignment: Alignment.centerRight,
-                                      children: [
-                                        TextFormField(
-                                          decoration: InputDecoration(
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    vertical: 0,
-                                                    horizontal: 10),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .outlineVariant),
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .outline),
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                            ),
-                                            hintText: 'discounted',
-                                          ),
-                                          controller: currentDiscountView ==
-                                                  "By Price"
-                                              ? _controllerDiscountedPrice
-                                              : _controllerDiscountedPercent,
-                                          // check if is double
-                                          validator: (value) {
-                                            if (value == null ||
-                                                value.isEmpty) {
-                                              return 'Please enter discounted price';
-                                            }
-                                            if (double.tryParse(value) ==
-                                                null) {
-                                              return 'Please enter valid price';
-                                            }
-                                            return null;
-                                          },
-                                        ),
-                                        currentDiscountView == "By %"
-                                            ? Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 8.0),
-                                                child: Text('%'),
-                                              )
-                                            : SizedBox.shrink(),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                      if (widget.bucket == ItemBucket.today) ...[
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  currentDiscountView == DiscountView.byPrice
+                                      ? 'Discounted price'
+                                      : 'Discounted percent*',
+                                  style:
+                                      Theme.of(context).textTheme.labelLarge),
+                              const SizedBox(
+                                height: 8,
                               ),
-                            )
-                          : SizedBox.shrink(),
+                              SizedBox(
+                                height: 40,
+                                child: Stack(
+                                  alignment: Alignment.centerRight,
+                                  children: [
+                                    TextFormField(
+                                      decoration: InputDecoration(
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 0, horizontal: 10),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .outlineVariant),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .outline),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                        ),
+                                        hintText: 'discounted',
+                                      ),
+                                      controller: currentDiscountView ==
+                                              DiscountView.byPrice
+                                          ? _controllerDiscountedPrice
+                                          : _controllerDiscountedPercent,
+                                      // check if is double
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter discounted price';
+                                        }
+                                        if (double.tryParse(value) == null) {
+                                          return 'Please enter valid price';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    if (currentDiscountView ==
+                                        DiscountView.byPercent)
+                                      const Padding(
+                                        padding: EdgeInsets.only(right: 8.0),
+                                        child: Text('%'),
+                                      )
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ]
                     ],
                   ),
-                  widget.bucket == ItemBucket.today
-                      ? currentDiscountView == "By %"
-                          ? Column(
-                              children: [
-                                SizedBox(height: 8),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    "Discounted Price = ${_controllerDiscountedPrice.text}",
-                                    style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .outline),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : SizedBox.shrink()
-                      : SizedBox.shrink(),
-                  SizedBox(height: 8),
+                  if (widget.bucket == ItemBucket.today &&
+                      currentDiscountView == DiscountView.byPercent) ...[
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Discounted Price = ${_controllerDiscountedPrice.text}',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.outline),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 8),
                   Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

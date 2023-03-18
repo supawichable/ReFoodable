@@ -1,83 +1,48 @@
 import 'package:flutter/material.dart';
 
-List<String> discountType = ["By Price", "By %"];
-
-class SingleChoice extends StatefulWidget {
-  final Function(String) onDiscountViewChanged;
-
-  SingleChoice({required this.onDiscountViewChanged});
-
-  @override
-  State<SingleChoice> createState() => _SingleChoiceState();
+enum DiscountView {
+  byPrice,
+  byPercent,
 }
 
-class _SingleChoiceState extends State<SingleChoice> {
-  String discountView = "By Price";
-
-  void _onDiscountViewChanged(String newView) {
-    setState(() {
-      discountView = newView;
-    });
-    widget.onDiscountViewChanged(newView);
+extension Label on DiscountView {
+  String get label {
+    switch (this) {
+      case DiscountView.byPrice:
+        return 'By Price';
+      case DiscountView.byPercent:
+        return 'By Percent';
+    }
   }
+}
+
+class SingleChoice extends StatelessWidget {
+  final DiscountView discountView;
+  final Function(Set<DiscountView>) onDiscountViewChanged;
+
+  const SingleChoice(
+      {super.key,
+      required this.onDiscountViewChanged,
+      required this.discountView});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 32,
-      child: Stack(children: [
-        SegmentedButton<String>(
-          segments: const <ButtonSegment<String>>[
-            ButtonSegment<String>(
-              value: "By Price",
-              label: Text(''),
-              // padding: EdgeInsets.zero,
-            ),
-            ButtonSegment<String>(
-              value: "By %",
-              label: Text(''),
-            )
-          ],
-          selected: <String>{discountView},
-          onSelectionChanged: (Set<String> newSelection) {
-            setState(() {
-              // By default there is only a single segment that can be
-              // selected at one time, so its value is always the first
-              // item in the selected set.
-              _onDiscountViewChanged(newSelection.first);
-            });
-          },
-          style: ButtonStyle(
-            fixedSize: MaterialStateProperty.all<Size>(
-              Size(8, 20),
-            ),
-            padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-              EdgeInsets.symmetric(vertical: 0, horizontal: 40),
-              // EdgeInsets.zero),
-            ),
-            foregroundColor:
-                MaterialStateProperty.all<Color>(Colors.transparent),
-          ),
+    return SegmentedButton<DiscountView>(
+      selectedIcon: const Icon(Icons.check),
+      segments: <ButtonSegment<DiscountView>>[
+        ButtonSegment<DiscountView>(
+          icon: const Icon(Icons.attach_money),
+          value: DiscountView.byPrice,
+          label: Text(DiscountView.byPrice.label),
         ),
-        Positioned.fill(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              GestureDetector(
-                  onTap: () {
-                    _onDiscountViewChanged("By Price");
-                  },
-                  child: Text('By Price', style: TextStyle(fontSize: 12))),
-              GestureDetector(
-                  onTap: () {
-                    _onDiscountViewChanged("By %");
-                  },
-                  child: Text('By %', style: TextStyle(fontSize: 12))),
-            ],
-          ),
+        ButtonSegment<DiscountView>(
+          icon: const Icon(Icons.percent),
+          value: DiscountView.byPercent,
+          label: Text(DiscountView.byPercent.label),
         ),
-      ]),
+      ],
+      selected: <DiscountView>{discountView},
+      onSelectionChanged: onDiscountViewChanged,
     );
   }
 }
