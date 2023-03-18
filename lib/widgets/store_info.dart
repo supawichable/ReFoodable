@@ -179,6 +179,7 @@ class _StoreCardState extends State<StoreCard> {
                     Icons.call,
                     size: 20,
                   ),
+                  const SizedBox(width: 10),
                   Text(
                     widget.store?.phone ?? '(No phone)',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
