@@ -276,9 +276,11 @@ class _AddItemDialogState extends State<AddItemDialog> {
                           ],
                         ),
                       ),
-                      const SizedBox(
-                        width: 10,
-                      ),
+                      widget.bucket == ItemBucket.today
+                          ? const SizedBox(
+                              width: 10,
+                            )
+                          : SizedBox.shrink(),
                       widget.bucket == ItemBucket.today
                           ? Flexible(
                               child: Column(
@@ -461,6 +463,22 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 100 *
                 compareAtPrice
         : 0.toDouble();
+
+    final snackBar = SnackBar(
+      content: widget.bucket == ItemBucket.my
+          ? Text('$name was added to My Items')
+          : Text('$name was added to Today\'s Items'),
+      action: SnackBarAction(
+        label: 'Undo',
+        onPressed: () async {
+          await items.doc(itemId).delete();
+        },
+      ),
+    );
+
+    // Find the ScaffoldMessenger in the widget tree
+    // and use it to show a SnackBar.
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
     if (_formKey.currentState!.validate()) {
       final originalItem = _itemSnapshot?.data() ?? const Item();
