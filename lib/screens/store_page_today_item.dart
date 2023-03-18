@@ -5,7 +5,8 @@ import 'package:gdsctokyo/extension/firebase_extension.dart';
 
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/widgets/add_item_dialog.dart';
-import 'package:gdsctokyo/widgets/item_card.dart';
+
+import 'package:gdsctokyo/widgets/store_page/item_list.dart';
 
 class StoreTodayItemPage extends StatelessWidget {
   final String storeId;
@@ -50,42 +51,14 @@ class TodayItemsList extends StatefulWidget {
 }
 
 class _TodayItemsListState extends State<TodayItemsList> {
-  late Stream<QuerySnapshot<Item>> _todaysStream;
-
-  @override
-  void initState() {
-    super.initState();
-    _todaysStream = FirebaseFirestore.instance.stores
-        .doc(widget.storeId)
-        .todaysItems
-        .snapshots();
-  }
+  late final Stream<QuerySnapshot<Item>> _todaysStream = FirebaseFirestore
+      .instance.stores
+      .doc(widget.storeId)
+      .todaysItems
+      .snapshots();
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: _todaysStream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LinearProgressIndicator();
-          }
-
-          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-            return SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: ListView(
-                  children: snapshot.data!.docs
-                      .map((snapshot) => ItemCard(
-                            key: ValueKey(snapshot.id),
-                            snapshot: snapshot,
-                          ))
-                      .toList()),
-            );
-          }
-
-          return const Center(
-            child: Text('No items'),
-          );
-        });
+    return StreamedItemList(itemStream: _todaysStream);
   }
 }
