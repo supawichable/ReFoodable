@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
@@ -25,6 +26,22 @@ class _FutureStoreCardState extends State<FutureStoreCard> {
         stream: _storeStream,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            if (!snapshot.data!.exists) {
+              return Card(
+                child: ListTile(
+                    title: Text('Store was deleted. Remove from list?'),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () async {
+                        await FirebaseFirestore.instance.users
+                            .doc(FirebaseAuth.instance.currentUser!.uid)
+                            .bookmarks
+                            .doc(widget.storeId)
+                            .delete();
+                      },
+                    )),
+              );
+            }
             return StoreCard(widget.storeId, snapshot.data!.data()!,
                 imageShow: widget.imageShow);
           }
