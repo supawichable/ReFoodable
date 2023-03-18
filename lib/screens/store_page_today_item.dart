@@ -51,7 +51,9 @@ class _StoreTodayItemPageState extends State<StoreTodayItemPage> {
             storeId: widget.storeId,
             onSelectionChanged: _onFilterSelectionChanged,
           ),
-          const SizedBox(height: 10,),
+          const SizedBox(
+            height: 10,
+          ),
           Expanded(
             child: TodayItemsList(
               storeId: widget.storeId,
@@ -106,7 +108,10 @@ class _TodayItemsListState extends State<TodayItemsList> {
     if (widget.isCheapestSelected) {
       query = query.orderBy('price.amount');
     } else if (widget.isNearestSelected) {
-      query = query.orderBy('updated_at', descending: true,);
+      query = query.orderBy(
+        'updated_at',
+        descending: true,
+      );
     }
 
     _todaysStream = query.snapshots();
@@ -115,25 +120,26 @@ class _TodayItemsListState extends State<TodayItemsList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot<Item>>(
-  stream: _todaysStream,
-  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot<Item>> snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return const LinearProgressIndicator();
-    }
+      stream: _todaysStream,
+      builder:
+          (BuildContext context, AsyncSnapshot<QuerySnapshot<Item>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const LinearProgressIndicator();
+        }
 
-    return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      child: ListView(
-        children: snapshot.data!.docs.map((snapshot) => ItemCard(
-            key: ValueKey(snapshot.id),
-                         
-          snapshot: snapshot,
-                        ,
-        )).toList(),
-      ),
+        return SizedBox(
+          height: MediaQuery.of(context).size.height,
+          child: ListView(
+            children: snapshot.data!.docs
+                .map((snapshot) => ItemCard(
+                      key: ValueKey(snapshot.id),
+                      snapshot: snapshot,
+                    ))
+                .toList(),
+          ),
+        );
+      },
     );
-  },
-);
 
     // return StreamBuilder(
     //     stream: _todaysStream,
@@ -174,16 +180,15 @@ class FilterTabState extends State<FilterTab> {
     return SizedBox(
       height: 40,
       width: double.infinity,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [ToggleButtons(
+      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        ToggleButtons(
           renderBorder: false,
           isSelected: _selections,
           onPressed: ((int index) {
             setState(() {
               _selections[index] = !_selections[index];
-      
-              for (int i = 0;  i < _selections.length; i += 1) {
+
+              for (int i = 0; i < _selections.length; i += 1) {
                 if (i != index) {
                   _selections[i] = false;
                 }
@@ -196,9 +201,7 @@ class FilterTabState extends State<FilterTab> {
             SizedBox(width: 100, child: Center(child: Text('most recent'))),
           ],
         ),
-        
-        ]
-      ),
+      ]),
     );
   }
 }
