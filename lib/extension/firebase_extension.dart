@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/models/user/_user.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
 
 part 'query.dart';
 part 'store.dart';
