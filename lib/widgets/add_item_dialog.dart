@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
+import 'package:gdsctokyo/widgets/segmented_button.dart';
 
 enum ItemBucket {
   today,
@@ -43,6 +44,17 @@ class _AddItemDialogState extends State<AddItemDialog> {
       TextEditingController();
   late final TextEditingController _controllerDiscountedPrice =
       TextEditingController();
+  late final TextEditingController _controllerDiscountedPercent =
+      TextEditingController();
+
+  String currentDiscountView = "By Price";
+
+  void _handleDiscountViewChanged(String newView) {
+    setState(() {
+      currentDiscountView = newView;
+    });
+    print('The new discount view is: $newView');
+  }
 
   DocumentSnapshot<Item>? _itemSnapshot;
   bool _isLoading = false;
@@ -64,10 +76,46 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 snapshot.data()?.price?.compareAtPrice?.toString() ?? '';
             _controllerDiscountedPrice.text =
                 snapshot.data()?.price?.amount.toString() ?? '';
+            double normalPrice =
+                double.tryParse(_controllerNormalPrice.text) ?? 0;
+            double discountedPrice =
+                double.tryParse(_controllerDiscountedPrice.text) ?? 0;
+            double discountedPercent =
+                (normalPrice - discountedPrice) / normalPrice * 100;
+            _controllerDiscountedPercent.text =
+                discountedPercent.toStringAsFixed(2);
+          } else {
+            _stores
+                .doc(widget.storeId)
+                .myItems
+                .doc(widget.itemId)
+                .get()
+                .then((myItemsSnapshot) {
+              if (myItemsSnapshot.exists) {
+                _itemSnapshot = myItemsSnapshot;
+                _controllerMenuName.text = myItemsSnapshot.data()?.name ?? '';
+                _controllerNormalPrice.text =
+                    myItemsSnapshot.data()?.price?.compareAtPrice?.toString() ??
+                        '';
+                _controllerDiscountedPrice.text =
+                    myItemsSnapshot.data()?.price?.amount.toString() ?? '';
+                double normalPrice =
+                    double.tryParse(_controllerNormalPrice.text) ?? 0;
+                double discountedPrice =
+                    double.tryParse(_controllerDiscountedPrice.text) ?? 0;
+                double discountedPercent =
+                    (normalPrice - discountedPrice) / normalPrice * 100;
+                _controllerDiscountedPercent.text =
+                    discountedPercent.toStringAsFixed(2);
+              }
+              ;
+            });
           }
-          setState(() {
-            _isLoading = false;
-          });
+          setState(
+            () {
+              _isLoading = false;
+            },
+          );
         },
       ).catchError((e) {
         setState(() {
@@ -113,186 +161,259 @@ class _AddItemDialogState extends State<AddItemDialog> {
           width: 400,
           color: Theme.of(context).colorScheme.background,
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          height: 250,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              if (_isLoading)
-                const Center(
-                  child: CircularProgressIndicator(),
-                )
-              else ...[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Menu name',
-                        style: Theme.of(context).textTheme.labelLarge),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    SizedBox(
-                      height: 40,
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 10),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .outlineVariant),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.outline),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          hintText: 'menu name',
-                        ),
-                        controller: _controllerMenuName,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter menu name';
-                          }
-                          return null;
-                        },
+          height: 320,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(height: 8),
+                if (_isLoading)
+                  const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                else ...[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Menu name*',
+                          style: Theme.of(context).textTheme.labelLarge),
+                      const SizedBox(
+                        height: 8,
                       ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Normal price',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelLarge
-                                  ?.copyWith()),
-                          const SizedBox(
-                            height: 8,
+                      SizedBox(
+                        height: 40,
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 10),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .outlineVariant),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            hintText: 'menu name',
                           ),
-                          SizedBox(
-                            height: 40,
-                            child: TextFormField(
-                                decoration: InputDecoration(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 0, horizontal: 10),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .outlineVariant),
-                                    borderRadius: BorderRadius.circular(5),
+                          controller: _controllerMenuName,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter menu name';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  widget.bucket == ItemBucket.today
+                      ? Column(
+                          children: [
+                            SizedBox(height: 8),
+                            SingleChoice(
+                                onDiscountViewChanged:
+                                    _handleDiscountViewChanged),
+                          ],
+                        )
+                      : SizedBox.shrink(),
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                currentDiscountView == "By Price"
+                                    ? 'Normal price'
+                                    : 'Normal price*',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith()),
+                            const SizedBox(
+                              height: 8,
+                            ),
+                            SizedBox(
+                              height: 40,
+                              child: TextFormField(
+                                  decoration: InputDecoration(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 0, horizontal: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .outlineVariant),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .outline),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    hintText: 'normal',
                                   ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
+                                  controller: _controllerNormalPrice,
+                                  // check if is double
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter normal price';
+                                    }
+                                    if (double.tryParse(value) == null) {
+                                      return 'Please enter valid price';
+                                    }
+                                    return null;
+                                  }),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      widget.bucket == ItemBucket.today
+                          ? Flexible(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                      currentDiscountView == "By Price"
+                                          ? 'Discounted price*'
+                                          : 'Discounted %*',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge),
+                                  const SizedBox(
+                                    height: 8,
+                                  ),
+                                  SizedBox(
+                                    height: 40,
+                                    child: Stack(
+                                      alignment: Alignment.centerRight,
+                                      children: [
+                                        TextFormField(
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    vertical: 0,
+                                                    horizontal: 10),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .outlineVariant),
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .outline),
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            hintText: 'discounted',
+                                          ),
+                                          controller: currentDiscountView ==
+                                                  "By Price"
+                                              ? _controllerDiscountedPrice
+                                              : _controllerDiscountedPercent,
+                                          // check if is double
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'Please enter discounted price';
+                                            }
+                                            if (double.tryParse(value) ==
+                                                null) {
+                                              return 'Please enter valid price';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                        currentDiscountView == "By %"
+                                            ? Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 8.0),
+                                                child: Text('%'),
+                                              )
+                                            : SizedBox.shrink(),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : SizedBox.shrink(),
+                    ],
+                  ),
+                  widget.bucket == ItemBucket.today
+                      ? currentDiscountView == "By %"
+                          ? Column(
+                              children: [
+                                SizedBox(height: 8),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "Discounted Price = ${_controllerDiscountedPrice.text}",
+                                    style: TextStyle(
                                         color: Theme.of(context)
                                             .colorScheme
                                             .outline),
-                                    borderRadius: BorderRadius.circular(5),
                                   ),
-                                  hintText: 'normal',
                                 ),
-                                controller: _controllerNormalPrice,
-                                // check if is double
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter normal price';
-                                  }
-                                  if (double.tryParse(value) == null) {
-                                    return 'Please enter valid price';
-                                  }
-                                  return null;
-                                }),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Discounted price',
-                              style: Theme.of(context).textTheme.labelLarge),
-                          const SizedBox(
-                            height: 8,
-                          ),
-                          SizedBox(
-                            height: 40,
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 0, horizontal: 10),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .outlineVariant),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .outline),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                hintText: 'discounted',
-                              ),
-                              controller: _controllerDiscountedPrice,
-                              // check if is double
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter discounted price';
-                                }
-                                if (double.tryParse(value) == null) {
-                                  return 'Please enter valid price';
-                                }
-                                return null;
-                              },
+                              ],
+                            )
+                          : SizedBox.shrink()
+                      : SizedBox.shrink(),
+                  SizedBox(height: 8),
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Menu name',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith()),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        Row(children: [
+                          Flexible(
+                            flex: 4,
+                            child: Container(
+                              height: 50,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primaryContainer,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('Menu name',
-                      style:
-                          Theme.of(context).textTheme.labelLarge?.copyWith()),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  Row(children: [
-                    Flexible(
-                      flex: 4,
-                      child: Container(
-                        height: 50,
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    Flexible(
-                      flex: 1,
-                      child: Container(
-                        height: 50,
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                      ),
-                    ),
-                  ]),
-                ]),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          Flexible(
+                            flex: 1,
+                            child: Container(
+                              height: 50,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primaryContainer,
+                            ),
+                          ),
+                        ]),
+                      ]),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -307,7 +428,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text('cancel'),
+                child: const Text('Cancel'),
               ),
               TextButton(
                 onPressed: _submit,
@@ -319,7 +440,9 @@ class _AddItemDialogState extends State<AddItemDialog> {
                           strokeWidth: 2,
                         ),
                       )
-                    : const Text('submit'),
+                    : Text(widget.bucket == ItemBucket.my
+                        ? 'Save to My Items'
+                        : 'Add to Today\'s List'),
               ),
             ],
           ),
@@ -331,7 +454,13 @@ class _AddItemDialogState extends State<AddItemDialog> {
   Future<void> _submit() async {
     final name = _controllerMenuName.text;
     final compareAtPrice = double.parse(_controllerNormalPrice.text);
-    final amount = double.parse(_controllerDiscountedPrice.text);
+    final amount = widget.bucket == ItemBucket.today
+        ? currentDiscountView == "By Price"
+            ? double.parse(_controllerDiscountedPrice.text)
+            : (100 - double.parse(_controllerDiscountedPercent.text)) /
+                100 *
+                compareAtPrice
+        : 0.toDouble();
 
     if (_formKey.currentState!.validate()) {
       final originalItem = _itemSnapshot?.data() ?? const Item();
