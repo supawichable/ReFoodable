@@ -27,7 +27,7 @@ class StoreTodayItemPage extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
       appBar: AppBar(
-        title: const Text('Today Items'),
+        title: const Text("Today's Items"),
         centerTitle: true,
       ),
       body: ListView(
