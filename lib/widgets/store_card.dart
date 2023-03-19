@@ -29,9 +29,9 @@ class _FutureStoreCardState extends State<FutureStoreCard> {
             if (!snapshot.data!.exists) {
               return Card(
                 child: ListTile(
-                    title: Text('Store was deleted. Remove from list?'),
+                    title: const Text('Store was deleted. Remove from list?'),
                     trailing: IconButton(
-                      icon: Icon(Icons.delete),
+                      icon: const Icon(Icons.delete),
                       onPressed: () async {
                         await FirebaseFirestore.instance.users
                             .doc(FirebaseAuth.instance.currentUser!.uid)

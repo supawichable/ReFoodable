@@ -32,9 +32,8 @@ class _ExplorePageState extends State<ExplorePage> {
     // PermissionStatus _permissionGranted;
     // LocationData _locationData;
 
-    // debugPrint('HERE');
     // _serviceEnabled = await location.serviceEnabled();
-    // debugPrint('serviceEnabled: $_serviceEnabled');
+
     // if (!_serviceEnabled) {
     //   _serviceEnabled = await location.requestService();
     //   if (!_serviceEnabled) {
@@ -50,21 +49,16 @@ class _ExplorePageState extends State<ExplorePage> {
     //   }
     // }
 
-    // debugPrint('permissionGranted: $_permissionGranted');
-
     // currentLocation = await location.getLocation();
     location
         .getLocation()
         .then((location) => {
               setState(() {
                 currentLocation = location;
-                // debugPrint('currentLocation: $currentLocation');
               }),
             })
         // ignore: body_might_complete_normally_catch_error
-        .catchError((error) {
-      debugPrint('Error caught in getCurrentLocation: $error');
-    });
+        .catchError((error) {});
   }
 
   @override
@@ -121,7 +115,7 @@ class _ExplorePageState extends State<ExplorePage> {
           //         closeSearchOnSuffixTap: true,
           //         animationDurationInMilli: 100,
           //         onSubmitted: (string) {
-          //           return debugPrint('do nothing');
+
           //         },
           //       ),
           //     )

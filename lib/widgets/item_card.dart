@@ -101,7 +101,7 @@ class ItemCard extends StatelessWidget {
                           const SizedBox(width: 4),
                         ],
                         snapshot.reference.parent.id == ApiPath.myItems
-                            ? SizedBox.shrink()
+                            ? const SizedBox.shrink()
                             : Text(
                                 '${price.currency.symbol}${price.amount}',
                                 style: Theme.of(context)

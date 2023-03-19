@@ -50,7 +50,6 @@ class _AddItemDialogState extends State<AddItemDialog> {
     setState(() {
       currentDiscountView = newView.first;
     });
-    debugPrint('The new discount view is: $newView');
   }
 
   DocumentSnapshot<Item>? _itemSnapshot;
@@ -126,7 +125,6 @@ class _AddItemDialogState extends State<AddItemDialog> {
         );
       },
     ).catchError((e) {
-      debugPrint('Error: $e');
       setState(() {
         _isLoading = false;
       });
