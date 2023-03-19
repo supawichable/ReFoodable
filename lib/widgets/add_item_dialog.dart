@@ -5,10 +5,7 @@ import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/widgets/segmented_button.dart';
 
-enum ItemBucket {
-  today,
-  my,
-}
+enum ItemBucket { today, my, my2today }
 
 final _stores = FirebaseFirestore.instance.stores;
 
@@ -16,8 +13,6 @@ class AddItemDialog extends StatefulWidget {
   final String storeId;
   final String? itemId;
 
-  /// Changed to enum [ItemBucket]
-  /// use either [ItemBucket.today] or [ItemBucket.my]
   final ItemBucket bucket;
 
   const AddItemDialog({
@@ -33,9 +28,8 @@ class AddItemDialog extends StatefulWidget {
 
 class _AddItemDialogState extends State<AddItemDialog> {
   late final String itemId = widget.itemId ?? _stores.doc().id;
-  late final CollectionReference<Item> items = widget.bucket == ItemBucket.today
-      ? _stores.doc(widget.storeId).todaysItems
-      : _stores.doc(widget.storeId).myItems;
+  late final CollectionReference<Item> getCollection;
+  late final CollectionReference<Item> addCollection;
 
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _controllerMenuName =
@@ -57,71 +51,85 @@ class _AddItemDialogState extends State<AddItemDialog> {
   }
 
   DocumentSnapshot<Item>? _itemSnapshot;
-  bool _isLoading = false;
+  bool _isLoading = true;
+
+  String _reflectedDiscountedPrice = '';
+  String _reflectedDiscountedPercent = '';
+
+  String getDiscountedPrice(String normalPrice, String percent) {
+    final normalPriceDouble = double.tryParse(normalPrice);
+    final percentDouble = double.tryParse(percent);
+
+    if (normalPriceDouble == null || percentDouble == null) {
+      return '';
+    }
+
+    return (normalPriceDouble * (1 - percentDouble / 100)).toStringAsFixed(2);
+  }
+
+  String getPercentage(String normalPrice, String discountedPrice) {
+    final normalPriceDouble = double.tryParse(normalPrice);
+    final discountedPriceDouble = double.tryParse(discountedPrice);
+
+    if (normalPriceDouble == null || discountedPriceDouble == null) {
+      return '';
+    }
+
+    return ((1 - discountedPriceDouble / normalPriceDouble) * 100)
+        .toStringAsFixed(2);
+  }
 
   @override
   void initState() {
     super.initState();
 
-    if (widget.itemId != null) {
-      setState(() {
-        _isLoading = true;
-      });
-      items.doc(widget.itemId).get().then(
-        (snapshot) {
-          if (snapshot.exists) {
-            _itemSnapshot = snapshot;
-            _controllerMenuName.text = snapshot.data()?.name ?? '';
-            _controllerNormalPrice.text =
-                snapshot.data()?.price?.compareAtPrice?.toString() ?? '';
-            _controllerDiscountedPrice.text =
-                snapshot.data()?.price?.amount.toString() ?? '';
-            double normalPrice =
-                double.tryParse(_controllerNormalPrice.text) ?? 0;
-            double discountedPrice =
-                double.tryParse(_controllerDiscountedPrice.text) ?? 0;
-            double discountedPercent =
-                (normalPrice - discountedPrice) / normalPrice * 100;
-            _controllerDiscountedPercent.text =
-                discountedPercent.toStringAsFixed(2);
-          } else {
-            _stores
-                .doc(widget.storeId)
-                .myItems
-                .doc(widget.itemId)
-                .get()
-                .then((myItemsSnapshot) {
-              if (myItemsSnapshot.exists) {
-                _itemSnapshot = myItemsSnapshot;
-                _controllerMenuName.text = myItemsSnapshot.data()?.name ?? '';
-                _controllerNormalPrice.text =
-                    myItemsSnapshot.data()?.price?.compareAtPrice?.toString() ??
-                        '';
-                _controllerDiscountedPrice.text =
-                    myItemsSnapshot.data()?.price?.amount.toString() ?? '';
-                double normalPrice =
-                    double.tryParse(_controllerNormalPrice.text) ?? 0;
-                double discountedPrice =
-                    double.tryParse(_controllerDiscountedPrice.text) ?? 0;
-                double discountedPercent =
-                    (normalPrice - discountedPrice) / normalPrice * 100;
-                _controllerDiscountedPercent.text =
-                    discountedPercent.toStringAsFixed(2);
-              }
-            });
-          }
-          setState(
-            () {
-              _isLoading = false;
-            },
-          );
-        },
-      ).catchError((e) {
-        setState(() {
-          _isLoading = false;
-        });
-      });
+    switch (widget.bucket) {
+      case ItemBucket.today:
+        getCollection = _stores.doc(widget.storeId).todaysItems;
+        addCollection = _stores.doc(widget.storeId).todaysItems;
+        break;
+      case ItemBucket.my:
+        getCollection = _stores.doc(widget.storeId).myItems;
+        addCollection = _stores.doc(widget.storeId).myItems;
+        break;
+      case ItemBucket.my2today:
+        getCollection = _stores.doc(widget.storeId).myItems;
+        addCollection = _stores.doc(widget.storeId).todaysItems;
+        break;
     }
+
+    if (widget.itemId == null) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    getCollection.doc(widget.itemId).get().then(
+      (snapshot) {
+        _itemSnapshot = snapshot;
+        final item = snapshot.data();
+        _controllerMenuName.text = item?.name ?? '';
+        _controllerNormalPrice.text =
+            item?.price?.compareAtPrice.toString() ?? '';
+        _controllerDiscountedPrice.text = item?.price?.amount.toString() ?? '';
+        _controllerDiscountedPercent.text = getPercentage(
+          _controllerNormalPrice.text,
+          _controllerDiscountedPrice.text,
+        );
+
+        setState(
+          () {
+            _isLoading = false;
+          },
+        );
+      },
+    ).catchError((e) {
+      debugPrint('Error: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    });
   }
 
   @override
@@ -145,7 +153,8 @@ class _AddItemDialogState extends State<AddItemDialog> {
       title: Container(
         alignment: Alignment.center,
         child: Text(
-          widget.bucket == ItemBucket.today
+          widget.bucket == ItemBucket.today ||
+                  widget.bucket == ItemBucket.my2today
               ? 'Add to today\'s menu'
               : 'Add to my menu',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -174,6 +183,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // debug container with border red full width height 2
                       Text('Menu name*',
                           style: Theme.of(context).textTheme.labelLarge),
                       const SizedBox(
@@ -210,13 +220,13 @@ class _AddItemDialogState extends State<AddItemDialog> {
                       ),
                     ],
                   ),
-                  if (widget.bucket == ItemBucket.today) ...[
-                    const SizedBox(height: 8),
+                  const SizedBox(height: 8),
+                  if (widget.bucket != ItemBucket.my) ...[
                     SingleChoice(
                         onDiscountViewChanged: _handleDiscountViewChanged,
                         discountView: currentDiscountView),
+                    const SizedBox(height: 8),
                   ],
-                  const SizedBox(height: 8),
                   Row(
                     children: [
                       Flexible(
@@ -271,7 +281,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                           ],
                         ),
                       ),
-                      if (widget.bucket == ItemBucket.today) ...[
+                      if (widget.bucket != ItemBucket.my) ...[
                         const SizedBox(
                           width: 10,
                         ),
@@ -294,6 +304,28 @@ class _AddItemDialogState extends State<AddItemDialog> {
                                   alignment: Alignment.centerRight,
                                   children: [
                                     TextFormField(
+                                      autofocus: true,
+                                      keyboardType: TextInputType.number,
+                                      onChanged: (_) {
+                                        if (currentDiscountView ==
+                                            DiscountView.byPrice) {
+                                          setState(() {
+                                            _controllerDiscountedPercent.text =
+                                                getPercentage(
+                                              _controllerNormalPrice.text,
+                                              _controllerDiscountedPrice.text,
+                                            );
+                                          });
+                                        } else {
+                                          setState(() {
+                                            _controllerDiscountedPrice.text =
+                                                getDiscountedPrice(
+                                              _controllerNormalPrice.text,
+                                              _controllerDiscountedPercent.text,
+                                            );
+                                          });
+                                        }
+                                      },
                                       decoration: InputDecoration(
                                         contentPadding:
                                             const EdgeInsets.symmetric(
@@ -346,17 +378,26 @@ class _AddItemDialogState extends State<AddItemDialog> {
                       ]
                     ],
                   ),
-                  if (widget.bucket == ItemBucket.today &&
-                      currentDiscountView == DiscountView.byPercent) ...[
+                  if (widget.bucket != ItemBucket.my) ...[
                     const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Discounted Price = ${_controllerDiscountedPrice.text}',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.outline),
+                    if (currentDiscountView == DiscountView.byPercent)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Discounted Price = ${_controllerDiscountedPrice.text}',
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.outline),
+                        ),
+                      )
+                    else
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Discounted Percent = ${_controllerDiscountedPercent.text}',
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.outline),
+                        ),
                       ),
-                    ),
                   ],
                   const SizedBox(height: 8),
                   Column(
@@ -438,7 +479,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
     final name = _controllerMenuName.text;
     final compareAtPrice = double.parse(_controllerNormalPrice.text);
     final amount = widget.bucket == ItemBucket.today
-        ? currentDiscountView == "By Price"
+        ? currentDiscountView == DiscountView.byPrice
             ? double.parse(_controllerDiscountedPrice.text)
             : (100 - double.parse(_controllerDiscountedPercent.text)) /
                 100 *
@@ -452,7 +493,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
       action: SnackBarAction(
         label: 'Undo',
         onPressed: () async {
-          await items.doc(itemId).delete();
+          await getCollection.doc(itemId).delete();
         },
       ),
     );
@@ -472,7 +513,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
           addedBy: FirebaseAuth.instance.currentUser!.uid,
           updatedAt: null);
 
-      await items.doc(itemId).set(item);
+      await getCollection.doc(itemId).set(item);
 
       if (mounted) {
         Navigator.pop(context);

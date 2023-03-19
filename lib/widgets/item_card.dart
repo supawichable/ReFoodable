@@ -127,7 +127,7 @@ class ItemCard extends StatelessWidget {
                                       builder: (context) => AddItemDialog(
                                             storeId: storeId,
                                             itemId: snapshot.id,
-                                            bucket: ItemBucket.today,
+                                            bucket: ItemBucket.my2today,
                                           ));
                                 },
                                 child: Text('Add to Today\'s Item',
