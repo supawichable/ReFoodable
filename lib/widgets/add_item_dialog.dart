@@ -27,7 +27,10 @@ class AddItemDialog extends StatefulWidget {
 }
 
 class _AddItemDialogState extends State<AddItemDialog> {
-  late final String itemId = widget.itemId ?? _stores.doc().id;
+  late final String itemId =
+      widget.itemId == null || widget.bucket == ItemBucket.my2today
+          ? _stores.doc().id
+          : widget.itemId!;
   late final CollectionReference<Item> getCollection;
   late final CollectionReference<Item> addCollection;
 
@@ -52,9 +55,6 @@ class _AddItemDialogState extends State<AddItemDialog> {
 
   DocumentSnapshot<Item>? _itemSnapshot;
   bool _isLoading = true;
-
-  String _reflectedDiscountedPrice = '';
-  String _reflectedDiscountedPercent = '';
 
   String getDiscountedPrice(String normalPrice, String percent) {
     final normalPriceDouble = double.tryParse(normalPrice);
@@ -112,6 +112,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
         _controllerMenuName.text = item?.name ?? '';
         _controllerNormalPrice.text =
             item?.price?.compareAtPrice.toString() ?? '';
+
         _controllerDiscountedPrice.text = item?.price?.amount.toString() ?? '';
         _controllerDiscountedPercent.text = getPercentage(
           _controllerNormalPrice.text,
@@ -247,6 +248,26 @@ class _AddItemDialogState extends State<AddItemDialog> {
                             SizedBox(
                               height: 40,
                               child: TextFormField(
+                                  onChanged: (_) {
+                                    if (currentDiscountView ==
+                                        DiscountView.byPrice) {
+                                      setState(() {
+                                        _controllerDiscountedPercent.text =
+                                            getPercentage(
+                                          _controllerNormalPrice.text,
+                                          _controllerDiscountedPrice.text,
+                                        );
+                                      });
+                                    } else {
+                                      setState(() {
+                                        _controllerDiscountedPrice.text =
+                                            getDiscountedPrice(
+                                          _controllerNormalPrice.text,
+                                          _controllerDiscountedPercent.text,
+                                        );
+                                      });
+                                    }
+                                  },
                                   decoration: InputDecoration(
                                     contentPadding: const EdgeInsets.symmetric(
                                         vertical: 0, horizontal: 10),
@@ -478,13 +499,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
   Future<void> _submit() async {
     final name = _controllerMenuName.text;
     final compareAtPrice = double.parse(_controllerNormalPrice.text);
-    final amount = widget.bucket == ItemBucket.today
-        ? currentDiscountView == DiscountView.byPrice
-            ? double.parse(_controllerDiscountedPrice.text)
-            : (100 - double.parse(_controllerDiscountedPercent.text)) /
-                100 *
-                compareAtPrice
-        : 0.toDouble();
+    final amount = double.parse(_controllerDiscountedPrice.text);
 
     final snackBar = SnackBar(
       content: widget.bucket == ItemBucket.my
@@ -493,7 +508,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
       action: SnackBarAction(
         label: 'Undo',
         onPressed: () async {
-          await getCollection.doc(itemId).delete();
+          await addCollection.doc(itemId).delete();
         },
       ),
     );
@@ -513,7 +528,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
           addedBy: FirebaseAuth.instance.currentUser!.uid,
           updatedAt: null);
 
-      await getCollection.doc(itemId).set(item);
+      await addCollection.doc(itemId).set(item);
 
       if (mounted) {
         Navigator.pop(context);
