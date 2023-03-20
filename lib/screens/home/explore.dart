@@ -36,13 +36,9 @@ class _ExplorePageState extends State<ExplorePage> {
   late LatLng currLatLng;
   late Stream<QuerySnapshot<Store>> _storeStream;
 
-  final Set<Marker> markers = new Set();
+  // final Set<Marker> markers = new Set();
 
   bool searchWidgetSwitch = false;
-
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
-  }
 
   void getCurrentLocation() {
     Loc.Location location = Loc.Location();
@@ -98,19 +94,19 @@ class _ExplorePageState extends State<ExplorePage> {
     }
   }
 
-  void getMarkers() async {
-    _storeStream.listen((snapshot) {
-      for (final doc in snapshot.docs) {
-        dynamic data = doc.data();
-        GeoPoint geoPoint = data.location.geoPoint;
-        markers.add(Marker(
-          markerId: MarkerId(data.name),
-          position: LatLng(geoPoint.latitude, geoPoint.longitude),
-          infoWindow: InfoWindow(title: data.name),
-        ));
-      }
-    });
-  }
+  // void getMarkers() async {
+  //   _storeStream.listen((snapshot) {
+  //     for (final doc in snapshot.docs) {
+  //       dynamic data = doc.data();
+  //       GeoPoint geoPoint = data.location.geoPoint;
+  //       markers.add(Marker(
+  //         markerId: MarkerId(data.name),
+  //         position: LatLng(geoPoint.latitude, geoPoint.longitude),
+  //         infoWindow: InfoWindow(title: data.name),
+  //       ));
+  //     }
+  //   });
+  // }
 
   @override
   void initState() {
@@ -121,7 +117,7 @@ class _ExplorePageState extends State<ExplorePage> {
 
   @override
   Widget build(BuildContext context) {
-    getMarkers();
+    // getMarkers();
     return Scaffold(
       body: SlidingUpPanel(
           controller: panelController,
@@ -133,23 +129,27 @@ class _ExplorePageState extends State<ExplorePage> {
               ? const Center(child: Text('Loading'))
               : Stack(children: [
                   SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    width: double.infinity,
-                    child: searchWidgetSwitch
-                        ? Container(
-                            color: Colors.white,
-                          )
-                        : GoogleMap(
-                            onMapCreated: _onMapCreated,
-                            initialCameraPosition: CameraPosition(
-                              target: currLatLng,
-                              zoom: 13.5,
-                            ),
-                            markers: markers,
-                          ),
-                  ),
+                      height: MediaQuery.of(context).size.height,
+                      width: double.infinity,
+                      child: searchWidgetSwitch
+                          ? Container(
+                              color: Colors.white,
+                            )
+                          // : Container(
+                          //     color: Colors.orange,
+                          //   )
+                          : GMap(currLatLng: currLatLng)
+                      // : GoogleMap(
+                      //     onMapCreated: _onMapCreated,
+                      //     initialCameraPosition: CameraPosition(
+                      //       target: currLatLng,
+                      //       zoom: 13.5,
+                      //     ),
+                      //     markers: markers,
+                      //   ),
+                      ),
                   Column(children: [
-                    // LocationSearchBox(),sdlj
+                    // LocationSearchBox()
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(
@@ -247,6 +247,60 @@ class _ExplorePageState extends State<ExplorePage> {
               ],
             );
           }),
+    );
+  }
+}
+
+class GMap extends StatefulWidget {
+  final LatLng currLatLng;
+  const GMap({super.key, required this.currLatLng});
+
+  @override
+  State<GMap> createState() => _GMapState();
+}
+
+class _GMapState extends State<GMap> {
+  late GoogleMapController mapController;
+
+  late Stream<QuerySnapshot<Store>> _storeStream;
+  final Set<Marker> markers = new Set();
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
+  void getMarkers() async {
+    _storeStream.listen((snapshot) {
+      for (final doc in snapshot.docs) {
+        dynamic data = doc.data();
+        GeoPoint geoPoint = data.location.geoPoint;
+        setState(() {
+          markers.add(Marker(
+            markerId: MarkerId(data.name),
+            position: LatLng(geoPoint.latitude, geoPoint.longitude),
+            infoWindow: InfoWindow(title: data.name),
+          ));
+        });
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _storeStream = FirebaseFirestore.instance.stores.snapshots();
+    getMarkers();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GoogleMap(
+      onMapCreated: _onMapCreated,
+      initialCameraPosition: CameraPosition(
+        target: widget.currLatLng,
+        zoom: 13.5,
+      ),
+      markers: markers,
     );
   }
 }
