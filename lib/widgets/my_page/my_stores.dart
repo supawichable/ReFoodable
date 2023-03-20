@@ -12,18 +12,19 @@ class MyStoresCard extends StatelessWidget {
         context.router.push(const MyStoresRoute());
       },
       child: Card(
-          child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          children: const [
-            Icon(Icons.store, size: 48),
-            SizedBox(width: 16),
-            Text('Manage My Stores'),
-            Spacer(),
-            Icon(Icons.arrow_forward_ios),
-          ],
-        ),
-      )),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: const [
+              Icon(Icons.store, size: 48),
+              SizedBox(width: 16),
+              Text('Manage My Stores'),
+              Spacer(),
+              Icon(Icons.arrow_forward_ios),
+            ],
+          ),
+        )
+      ),
     );
   }
 }
