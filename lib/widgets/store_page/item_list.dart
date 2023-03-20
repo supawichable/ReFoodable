@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
-import 'package:gdsctokyo/util/logger.dart';
 import 'package:gdsctokyo/widgets/item_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
