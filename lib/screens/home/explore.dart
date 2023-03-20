@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gdsctokyo/components/network_utility.dart';
 import 'package:location/location.dart';
 import 'package:gdsctokyo/widgets/description_text.dart';
 import 'package:gdsctokyo/widgets/panel_widget.dart';
 import 'package:gdsctokyo/widgets/sorting_tab.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import '../../components/location_list_tile.dart';
+import '../../models/place_autocomplete/autocomplete_prediction.dart';
+import '../../models/place_autocomplete/place_auto_complete_response.dart';
+import '../../models/place_details/place_details_response.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -19,8 +27,12 @@ class _ExplorePageState extends State<ExplorePage> {
 
   late GoogleMapController mapController;
 
-  // static const LatLng currentLocation = LatLng(60.521563, -122.677433);
+  List<AutocompletePrediction> placePredictions = [];
+
   LocationData? currentLocation;
+  LatLng currLatLng = const LatLng(0.0, 0.0);
+
+  bool searchWidgetSwitch = false;
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -28,43 +40,56 @@ class _ExplorePageState extends State<ExplorePage> {
 
   void getCurrentLocation() {
     Location location = Location();
-    // bool _serviceEnabled;
-    // PermissionStatus _permissionGranted;
-    // LocationData _locationData;
-
-    // debugPrint('HERE');
-    // _serviceEnabled = await location.serviceEnabled();
-    // debugPrint('serviceEnabled: $_serviceEnabled');
-    // if (!_serviceEnabled) {
-    //   _serviceEnabled = await location.requestService();
-    //   if (!_serviceEnabled) {
-    //     return;
-    //   }
-    // }
-
-    // _permissionGranted = await location.hasPermission();
-    // if (_permissionGranted == PermissionStatus.denied) {
-    //   _permissionGranted = await location.requestPermission();
-    //   if (_permissionGranted != PermissionStatus.granted) {
-    //     return;
-    //   }
-    // }
-
-    // debugPrint('permissionGranted: $_permissionGranted');
-
-    // currentLocation = await location.getLocation();
     location
         .getLocation()
         .then((location) => {
               setState(() {
                 currentLocation = location;
-                // debugPrint('currentLocation: $currentLocation');
+                currLatLng = LatLng(location.latitude!, location.longitude!);
               }),
             })
         // ignore: body_might_complete_normally_catch_error
         .catchError((error) {
       debugPrint('Error caught in getCurrentLocation: $error');
     });
+  }
+
+  void placeAutocomplete(String query) async {
+    Uri uri =
+        Uri.https("maps.googleapis.com", "maps/api/place/autocomplete/json", {
+      "input": query,
+      "key": dotenv.get("ANDROID_GOOGLE_API_KEY"),
+    });
+    String? response = await NetworkUtility.fetchUrl(uri);
+    if (response != null) {
+      PlaceAutocompleteResponse result =
+          PlaceAutocompleteResponse.parseAutocompleteResult(response);
+      if (result.predictions != null) {
+        setState(() {
+          placePredictions = result.predictions!;
+        });
+      }
+    }
+  }
+
+  void setMapCameraviewToPlaceId(String placeId) async {
+    Uri uri = Uri.https("maps.googleapis.com", "maps/api/place/details/json", {
+      "place_id": placeId,
+      "key": dotenv.get("ANDROID_GOOGLE_API_KEY"),
+    });
+    String? response = await NetworkUtility.fetchUrl(uri);
+    if (response != null) {
+      PlaceDetailsResponse result =
+          PlaceDetailsResponse.parsePlaceDetails(response);
+      if (result.lat != null && result.lng != null) {
+        setState(() {
+          currLatLng = LatLng(result.lat!, result.lng!);
+          mapController.animateCamera(CameraUpdate.newCameraPosition(
+              CameraPosition(target: currLatLng, zoom: 13.5)));
+          searchWidgetSwitch = false;
+        });
+      }
+    }
   }
 
   @override
@@ -88,45 +113,69 @@ class _ExplorePageState extends State<ExplorePage> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height,
                     width: double.infinity,
-                    child: GoogleMap(
-                      onMapCreated: _onMapCreated,
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(currentLocation!.latitude!,
-                            currentLocation!.longitude!),
-                        zoom: 13.5,
-                      ),
-                    ),
+                    child: searchWidgetSwitch
+                        ? Container(
+                            color: Colors.white,
+                          )
+                        : GoogleMap(
+                            onMapCreated: _onMapCreated,
+                            initialCameraPosition: CameraPosition(
+                              target: currLatLng,
+                              zoom: 13.5,
+                            ),
+                          ),
                   ),
-                  const TextField(
-                    decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: 'Search Location',
-                        suffixIcon: Icon(Icons.search)),
-                  )
+                  Column(children: [
+                    // LocationSearchBox(),sdlj
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(
+                          onTap: () {
+                            setState(() {
+                              searchWidgetSwitch = true;
+                            });
+                          },
+                          onChanged: (value) {
+                            placeAutocomplete(value);
+                            setState(() {
+                              searchWidgetSwitch = true;
+                            });
+                          },
+                          textInputAction: TextInputAction.search,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: 'Search Location',
+                            suffixIcon: Icon(Icons.search),
+                            contentPadding:
+                                EdgeInsets.only(left: 20, bottom: 5, right: 5),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          )),
+                    ),
+                    // UseMyLocationButton(),
+                    Expanded(
+                      child: searchWidgetSwitch
+                          ? ListView.builder(
+                              itemCount: placePredictions.length,
+                              itemBuilder: (context, index) => LocationListTile(
+                                  location:
+                                      placePredictions[index].description!,
+                                  press: () {
+                                    String placeId =
+                                        placePredictions[index].placeId!;
+                                    setMapCameraviewToPlaceId(placeId);
+                                  }))
+                          : const SizedBox.shrink(),
+                    ),
+                  ]),
                 ]),
-          // body: Column(
-          //   children: [
-          //     Container(
-          //       margin: EdgeInsets.only(left: 10, right: 10),
-          //       child: AnimSearchBar(
-          //         width: 400,
-          //         textController: textController,
-          //         onSuffixTap: () {
-          //           setState(() {
-          //             textController.clear();
-          //           });
-          //         },
-          //         autoFocus: true,
-          //         closeSearchOnSuffixTap: true,
-          //         animationDurationInMilli: 100,
-          //         onSubmitted: (string) {
-          //           return debugPrint('do nothing');
-          //         },
-          //       ),
-          //     )
-          //   ],
-          // ),
           panelBuilder: (controller) {
             return Column(
               children: [
@@ -175,6 +224,57 @@ class _ExplorePageState extends State<ExplorePage> {
               ],
             );
           }),
+    );
+  }
+}
+
+class UseMyLocationButton extends StatelessWidget {
+  const UseMyLocationButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ElevatedButton.icon(
+          onPressed: () {},
+          icon: SvgPicture.asset(
+            "assets/icons/location.svg",
+            height: 16,
+          ),
+          label: const Text("Use my Current Location"),
+        ));
+  }
+}
+
+class LocationSearchBox extends StatelessWidget {
+  const LocationSearchBox({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextFormField(
+          onChanged: (value) {},
+          textInputAction: TextInputAction.search,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            hintText: 'Search Location',
+            suffixIcon: Icon(Icons.search),
+            contentPadding: EdgeInsets.only(left: 20, bottom: 5, right: 5),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: Colors.white),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: Colors.white),
+            ),
+          )),
     );
   }
 }
