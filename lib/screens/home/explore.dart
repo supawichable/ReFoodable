@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -16,6 +17,7 @@ import '../../models/place_autocomplete/autocomplete_prediction.dart';
 import '../../models/place_autocomplete/place_auto_complete_response.dart';
 import '../../models/place_details/place_details_response.dart';
 import '../../models/store/_store.dart';
+import '../../routes/router.gr.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -39,6 +41,10 @@ class _ExplorePageState extends State<ExplorePage> {
   // final Set<Marker> markers = new Set();
 
   bool searchWidgetSwitch = false;
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
 
   void getCurrentLocation() {
     Loc.Location location = Loc.Location();
@@ -94,6 +100,18 @@ class _ExplorePageState extends State<ExplorePage> {
     }
   }
 
+  void setSearchWidgetSwitch(bool newValue) {
+    setState(() {
+      searchWidgetSwitch = newValue;
+    });
+  }
+
+  void setMapController(GoogleMapController newController) {
+    setState(() {
+      mapController = newController;
+    });
+  }
+
   // void getMarkers() async {
   //   _storeStream.listen((snapshot) {
   //     for (final doc in snapshot.docs) {
@@ -135,53 +153,48 @@ class _ExplorePageState extends State<ExplorePage> {
                           ? Container(
                               color: Colors.white,
                             )
-                          // : Container(
-                          //     color: Colors.orange,
-                          //   )
-                          : GMap(currLatLng: currLatLng)
-                      // : GoogleMap(
-                      //     onMapCreated: _onMapCreated,
-                      //     initialCameraPosition: CameraPosition(
-                      //       target: currLatLng,
-                      //       zoom: 13.5,
-                      //     ),
-                      //     markers: markers,
-                      //   ),
-                      ),
+                          : GMap(
+                              currLatLng: currLatLng,
+                              onMapCreated: _onMapCreated,
+                            )),
                   Column(children: [
-                    // LocationSearchBox()
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                          onTap: () {
-                            setState(() {
-                              searchWidgetSwitch = true;
-                            });
-                          },
-                          onChanged: (value) {
-                            placeAutocomplete(value);
-                            setState(() {
-                              searchWidgetSwitch = true;
-                            });
-                          },
-                          textInputAction: TextInputAction.search,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            hintText: 'Search Location',
-                            suffixIcon: Icon(Icons.search),
-                            contentPadding:
-                                EdgeInsets.only(left: 20, bottom: 5, right: 5),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                          )),
+                    LocationSearchBox(
+                      searchWidgetSwitch: searchWidgetSwitch,
+                      setSearchWidgetSwitch: setSearchWidgetSwitch,
+                      placeAutocomplete: placeAutocomplete,
                     ),
+                    // Padding(
+                    //   padding: const EdgeInsets.all(8.0),
+                    //   child: TextFormField(
+                    //       onTap: () {
+                    //         setState(() {
+                    //           searchWidgetSwitch = true;
+                    //         });
+                    //       },
+                    //       onChanged: (value) {
+                    //         placeAutocomplete(value);
+                    //         setState(() {
+                    //           searchWidgetSwitch = true;
+                    //         });
+                    //       },
+                    //       textInputAction: TextInputAction.search,
+                    //       decoration: InputDecoration(
+                    //         filled: true,
+                    //         fillColor: Colors.white,
+                    //         hintText: 'Search Location',
+                    //         suffixIcon: Icon(Icons.search),
+                    //         contentPadding:
+                    //             EdgeInsets.only(left: 20, bottom: 5, right: 5),
+                    //         focusedBorder: OutlineInputBorder(
+                    //           borderRadius: BorderRadius.circular(10),
+                    //           borderSide: BorderSide(color: Colors.white),
+                    //         ),
+                    //         enabledBorder: OutlineInputBorder(
+                    //           borderRadius: BorderRadius.circular(10),
+                    //           borderSide: BorderSide(color: Colors.white),
+                    //         ),
+                    //       )),
+                    // ),
                     // UseMyLocationButton(),
                     Expanded(
                       child: searchWidgetSwitch
@@ -253,32 +266,45 @@ class _ExplorePageState extends State<ExplorePage> {
 
 class GMap extends StatefulWidget {
   final LatLng currLatLng;
-  const GMap({super.key, required this.currLatLng});
+  // final GoogleMapController mapController;
+  // final ValueChanged<GoogleMapController> setMapController;
+  final onMapCreated;
+  const GMap(
+      {super.key,
+      required this.currLatLng,
+      // required this.mapController,
+      // required this.setMapController,
+      required this.onMapCreated});
 
   @override
   State<GMap> createState() => _GMapState();
 }
 
 class _GMapState extends State<GMap> {
-  late GoogleMapController mapController;
-
   late Stream<QuerySnapshot<Store>> _storeStream;
   final Set<Marker> markers = new Set();
 
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
-  }
+  // void _onMapCreated(GoogleMapController controller) {
+  //   widget.setMapController(controller);
+  // }
 
   void getMarkers() async {
     _storeStream.listen((snapshot) {
       for (final doc in snapshot.docs) {
         dynamic data = doc.data();
         GeoPoint geoPoint = data.location.geoPoint;
+        String storeId = doc.id;
         setState(() {
           markers.add(Marker(
             markerId: MarkerId(data.name),
             position: LatLng(geoPoint.latitude, geoPoint.longitude),
-            infoWindow: InfoWindow(title: data.name),
+            infoWindow: InfoWindow(
+              title: data.name,
+              snippet: "500m away",
+              onTap: () {
+                context.router.pushNamed('/store/$storeId');
+              },
+            ),
           ));
         });
       }
@@ -295,7 +321,7 @@ class _GMapState extends State<GMap> {
   @override
   Widget build(BuildContext context) {
     return GoogleMap(
-      onMapCreated: _onMapCreated,
+      onMapCreated: widget.onMapCreated,
       initialCameraPosition: CameraPosition(
         target: widget.currLatLng,
         zoom: 13.5,
@@ -326,16 +352,27 @@ class UseMyLocationButton extends StatelessWidget {
 }
 
 class LocationSearchBox extends StatelessWidget {
-  const LocationSearchBox({
-    super.key,
-  });
+  final bool searchWidgetSwitch;
+  final ValueChanged<bool> setSearchWidgetSwitch;
+  final ValueChanged<String> placeAutocomplete;
+  const LocationSearchBox(
+      {super.key,
+      required this.searchWidgetSwitch,
+      required this.setSearchWidgetSwitch,
+      required this.placeAutocomplete});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
-          onChanged: (value) {},
+          onTap: () {
+            setSearchWidgetSwitch(true);
+          },
+          onChanged: (value) {
+            placeAutocomplete(value);
+            setSearchWidgetSwitch(true);
+          },
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
             filled: true,
