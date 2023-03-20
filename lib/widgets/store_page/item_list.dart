@@ -5,18 +5,29 @@ import 'package:gdsctokyo/util/logger.dart';
 import 'package:gdsctokyo/widgets/item_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+enum SortBy { cheapest, recent }
+
 final searchTextProvider = StateProvider<String>((ref) => '');
+final selectedSortByProvider = StateProvider<SortBy>((ref) => SortBy.recent);
 
-class StreamedItemList extends HookConsumerWidget {
-  final Stream<QuerySnapshot<Item>> itemStream;
+class StreamedItemList extends StatefulHookConsumerWidget {
+  final CollectionReference<Item> itemBucket;
 
-  const StreamedItemList({super.key, required this.itemStream});
+  const StreamedItemList({super.key, required this.itemBucket});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<StreamedItemList> createState() => _StreamedItemListState();
+}
+
+class _StreamedItemListState extends ConsumerState<StreamedItemList> {
+  late Stream<QuerySnapshot<Item>> itemStream = widget.itemBucket.snapshots();
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
         const SearchBar(),
+        const OrderTab(),
         StreamBuilder(
             stream: itemStream,
             builder: (context, snapshot) {
@@ -25,18 +36,13 @@ class StreamedItemList extends HookConsumerWidget {
               }
 
               if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                return SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  child: ListView(
-                    children: [
-                      for (final item in snapshot.data!.docs)
-                        if (item.data().name?.toLowerCase().contains(
-                                ref.watch(searchTextProvider).toLowerCase()) ??
-                            false)
-                          ItemCard(key: ValueKey(item.id), snapshot: item)
-                    ],
-                  ),
-                );
+                // filter out bad items
+                snapshot.data!.docs.removeWhere((element) =>
+                    element.data().name == null ||
+                    element.data().price == null ||
+                    element.data().createdAt == null);
+
+                return SortedItemList(items: snapshot.data!.docs);
               }
 
               return const Center(
@@ -44,6 +50,40 @@ class StreamedItemList extends HookConsumerWidget {
               );
             }),
       ],
+    );
+  }
+}
+
+class SortedItemList extends HookConsumerWidget {
+  final List<DocumentSnapshot<Item>> items;
+
+  const SortedItemList({super.key, required this.items});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    switch (ref.watch(selectedSortByProvider)) {
+      case SortBy.cheapest:
+        items.sort((a, b) =>
+            a.data()!.price!.amount.compareTo(b.data()!.price!.amount));
+        break;
+      case SortBy.recent:
+        items.sort(
+            (a, b) => b.data()!.updatedAt!.compareTo(a.data()!.updatedAt!));
+        break;
+    }
+
+    return Flexible(
+      child: ListView(
+        children: [
+          for (final item in items)
+            if (item
+                .data()!
+                .name!
+                .toLowerCase()
+                .contains(ref.watch(searchTextProvider).toLowerCase()))
+              ItemCard(key: ValueKey(item.id), snapshot: item)
+        ],
+      ),
     );
   }
 }
@@ -91,4 +131,50 @@ class _SearchBarState extends ConsumerState<SearchBar> {
   }
 
   void _clear() {}
+}
+
+class OrderTab extends HookConsumerWidget {
+  const OrderTab({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(children: [
+        const Text('Order by: '),
+        const SizedBox(width: 8),
+        ChoiceChip(
+            avatar: ref.watch(selectedSortByProvider) == SortBy.cheapest
+                ? const CircleAvatar(radius: 12)
+                : const CircleAvatar(
+                    radius: 12,
+                    child: Icon(
+                      Icons.attach_money_outlined,
+                      size: 12,
+                    ),
+                  ),
+            label: const Text('Cheapest'),
+            selected: ref.watch(selectedSortByProvider) == SortBy.cheapest,
+            onSelected: (value) => ref
+                .read(selectedSortByProvider.notifier)
+                .state = SortBy.cheapest),
+        const SizedBox(width: 8),
+        ChoiceChip(
+            avatar: ref.watch(selectedSortByProvider) == SortBy.recent
+                ? const CircleAvatar(radius: 12)
+                : const CircleAvatar(
+                    radius: 12,
+                    child: Icon(
+                      Icons.access_time_outlined,
+                      size: 12,
+                    ),
+                  ),
+            label: const Text('Most Recent'),
+            selected: ref.watch(selectedSortByProvider) == SortBy.recent,
+            onSelected: (value) => ref
+                .read(selectedSortByProvider.notifier)
+                .state = SortBy.recent),
+      ]),
+    );
+  }
 }
