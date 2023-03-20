@@ -1,10 +1,11 @@
 part of '_store.dart';
 
 @freezed
+@Deprecated('Use [GeoFirePoint] instead')
 class Location with _$Location {
   const factory Location({
     @GeoPointConverter() GeoPoint? geoPoint,
-    String? geoHash,
+    @GeoHashConverter() GeoHash? geoHash,
   }) = _Location;
 
   factory Location.fromJson(Map<String, dynamic> json) =>
