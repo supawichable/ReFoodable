@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gdsctokyo/components/network_utility.dart';
-import 'package:location/location.dart';
+import 'package:gdsctokyo/extension/firebase_extension.dart';
+import 'package:location/location.dart' as Loc;
 import 'package:gdsctokyo/widgets/description_text.dart';
 import 'package:gdsctokyo/widgets/panel_widget.dart';
 import 'package:gdsctokyo/widgets/sorting_tab.dart';
@@ -13,6 +15,7 @@ import '../../components/location_list_tile.dart';
 import '../../models/place_autocomplete/autocomplete_prediction.dart';
 import '../../models/place_autocomplete/place_auto_complete_response.dart';
 import '../../models/place_details/place_details_response.dart';
+import '../../models/store/_store.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -29,8 +32,11 @@ class _ExplorePageState extends State<ExplorePage> {
 
   List<AutocompletePrediction> placePredictions = [];
 
-  LocationData? currentLocation;
-  LatLng currLatLng = const LatLng(0.0, 0.0);
+  Loc.LocationData? currentLocation;
+  late LatLng currLatLng;
+  late Stream<QuerySnapshot<Store>> _storeStream;
+
+  final Set<Marker> markers = new Set();
 
   bool searchWidgetSwitch = false;
 
@@ -39,7 +45,7 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   void getCurrentLocation() {
-    Location location = Location();
+    Loc.Location location = Loc.Location();
     location
         .getLocation()
         .then((location) => {
@@ -92,14 +98,30 @@ class _ExplorePageState extends State<ExplorePage> {
     }
   }
 
+  void getMarkers() async {
+    _storeStream.listen((snapshot) {
+      for (final doc in snapshot.docs) {
+        dynamic data = doc.data();
+        GeoPoint geoPoint = data.location.geoPoint;
+        markers.add(Marker(
+          markerId: MarkerId(data.name),
+          position: LatLng(geoPoint.latitude, geoPoint.longitude),
+          infoWindow: InfoWindow(title: data.name),
+        ));
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     getCurrentLocation();
+    _storeStream = FirebaseFirestore.instance.stores.snapshots();
   }
 
   @override
   Widget build(BuildContext context) {
+    getMarkers();
     return Scaffold(
       body: SlidingUpPanel(
           controller: panelController,
@@ -123,6 +145,7 @@ class _ExplorePageState extends State<ExplorePage> {
                               target: currLatLng,
                               zoom: 13.5,
                             ),
+                            markers: markers,
                           ),
                   ),
                   Column(children: [
