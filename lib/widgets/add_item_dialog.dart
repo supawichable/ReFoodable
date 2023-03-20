@@ -1,9 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
+import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/widgets/segmented_button.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:gdsctokyo/providers/image_upload.dart';
+import 'dart:io';
 
 enum ItemBucket { today, my, my2today }
 
@@ -78,6 +84,8 @@ class _AddItemDialogState extends State<AddItemDialog> {
         .toStringAsFixed(2);
   }
 
+  File? _itemPhoto;
+
   @override
   void initState() {
     super.initState();
@@ -138,6 +146,12 @@ class _AddItemDialogState extends State<AddItemDialog> {
     _controllerDiscountedPrice.dispose();
 
     super.dispose();
+  }
+
+  void _setFile(File file) {
+    setState(() {
+      _itemPhoto = file;
+    });
   }
 
   @override
@@ -430,29 +444,14 @@ class _AddItemDialogState extends State<AddItemDialog> {
                         const SizedBox(
                           height: 8,
                         ),
-                        Row(children: [
-                          Flexible(
-                            flex: 4,
-                            child: Container(
-                              height: 50,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
-                            ),
+                        SizedBox(
+                          height: 50,
+                          child: ItemPhoto(
+                            serverPhotoURL: _itemSnapshot?.data()?.photoURL,
+                            itemPhoto: _itemPhoto,
+                            setFile: _setFile,
                           ),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          Flexible(
-                            flex: 1,
-                            child: Container(
-                              height: 50,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
-                            ),
-                          ),
-                        ]),
+                        ),
                       ]),
                 ],
               ],
@@ -498,6 +497,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
     final name = _controllerMenuName.text;
     final compareAtPrice = double.parse(_controllerNormalPrice.text);
     final amount = double.parse(_controllerDiscountedPrice.text);
+    final storeId = widget.storeId;
 
     final snackBar = SnackBar(
       content: widget.bucket == ItemBucket.my
@@ -524,13 +524,148 @@ class _AddItemDialogState extends State<AddItemDialog> {
               compareAtPrice: compareAtPrice,
               currency: Currency.jpy),
           addedBy: FirebaseAuth.instance.currentUser!.uid,
-          updatedAt: null);
+          updatedAt: null,
+          photoURL: _itemSnapshot?.data()?.photoURL);
 
       await addCollection.doc(itemId).set(item);
+
+      if (_itemPhoto != null) {
+        final itemPhotoRef = FirebaseStorage.instance.ref().child(
+            'stores/$storeId/todays_items/${_itemSnapshot?.id}/item_photo.jpg');
+        await itemPhotoRef.putFile(_itemPhoto!);
+        final itemPhotoUrl = await itemPhotoRef.getDownloadURL();
+        await addCollection.doc(itemId).updateItem(photoURL: itemPhotoUrl);
+      }
 
       if (mounted) {
         Navigator.pop(context);
       }
     }
+  }
+}
+
+class ItemPhoto extends HookConsumerWidget {
+  final File? itemPhoto;
+  final void Function(File) setFile;
+  final String? serverPhotoURL;
+
+  const ItemPhoto({
+    super.key,
+    required this.itemPhoto,
+    required this.setFile,
+    this.serverPhotoURL,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SizedBox.expand(
+      child: Stack(
+        children: [
+          if (itemPhoto != null)
+            Row(
+              children: [
+                Flexible(
+                  flex: 4,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: const Text('Add a menu photo'),
+                  ),
+                ),
+                const SizedBox(
+                  width: 20,
+                ),
+                Flexible(
+                  flex: 1,
+                  child: Container(
+                    height: 50,
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    child: Image.file(
+                      itemPhoto!,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          if (itemPhoto == null)
+            if (serverPhotoURL != null)
+              Row(
+                children: [
+                  Flexible(
+                    flex: 4,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      height: 50,
+                      alignment: Alignment.center,
+                      child: const Text('Add a menu photo'),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: Container(
+                      height: 50,
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      child: Image.network(
+                        serverPhotoURL!,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            else
+              Row(
+                children: [
+                  Flexible(
+                    flex: 4,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      height: 50,
+                      alignment: Alignment.center,
+                      child: const Text('Add a menu photo'),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: Container(
+                      height: 50,
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                    ),
+                  ),
+                ],
+              ),
+          Positioned.fill(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () async {
+                  final imageUpload = await ImageUploader(ref,
+                      options: const ImageUploadOptions(
+                        aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
+                      )).handleImageUpload();
+                  imageUpload.whenOrNull(
+                      cropped: (file) => setFile(File(file.path)),
+                      error: (error) =>
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(error.message),
+                          )));
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

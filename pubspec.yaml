@@ -44,6 +44,14 @@ dependencies:
   cloud_firestore: ^4.4.2
   firebase_storage: ^11.0.14
 
+  # Map
+  location: ^4.4.0
+  google_maps_flutter: ^2.2.3
+  google_maps_flutter_web: ^0.4.0+5
+  flutter_google_places_hoc081098: ^1.0.0-nullsafety.5
+  google_api_headers: ^1.1.1
+  google_maps_webservice: ^0.0.20-nullsafety.5
+
   auto_route: ^5.0.4
   flutter_dotenv: ^5.0.2
   google_fonts: ^4.0.3
@@ -54,11 +62,8 @@ dependencies:
   sliding_up_panel: ^2.0.0+1
   anim_search_bar: ^2.0.3
   flutter_polyline_points: ^1.0.0
-  flutter_svg: ^2.0.1
+  flutter_svg: ^2.0.3
   flutter_secure_storage: ^8.0.0
-  location: ^4.4.0
-  google_maps_flutter: ^2.2.3
-  google_maps_flutter_web: ^0.4.0+5
   flutter_config: ^2.0.0
   image_cropper: ^3.0.1
   image_picker: ^0.8.6+3
@@ -67,6 +72,8 @@ dependencies:
   dotted_border: ^2.0.0+3
   shared_preferences: ^2.0.18
   dart_geohash: ^2.0.2
+  geoflutterfire2: ^2.3.15
+  http: ^0.13.5
 
 dev_dependencies:
   integration_test:

@@ -2,17 +2,21 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
-
-import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/widgets/add_item_dialog.dart';
-import 'package:gdsctokyo/widgets/item_card.dart';
+import 'package:gdsctokyo/widgets/store_page/item_list.dart';
 
-class StoreTodayItemPage extends StatelessWidget {
+class StoreTodayItemPage extends StatefulWidget {
   final String storeId;
 
   const StoreTodayItemPage(
-      {super.key, @PathParam('storeId') required this.storeId});
+      {Key? key, @PathParam('storeId') required this.storeId})
+      : super(key: key);
 
+  @override
+  State<StoreTodayItemPage> createState() => _StoreTodayItemPageState();
+}
+
+class _StoreTodayItemPageState extends State<StoreTodayItemPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,66 +24,49 @@ class StoreTodayItemPage extends StatelessWidget {
         onPressed: () => showDialog(
             context: context,
             builder: (context) => AddItemDialog(
-                  storeId: storeId,
+                  storeId: widget.storeId,
                   bucket: ItemBucket.today,
                 )),
         child: const Icon(Icons.add),
       ),
       appBar: AppBar(
-        title: const Text('Today Items'),
+        title: const Text("Today's Items"),
         centerTitle: true,
       ),
-      body: ListView(
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        children: [
-          TodayItemsList(storeId: storeId),
-        ],
-      ),
+      body: StreamedItemList(
+          itemBucket: FirebaseFirestore.instance.stores
+              .doc(widget.storeId)
+              .todaysItems),
     );
   }
 }
 
-class TodayItemsList extends StatefulWidget {
-  final String storeId;
+class RefreshedButton extends StatefulWidget {
+  final void Function(bool) onRefreshed;
+  final String storeId; 
 
-  const TodayItemsList({super.key, required this.storeId});
+  const RefreshedButton(
+      {Key? key, required this.storeId, required this.onRefreshed})
+      : super(key: key);
 
   @override
-  State<TodayItemsList> createState() => _TodayItemsListState();
+  State<RefreshedButton> createState() => _RefreshedButtonState();
 }
 
-class _TodayItemsListState extends State<TodayItemsList> {
-  late Stream<QuerySnapshot<Item>> _todaysStream;
-
-  @override
-  void initState() {
-    super.initState();
-    _todaysStream = FirebaseFirestore.instance.stores
-        .doc(widget.storeId)
-        .todaysItems
-        .snapshots();
-  }
+class _RefreshedButtonState extends State<RefreshedButton> {
+  bool _refresh = false;
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: _todaysStream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LinearProgressIndicator();
-          }
+    return SizedBox(
+      height: 40,
+      child: IconButton(
+        onPressed: () {
+          _refresh = !_refresh;
 
-          return SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: ListView(
-                children: snapshot.data!.docs
-                    .map((snapshot) => ItemCard(
-                          key: ValueKey(snapshot.id),
-                          snapshot: snapshot,
-                        ))
-                    .toList()),
-          );
-        });
+          widget.onRefreshed(_refresh);
+        }, icon: const Icon(Icons.refresh),
+      ),
+    );
   }
 }

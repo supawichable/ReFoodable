@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/widgets/add_item_dialog.dart';
+import 'package:gdsctokyo/widgets/store_page/item_list.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ItemCard extends StatelessWidget {
   final DocumentSnapshot<Item> snapshot;
@@ -61,12 +63,7 @@ class ItemCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      name,
-                      style: Theme.of(context).textTheme.bodyLarge?.apply(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeightDelta: 2),
-                    ),
+                    _Title(name: name),
                     const SizedBox(height: 8),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -264,6 +261,46 @@ class ItemCard extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _Title extends HookConsumerWidget {
+  const _Title({required this.name});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final searchedName = ref.watch(searchTextProvider);
+    final regExp = RegExp(searchedName, caseSensitive: false);
+    final matchedPart = regExp.firstMatch(name)?.group(0);
+    // highlight the matched part by setting background color
+
+    return Text.rich(
+      TextSpan(
+        text: name.substring(0, regExp.firstMatch(name)!.start),
+        style: Theme.of(context).textTheme.headlineSmall?.apply(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+        children: [
+          TextSpan(
+            text: matchedPart,
+            style: Theme.of(context).textTheme.headlineSmall?.apply(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).colorScheme.onSecondary,
+                  fontWeightDelta: 2,
+                ),
+          ),
+          TextSpan(
+            text: name.substring(regExp.firstMatch(name)!.end),
+            style: Theme.of(context).textTheme.headlineSmall?.apply(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeightDelta: 2,
+                ),
+          ),
+        ],
       ),
     );
   }
