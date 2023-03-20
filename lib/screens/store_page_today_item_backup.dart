@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
@@ -33,7 +32,7 @@ class StoreTodayItemPage extends StatelessWidget {
       
       Column(
         children: [
-          FilterTab(),
+          const FilterTab(),
           Expanded(
           child: ListView(
             scrollDirection: Axis.vertical,
@@ -130,3 +129,4 @@ class FilterTabState extends State<FilterTab> {
       ]);
   }
 }
+

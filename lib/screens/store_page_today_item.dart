@@ -20,11 +20,18 @@ class StoreTodayItemPage extends StatefulWidget {
 class _StoreTodayItemPageState extends State<StoreTodayItemPage> {
   bool _isCheapestSelected = false;
   bool _isNearestSelected = false;
+  bool _isRefreshed = false;
 
   void _onFilterSelectionChanged(List<bool> selections) {
     setState(() {
       _isCheapestSelected = selections[0];
       _isNearestSelected = selections[1];
+    });
+  }
+
+  void _onRefreshed(bool refresh) {
+    setState(() {
+      _isRefreshed = refresh;
     });
   }
 
@@ -47,9 +54,30 @@ class _StoreTodayItemPageState extends State<StoreTodayItemPage> {
       body: Column(
         children: [
           const SizedBox(height: 10),
-          FilterTab(
-            storeId: widget.storeId,
-            onSelectionChanged: _onFilterSelectionChanged,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(flex: 1 ,child: Container()),
+              const SizedBox(width: 10,),
+              Flexible(
+                flex: 6,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: FilterTab(
+                      storeId: widget.storeId,
+                      onSelectionChanged: _onFilterSelectionChanged,
+                    ),
+                ),
+              ),
+            const SizedBox(width: 10,),
+            Flexible(
+              flex: 1,
+              child: RefreshedButton(
+                storeId: widget.storeId,
+                onRefreshed: _onRefreshed,
+              ),
+            ),
+            ]
           ),
           const SizedBox(
             height: 10,
@@ -59,6 +87,7 @@ class _StoreTodayItemPageState extends State<StoreTodayItemPage> {
               storeId: widget.storeId,
               isCheapestSelected: _isCheapestSelected,
               isNearestSelected: _isNearestSelected,
+              isRefreshed: _isRefreshed,
             ),
           ),
         ],
@@ -71,12 +100,14 @@ class TodayItemsList extends StatefulWidget {
   final String storeId;
   final bool isCheapestSelected;
   final bool isNearestSelected;
+  final bool isRefreshed;
 
   const TodayItemsList({
     Key? key,
     required this.storeId,
     required this.isCheapestSelected,
     required this.isNearestSelected,
+    required this.isRefreshed,
   }) : super(key: key);
 
   @override
@@ -96,7 +127,8 @@ class _TodayItemsListState extends State<TodayItemsList> {
   void didUpdateWidget(TodayItemsList oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.isCheapestSelected != oldWidget.isCheapestSelected ||
-        widget.isNearestSelected != oldWidget.isNearestSelected) {
+        widget.isNearestSelected != oldWidget.isNearestSelected ||
+        widget.isRefreshed != oldWidget.isRefreshed) {
       _updateQuery();
     }
   }
@@ -179,7 +211,6 @@ class FilterTabState extends State<FilterTab> {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 40,
-      width: double.infinity,
       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         ToggleButtons(
           renderBorder: false,
@@ -202,6 +233,36 @@ class FilterTabState extends State<FilterTab> {
           ],
         ),
       ]),
+    );
+  }
+}
+
+class RefreshedButton extends StatefulWidget {
+  final void Function(bool) onRefreshed;
+  final String storeId; 
+
+  const RefreshedButton(
+      {Key? key, required this.storeId, required this.onRefreshed})
+      : super(key: key);
+
+  @override
+  State<RefreshedButton> createState() => _RefreshedButtonState();
+}
+
+class _RefreshedButtonState extends State<RefreshedButton> {
+  bool _refresh = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 40,
+      child: IconButton(
+        onPressed: () {
+          _refresh = !_refresh;
+
+          widget.onRefreshed(_refresh);
+        }, icon: const Icon(Icons.refresh),
+      ),
     );
   }
 }
