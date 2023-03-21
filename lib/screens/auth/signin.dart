@@ -178,8 +178,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                           FormBuilderTextField(
                             name: 'password',
                             obscureText: true,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
                             decoration: const InputDecoration(
                               labelText: 'Password',
                               border: OutlineInputBorder(),
@@ -200,8 +198,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                             FormBuilderTextField(
                               name: 'confirmPassword',
                               obscureText: true,
-                              autovalidateMode:
-                                  AutovalidateMode.onUserInteraction,
                               decoration: const InputDecoration(
                                 labelText: 'Confirm Password',
                                 border: OutlineInputBorder(),
