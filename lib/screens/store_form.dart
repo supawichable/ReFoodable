@@ -10,8 +10,11 @@ import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/providers/image_upload.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
+
+final _geo = GeoFlutterFire();
 
 class StoreFormPage extends StatefulWidget {
   final String? storeId;
@@ -38,7 +41,7 @@ class _StoreFormPageState extends State<StoreFormPage> {
   // controller
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
-  Location? _location;
+  GeoFirePoint? _location;
   late final TextEditingController _addressController;
   late final TextEditingController _emailController;
   late final TextEditingController _phoneController;
@@ -169,15 +172,16 @@ class _StoreFormPageState extends State<StoreFormPage> {
                                 // latitude and longitude to random number in valid range
                                 final lat = Random().nextInt(180) - 90;
                                 final lon = Random().nextInt(360) - 180;
-                                _location = Location.fromGeoPoint(
-                                    GeoPoint(lat.toDouble(), lon.toDouble()));
+                                _location = _geo.point(
+                                    latitude: lat.toDouble(),
+                                    longitude: lon.toDouble());
                               });
                             },
                             child: const Text('Set Location'),
                           ),
                           const SizedBox(width: 12),
                           Text(_location?.geoPoint != null
-                              ? '${_location!.geoPoint!.latitude}, ${_location!.geoPoint!.longitude}'
+                              ? '${_location!.geoPoint.latitude}, ${_location!.geoPoint.longitude}'
                               : 'No location set'),
                         ],
                       ),

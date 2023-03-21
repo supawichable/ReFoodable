@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class LocationListTile extends StatelessWidget {
   const LocationListTile(
@@ -15,15 +14,14 @@ class LocationListTile extends StatelessWidget {
       children: [
         Material(
           child: ListTile(
-            tileColor: Colors.white,
-            onTap: press,
-            horizontalTitleGap: 0,
-            title: Text(
-              location,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            )
-          ),
+              tileColor: Colors.white,
+              onTap: press,
+              horizontalTitleGap: 0,
+              title: Text(
+                location,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              )),
         ),
         const Divider(
           height: 0,

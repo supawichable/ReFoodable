@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gdsctokyo/components/network_utility.dart';
 import 'package:location/location.dart';
@@ -9,10 +8,10 @@ import 'package:gdsctokyo/widgets/panel_widget.dart';
 import 'package:gdsctokyo/widgets/sorting_tab.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import '../../components/location_list_tile.dart';
-import '../../models/place_autocomplete/autocomplete_prediction.dart';
-import '../../models/place_autocomplete/place_auto_complete_response.dart';
-import '../../models/place_details/place_details_response.dart';
+import 'package:gdsctokyo/components/location_list_tile.dart';
+import 'package:gdsctokyo/models/place_autocomplete/autocomplete_prediction.dart';
+import 'package:gdsctokyo/models/place_autocomplete/place_auto_complete_response.dart';
+import 'package:gdsctokyo/models/place_details/place_details_response.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -49,16 +48,14 @@ class _ExplorePageState extends State<ExplorePage> {
               }),
             })
         // ignore: body_might_complete_normally_catch_error
-        .catchError((error) {
-      debugPrint('Error caught in getCurrentLocation: $error');
-    });
+        .catchError((error) {});
   }
 
-  void placeAutocomplete(String query) async {
+  Future<void> placeAutocomplete(String query) async {
     Uri uri =
-        Uri.https("maps.googleapis.com", "maps/api/place/autocomplete/json", {
-      "input": query,
-      "key": dotenv.get("ANDROID_GOOGLE_API_KEY"),
+        Uri.https('maps.googleapis.com', 'maps/api/place/autocomplete/json', {
+      'input': query,
+      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
     });
     String? response = await NetworkUtility.fetchUrl(uri);
     if (response != null) {
@@ -72,10 +69,10 @@ class _ExplorePageState extends State<ExplorePage> {
     }
   }
 
-  void setMapCameraviewToPlaceId(String placeId) async {
-    Uri uri = Uri.https("maps.googleapis.com", "maps/api/place/details/json", {
-      "place_id": placeId,
-      "key": dotenv.get("ANDROID_GOOGLE_API_KEY"),
+  Future<void> setMapCameraviewToPlaceId(String placeId) async {
+    Uri uri = Uri.https('maps.googleapis.com', 'maps/api/place/details/json', {
+      'place_id': placeId,
+      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
     });
     String? response = await NetworkUtility.fetchUrl(uri);
     if (response != null) {
@@ -146,16 +143,16 @@ class _ExplorePageState extends State<ExplorePage> {
                             filled: true,
                             fillColor: Colors.white,
                             hintText: 'Search Location',
-                            suffixIcon: Icon(Icons.search),
-                            contentPadding:
-                                EdgeInsets.only(left: 20, bottom: 5, right: 5),
+                            suffixIcon: const Icon(Icons.search),
+                            contentPadding: const EdgeInsets.only(
+                                left: 20, bottom: 5, right: 5),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.white),
+                              borderSide: const BorderSide(color: Colors.white),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.white),
+                              borderSide: const BorderSide(color: Colors.white),
                             ),
                           )),
                     ),
@@ -240,10 +237,10 @@ class UseMyLocationButton extends StatelessWidget {
         child: ElevatedButton.icon(
           onPressed: () {},
           icon: SvgPicture.asset(
-            "assets/icons/location.svg",
+            'assets/icons/location.svg',
             height: 16,
           ),
-          label: const Text("Use my Current Location"),
+          label: const Text('Use my Current Location'),
         ));
   }
 }
@@ -264,15 +261,16 @@ class LocationSearchBox extends StatelessWidget {
             filled: true,
             fillColor: Colors.white,
             hintText: 'Search Location',
-            suffixIcon: Icon(Icons.search),
-            contentPadding: EdgeInsets.only(left: 20, bottom: 5, right: 5),
+            suffixIcon: const Icon(Icons.search),
+            contentPadding:
+                const EdgeInsets.only(left: 20, bottom: 5, right: 5),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.white),
+              borderSide: const BorderSide(color: Colors.white),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.white),
+              borderSide: const BorderSide(color: Colors.white),
             ),
           )),
     );

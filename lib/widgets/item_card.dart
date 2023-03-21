@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/widgets/add_item_dialog.dart';
+import 'package:gdsctokyo/widgets/store_page/item_list.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ItemCard extends StatelessWidget {
   final DocumentSnapshot<Item> snapshot;
@@ -61,12 +63,7 @@ class ItemCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      name,
-                      style: Theme.of(context).textTheme.bodyLarge?.apply(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeightDelta: 2),
-                    ),
+                    _Title(name: name),
                     const SizedBox(height: 8),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -75,72 +72,114 @@ class ItemCard extends StatelessWidget {
                           Image.asset('lib/assets/images/Sale.png',
                               height: 16, width: 16),
                           const SizedBox(width: 4),
-                          Text(
-                            '${price.currency.symbol}${price.compareAtPrice}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                    decoration: TextDecoration.lineThrough,
-                                    color: Theme.of(context).colorScheme.error),
-                          ),
+                          snapshot.reference.parent.id == ApiPath.myItems
+                              ? Text(
+                                  '${price.currency.symbol}${price.compareAtPrice}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onBackground),
+                                )
+                              : Text(
+                                  '${price.currency.symbol}${price.compareAtPrice}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                          decoration:
+                                              TextDecoration.lineThrough,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .error),
+                                ),
                           const SizedBox(width: 4),
                         ],
-                        Text(
-                          '${price.currency.symbol}${price.amount}',
-                          style: Theme.of(context).textTheme.bodySmall?.apply(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontWeightDelta: 2),
-                        )
+                        snapshot.reference.parent.id == ApiPath.myItems
+                            ? const SizedBox.shrink()
+                            : Text(
+                                '${price.currency.symbol}${price.amount}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.apply(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                        fontWeightDelta: 2),
+                              )
                       ],
                     ),
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        FutureBuilder(
-                          future: addedByName,
-                          builder: (BuildContext context, snapshot) {
-                            return Text.rich(
-                              TextSpan(
-                                text: 'Added by ',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.apply(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface,
+                        snapshot.reference.parent.id == ApiPath.myItems
+                            ? GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) => AddItemDialog(
+                                            storeId: storeId,
+                                            itemId: snapshot.id,
+                                            bucket: ItemBucket.my2today,
+                                          ));
+                                },
+                                child: Text('Add to Today\'s Item',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.apply(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface,
+                                        )),
+                              )
+                            : FutureBuilder(
+                                future: addedByName,
+                                builder: (BuildContext context, snapshot) {
+                                  return Text.rich(
+                                    TextSpan(
+                                      text: 'Added by ',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.apply(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
+                                          ),
+                                      children: [
+                                        TextSpan(
+                                          text: snapshot.data ?? 'Unknown',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.apply(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface,
+                                                fontWeightDelta: 2,
+                                              ),
+                                        ),
+                                        TextSpan(
+                                          text: ' at $timeString',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.apply(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface,
+                                              ),
+                                        ),
+                                      ],
                                     ),
-                                children: [
-                                  TextSpan(
-                                    text: snapshot.data ?? 'Unknown',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.apply(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface,
-                                          fontWeightDelta: 2,
-                                        ),
-                                  ),
-                                  TextSpan(
-                                    text: ' at $timeString',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.apply(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface,
-                                        ),
-                                  ),
-                                ],
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
                         GestureDetector(
                           onTap: () async {
                             final willDelete = await showDialog(
@@ -222,6 +261,46 @@ class ItemCard extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _Title extends HookConsumerWidget {
+  const _Title({required this.name});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final searchedName = ref.watch(searchTextProvider);
+    final regExp = RegExp(searchedName, caseSensitive: false);
+    final matchedPart = regExp.firstMatch(name)?.group(0);
+    // highlight the matched part by setting background color
+
+    return Text.rich(
+      TextSpan(
+        text: name.substring(0, regExp.firstMatch(name)!.start),
+        style: Theme.of(context).textTheme.headlineSmall?.apply(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+        children: [
+          TextSpan(
+            text: matchedPart,
+            style: Theme.of(context).textTheme.headlineSmall?.apply(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).colorScheme.onSecondary,
+                  fontWeightDelta: 2,
+                ),
+          ),
+          TextSpan(
+            text: name.substring(regExp.firstMatch(name)!.end),
+            style: Theme.of(context).textTheme.headlineSmall?.apply(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeightDelta: 2,
+                ),
+          ),
+        ],
       ),
     );
   }
