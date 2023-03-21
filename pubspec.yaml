@@ -72,6 +72,8 @@ dependencies:
   dotted_border: ^2.0.0+3
   shared_preferences: ^2.0.18
   dart_geohash: ^2.0.2
+  geoflutterfire2: ^2.3.15
+  http: ^0.13.5
 
 dev_dependencies:
   integration_test:

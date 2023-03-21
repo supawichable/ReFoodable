@@ -5,6 +5,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
 
 void main() {
   final auth = MockFirebaseAuth();
@@ -30,7 +31,7 @@ void main() {
     test('User add a store', () async {
       final store = Store(
           name: 'Store Name',
-          location: Location.fromGeoPoint(const GeoPoint(0, 0)),
+          location: GeoFirePoint(50, 50),
           address: 'test',
           email: 'store@example.com',
           phone: '08080808080',
@@ -42,7 +43,9 @@ void main() {
       final data = snapshot.data()!;
 
       expect(data.name, store.name);
-      expect(data.location, store.location);
+      expect(data.location?.latitude, store.location?.latitude);
+      expect(data.location?.longitude, store.location?.longitude);
+      expect(data.location?.hash, store.location?.hash);
       expect(data.address, store.address);
       expect(data.email, store.email);
       expect(data.phone, store.phone);
@@ -56,7 +59,7 @@ void main() {
       // (ownerId is implied and not required by the form)
       final store2 = Store(
           name: 'Store Name 2',
-          location: Location.fromGeoPoint(const GeoPoint(0, 0)),
+          location: GeoFirePoint(50, 50),
           address: 'test',
           email: 'store@example.com',
           phone: '08080808080',
@@ -72,7 +75,9 @@ void main() {
 
       expect(data.length, 2);
       expect(data[1].name, store2.name);
-      expect(data[1].location, store2.location);
+      expect(data[1].location?.latitude, store2.location?.latitude);
+      expect(data[1].location?.longitude, store2.location?.longitude);
+      expect(data[1].location?.hash, store2.location?.hash);
       expect(data[1].address, store2.address);
       expect(data[1].email, store2.email);
       expect(data[1].phone, store2.phone);

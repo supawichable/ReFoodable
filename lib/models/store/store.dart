@@ -4,7 +4,7 @@ part of '_store.dart';
 class Store with _$Store {
   const factory Store({
     String? name,
-    @LocationConverter() Location? location,
+    @GeoFirePointConverter() GeoFirePoint? location,
     String? ownerId,
     @TimestampConverter() DateTime? createdAt,
     @TimestampConverter() DateTime? updatedAt,

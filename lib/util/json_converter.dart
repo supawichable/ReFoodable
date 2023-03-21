@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dart_geohash/dart_geohash.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
-import 'package:gdsctokyo/models/store/_store.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
 
 class GeoPointConverter extends JsonConverter<GeoPoint, GeoPoint> {
   const GeoPointConverter();
@@ -13,22 +14,37 @@ class GeoPointConverter extends JsonConverter<GeoPoint, GeoPoint> {
   GeoPoint toJson(GeoPoint object) => object;
 }
 
-class LocationConverter extends JsonConverter<Location, Map<String, dynamic>> {
-  const LocationConverter();
+class GeoHashConverter extends JsonConverter<GeoHash, String> {
+  const GeoHashConverter();
 
   @override
-  Location fromJson(Map<String, dynamic> json) {
-    return Location(
-      geoPoint: json['geo_point'] as GeoPoint?,
-      geoHash: json['geo_hash'] as String?,
-    );
+  GeoHash fromJson(String json) => GeoHash(json);
+
+  @override
+  String toJson(GeoHash object) => object.geohash;
+}
+
+class GeoFirePointConverter
+    extends JsonConverter<GeoFirePoint?, Map<String, dynamic>> {
+  const GeoFirePointConverter();
+
+  @override
+  GeoFirePoint? fromJson(Map<String, dynamic> json) {
+    final geoPoint = json['geopoint'] as GeoPoint?;
+
+    if (geoPoint == null) {
+      return null;
+    }
+
+    return GeoFlutterFire()
+        .point(latitude: geoPoint.latitude, longitude: geoPoint.longitude);
   }
 
   @override
-  Map<String, dynamic> toJson(Location object) {
+  Map<String, dynamic> toJson(GeoFirePoint? object) {
     return {
-      'geo_point': object.geoPoint,
-      'geo_hash': object.geoHash,
+      'geopoint': object?.geoPoint,
+      'geohash': object?.hash,
     };
   }
 }

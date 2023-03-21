@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gdsctokyo/components/network_utility.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
@@ -59,16 +58,14 @@ class _ExplorePageState extends State<ExplorePage> {
               setMapCameraToLatLng(currLatLng),
             })
         // ignore: body_might_complete_normally_catch_error
-        .catchError((error) {
-      debugPrint('Error caught in getCurrentLocation: $error');
-    });
+        .catchError((error) {});
   }
 
-  void placeAutocomplete(String query) async {
+  Future<void> placeAutocomplete(String query) async {
     Uri uri =
-        Uri.https("maps.googleapis.com", "maps/api/place/autocomplete/json", {
-      "input": query,
-      "key": dotenv.get("ANDROID_GOOGLE_API_KEY"),
+        Uri.https('maps.googleapis.com', 'maps/api/place/autocomplete/json', {
+      'input': query,
+      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
     });
     String? response = await NetworkUtility.fetchUrl(uri);
     if (response != null) {
@@ -82,10 +79,10 @@ class _ExplorePageState extends State<ExplorePage> {
     }
   }
 
-  void setMapCameraviewToPlaceId(String placeId) async {
-    Uri uri = Uri.https("maps.googleapis.com", "maps/api/place/details/json", {
-      "place_id": placeId,
-      "key": dotenv.get("ANDROID_GOOGLE_API_KEY"),
+  Future<void> setMapCameraviewToPlaceId(String placeId) async {
+    Uri uri = Uri.https('maps.googleapis.com', 'maps/api/place/details/json', {
+      'place_id': placeId,
+      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
     });
     String? response = await NetworkUtility.fetchUrl(uri);
     if (response != null) {
@@ -355,15 +352,16 @@ class LocationSearchBox extends StatelessWidget {
             filled: true,
             fillColor: Colors.white,
             hintText: 'Search Location',
-            suffixIcon: Icon(Icons.search),
-            contentPadding: EdgeInsets.only(left: 20, bottom: 5, right: 5),
+            suffixIcon: const Icon(Icons.search),
+            contentPadding:
+                const EdgeInsets.only(left: 20, bottom: 5, right: 5),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.white),
+              borderSide: const BorderSide(color: Colors.white),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.white),
+              borderSide: const BorderSide(color: Colors.white),
             ),
           )),
     );
