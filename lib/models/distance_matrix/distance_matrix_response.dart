@@ -9,7 +9,7 @@ class DistanceMatrixResponse {
   factory DistanceMatrixResponse.fromJson(Map<String, dynamic> json) {
     return DistanceMatrixResponse(
       status: json['status'] as String?,
-      distance: json['rows'][0]['elements'][0]['distance']['text'],
+      distance: json['rows'][0]['elements']?[0]['distance']?['text'],
     );
   }
 
