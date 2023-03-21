@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,7 @@ import 'package:gdsctokyo/components/network_utility.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/distance_matrix/distance_matrix_response.dart';
 import 'package:gdsctokyo/util/logger.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:location/location.dart' as Loc;
 import 'package:location/location.dart';
 import 'package:gdsctokyo/widgets/explore/panel_widget.dart';
@@ -20,6 +23,8 @@ import '../../models/place_details/place_details_response.dart';
 import '../../models/store/_store.dart';
 import '../../routes/router.gr.dart';
 
+final _geo = GeoFlutterFire();
+
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
 
@@ -31,13 +36,12 @@ class _ExplorePageState extends State<ExplorePage> {
   TextEditingController textController = TextEditingController();
   final PanelController panelController = PanelController();
 
-  late GoogleMapController mapController;
+  GoogleMapController? mapController;
 
   List<AutocompletePrediction> placePredictions = [];
 
   Loc.LocationData? currentLocation;
   late LatLng currLatLng;
-  late Stream<QuerySnapshot<Store>> _storeStream;
 
   // final Set<Marker> markers = new Set();
 
@@ -58,8 +62,9 @@ class _ExplorePageState extends State<ExplorePage> {
               }),
               setMapCameraToLatLng(currLatLng),
             })
-        // ignore: body_might_complete_normally_catch_error
-        .catchError((error) {});
+        .catchError((e) => {
+              logger.e(e),
+            });
   }
 
   Future<void> placeAutocomplete(String query) async {
@@ -100,7 +105,7 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   void setMapCameraToLatLng(LatLng latlng) {
-    mapController.animateCamera(CameraUpdate.newCameraPosition(
+    mapController?.animateCamera(CameraUpdate.newCameraPosition(
         CameraPosition(target: latlng, zoom: 13.5)));
   }
 
@@ -120,7 +125,6 @@ class _ExplorePageState extends State<ExplorePage> {
   void initState() {
     super.initState();
     getCurrentLocation();
-    _storeStream = FirebaseFirestore.instance.stores.snapshots();
   }
 
   @override
@@ -229,7 +233,8 @@ class GMap extends StatefulWidget {
 }
 
 class _GMapState extends State<GMap> {
-  late Stream<QuerySnapshot<Store>> _storeStream;
+  late LatLng cameraPos = widget.currLatLng;
+  late StreamSubscription<List<DocumentSnapshot>> _storeStream;
   final Set<Marker> markers = {};
 
   Future<String?> calculateDistance(LatLng origin, LatLng destination) async {
@@ -249,11 +254,17 @@ class _GMapState extends State<GMap> {
     return null;
   }
 
-  Future<void> getMarkers() async {
-    _storeStream.listen((snapshot) async {
-      for (final doc in snapshot.docs) {
-        Store data = doc.data();
-        debugPrint(data.name);
+  @override
+  void initState() {
+    super.initState();
+    _storeStream = FirebaseFirestore.instance.stores
+        .withinAsSingleStreamSubscription(
+            _geo.point(
+                latitude: cameraPos.latitude, longitude: cameraPos.longitude),
+            10000)
+        .listen((snapshots) async {
+      for (final doc in snapshots) {
+        final data = Store.fromJson(doc.data()! as Map<String, dynamic>);
         GeoPoint? geoPoint = data.location?.geoPoint;
         if (geoPoint == null) {
           return;
@@ -281,10 +292,9 @@ class _GMapState extends State<GMap> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _storeStream = FirebaseFirestore.instance.stores.snapshots();
-    getMarkers();
+  void dispose() {
+    _storeStream.cancel();
+    super.dispose();
   }
 
   @override
