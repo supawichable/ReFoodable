@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
-import 'package:gdsctokyo/widgets/segmented_button.dart';
+import 'package:gdsctokyo/widgets/item/segmented_button.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:gdsctokyo/providers/image_upload.dart';

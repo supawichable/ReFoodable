@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/widgets/big_text_bold.dart';
-import 'package:gdsctokyo/widgets/icon_text.dart';
+import 'package:gdsctokyo/widgets/common/icon_text.dart';
 
 class PanelWidget extends StatelessWidget {
   final ScrollController controller;
@@ -49,36 +48,7 @@ class PanelWidget extends StatelessWidget {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                            margin: const EdgeInsets.only(
-                              top: 10,
-                            ),
-                            child: const BigBoldText(text: 'Restuarant Name')),
-                        Container(
-                          margin: const EdgeInsets.only(
-                            top: 15,
-                          ),
-                          child: IconText(
-                              icon: Icons.location_pin,
-                              iconColor: Colors.red[300],
-                              text: '500m from here'),
-                        ),
-                        Container(
-                            margin: const EdgeInsets.only(top: 2),
-                            child: IconText(
-                                icon: Icons.bento,
-                                iconColor: Colors.red[300],
-                                text: 'bento (food type)')),
-                        Container(
-                            margin: const EdgeInsets.only(
-                              top: 15,
-                            ),
-                            child: IconText(
-                                icon: Icons.discount,
-                                iconColor: Colors.red[300],
-                                text: '40% - 80% Discounted')),
-                      ],
+                      children: [],
                     ),
                   ),
                   Column(

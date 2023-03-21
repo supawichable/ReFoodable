@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/theme/color_schemes.dart';
-import 'package:gdsctokyo/widgets/description_text.dart';
+import 'package:gdsctokyo/widgets/common/description_text.dart';
 
 class SortingTab extends StatefulWidget {
   const SortingTab({super.key});

@@ -5,7 +5,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
-import 'package:gdsctokyo/widgets/or_bar.dart';
+import 'package:gdsctokyo/widgets/common/or_bar.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
 
