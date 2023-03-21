@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/theme/color_schemes.dart';
-import 'package:gdsctokyo/widgets/common/description_text.dart';
 
 class SortingTab extends StatefulWidget {
   const SortingTab({super.key});
@@ -34,43 +33,41 @@ class _SortingTabState extends State<SortingTab> {
         isSelected: _selections,
         children: [
           Container(
-            height: 35,
-            padding: const EdgeInsets.only(
-              left: 10,
-              right: 10,
-            ),
-            margin: const EdgeInsets.only(
-              right: 2.5,
-              left: 2.5,
-              top: 10,
-            ),
-            decoration: BoxDecoration(
-                color: _selections[0]
-                    ? lightColorScheme.primaryContainer
-                    : Colors.brown[50],
-                borderRadius: BorderRadius.circular(20)),
-            alignment: Alignment.center,
-            child: const DescriptionText(text: 'Nearest'),
-          ),
+              height: 35,
+              padding: const EdgeInsets.only(
+                left: 10,
+                right: 10,
+              ),
+              margin: const EdgeInsets.only(
+                right: 2.5,
+                left: 2.5,
+                top: 10,
+              ),
+              decoration: BoxDecoration(
+                  color: _selections[0]
+                      ? lightColorScheme.primaryContainer
+                      : Colors.brown[50],
+                  borderRadius: BorderRadius.circular(20)),
+              alignment: Alignment.center,
+              child: const Text('Nearest')),
           Container(
-            height: 35,
-            padding: const EdgeInsets.only(
-              left: 10,
-              right: 10,
-            ),
-            margin: const EdgeInsets.only(
-              right: 2.5,
-              left: 2.5,
-              top: 10,
-            ),
-            decoration: BoxDecoration(
-                color: _selections[1]
-                    ? lightColorScheme.primaryContainer
-                    : Colors.brown[50],
-                borderRadius: BorderRadius.circular(20)),
-            alignment: Alignment.center,
-            child: const DescriptionText(text: 'Cheapest'),
-          ),
+              height: 35,
+              padding: const EdgeInsets.only(
+                left: 10,
+                right: 10,
+              ),
+              margin: const EdgeInsets.only(
+                right: 2.5,
+                left: 2.5,
+                top: 10,
+              ),
+              decoration: BoxDecoration(
+                  color: _selections[1]
+                      ? lightColorScheme.primaryContainer
+                      : Colors.brown[50],
+                  borderRadius: BorderRadius.circular(20)),
+              alignment: Alignment.center,
+              child: const Text('Cheapest')),
           Container(
             height: 35,
             padding: const EdgeInsets.only(
@@ -89,7 +86,7 @@ class _SortingTabState extends State<SortingTab> {
                 borderRadius: BorderRadius.circular(20)),
             alignment: Alignment.center,
             child: Row(children: const [
-              DescriptionText(text: 'Category'),
+              Text('Category'),
               Icon(
                 Icons.arrow_drop_down,
                 color: Colors.black,
