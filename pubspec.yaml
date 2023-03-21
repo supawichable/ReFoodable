@@ -73,7 +73,9 @@ dependencies:
   shared_preferences: ^2.0.18
   dart_geohash: ^2.0.2
   geoflutterfire2: ^2.3.15
+  flutter_form_builder: ^7.8.0
   http: ^0.13.5
+  form_builder_validators: ^8.5.0
 
 dev_dependencies:
   integration_test:
