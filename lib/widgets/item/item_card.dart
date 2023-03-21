@@ -19,7 +19,7 @@ class ItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     late final item = snapshot.data()!;
     late final storeId = snapshot.reference.parent.parent!.id;
-    late final String name = item.name!;
+    late final String name = item.name ?? '(Untitled)';
     late final Price price = item.price!;
     late final String addedBy = item.addedBy!;
     late final Future<String?> addedByName = FirebaseFirestore.instance.users
