@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gdsctokyo/components/network_utility.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/distance_matrix/distance_matrix_response.dart';
+import 'package:gdsctokyo/util/logger.dart';
 import 'package:location/location.dart' as Loc;
 import 'package:location/location.dart';
 import 'package:gdsctokyo/widgets/explore/panel_widget.dart';
@@ -229,15 +230,13 @@ class GMap extends StatefulWidget {
 
 class _GMapState extends State<GMap> {
   late Stream<QuerySnapshot<Store>> _storeStream;
-  final Set<Marker> markers = new Set();
+  final Set<Marker> markers = {};
 
   Future<String?> calculateDistance(LatLng origin, LatLng destination) async {
-    Uri uri = Uri.https("maps.googleapis.com", "maps/api/distancematrix/json", {
-      "origins": origin.latitude.toString() + ',' + origin.longitude.toString(),
-      "destinations": destination.latitude.toString() +
-          ',' +
-          destination.longitude.toString(),
-      "key": dotenv.get("ANDROID_GOOGLE_API_KEY"),
+    Uri uri = Uri.https('maps.googleapis.com', 'maps/api/distancematrix/json', {
+      'origins': '${origin.latitude},${origin.longitude}',
+      'destinations': '${destination.latitude},${destination.longitude}',
+      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
     });
     String? response = await NetworkUtility.fetchUrl(uri);
     if (response != null) {
@@ -247,24 +246,30 @@ class _GMapState extends State<GMap> {
         return result.distance!;
       }
     }
+    return null;
   }
 
-  void getMarkers() async {
+  Future<void> getMarkers() async {
     _storeStream.listen((snapshot) async {
       for (final doc in snapshot.docs) {
-        dynamic data = doc.data();
-        GeoPoint geoPoint = data.location.geoPoint;
+        Store data = doc.data();
+        debugPrint(data.name);
+        GeoPoint? geoPoint = data.location?.geoPoint;
+        if (geoPoint == null) {
+          return;
+        }
         LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
         String storeId = doc.id;
         String? distanceFromCurr =
             await calculateDistance(widget.currLatLng, latlng);
+
         setState(() {
           markers.add(Marker(
-            markerId: MarkerId(data.name),
+            markerId: MarkerId(doc.id),
             position: latlng,
             infoWindow: InfoWindow(
               title: data.name,
-              snippet: distanceFromCurr.toString() + " from here",
+              snippet: '$distanceFromCurr from here',
               onTap: () {
                 context.router.pushNamed('/store/$storeId');
               },
