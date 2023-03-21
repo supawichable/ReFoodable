@@ -183,10 +183,15 @@ class UploadableProfileImage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: () async {
-        final imageUploadState = await ImageUploader(ref,
-            options: const ImageUploadOptions(
-              aspectRatio: CropAspectRatio(ratioX: 3, ratioY: 1),
-            )).handleImageUpload();
+        final imageUploadState = await ImageUploader(
+          ref,
+          options: const ImageUploadOptions(
+            aspectRatio: CropAspectRatio(
+              ratioX: 1,
+              ratioY: 1,
+            ),
+          ),
+        ).handleImageUpload();
 
         await imageUploadState.whenOrNull(error: (error) {
           ScaffoldMessenger.of(context)

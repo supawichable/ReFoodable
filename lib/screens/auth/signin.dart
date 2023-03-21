@@ -7,12 +7,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:gdsctokyo/providers/current_user.dart';
+import 'package:gdsctokyo/providers/image_upload.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/widgets/common/or_bar.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 enum AuthMode { login, register }
 
@@ -91,20 +93,40 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                                         label: const Text('Refresh'),
                                       ),
                                       const SizedBox(height: 16),
-                                      CircleAvatar(
-                                        radius: 48,
-                                        backgroundImage: NetworkImage(
-                                            '$placeholderUrlbase$seed'),
-                                        // upload icon in the right cornerx
-                                        child: const Align(
-                                          alignment: Alignment.bottomRight,
-                                          child: CircleAvatar(
-                                            radius: 12,
-                                            backgroundColor: Colors.white,
-                                            child: Icon(
-                                              // upload icon
-                                              Icons.camera_alt,
-                                              size: 16,
+                                      GestureDetector(
+                                        onTap: () async {
+                                          final pickedFile =
+                                              await ImageUploader(
+                                            ref,
+                                            options: const ImageUploadOptions(
+                                              aspectRatio: CropAspectRatio(
+                                                ratioX: 1,
+                                                ratioY: 1,
+                                              ),
+                                            ),
+                                          ).handleImageUpload();
+
+                                          pickedFile.whenOrNull(
+                                            cropped: (file) {
+                                              state.didChange(File(file.path));
+                                            },
+                                          );
+                                        },
+                                        child: CircleAvatar(
+                                          radius: 48,
+                                          backgroundImage: NetworkImage(
+                                              '$placeholderUrlbase$seed'),
+                                          // upload icon in the right cornerx
+                                          child: const Align(
+                                            alignment: Alignment.bottomRight,
+                                            child: CircleAvatar(
+                                              radius: 12,
+                                              backgroundColor: Colors.white,
+                                              child: Icon(
+                                                // upload icon
+                                                Icons.camera_alt,
+                                                size: 16,
+                                              ),
                                             ),
                                           ),
                                         ),
