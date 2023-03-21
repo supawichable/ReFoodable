@@ -1,13 +1,20 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:gdsctokyo/providers/image_upload.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
-import 'package:gdsctokyo/widgets/or_bar.dart';
+import 'package:gdsctokyo/widgets/common/or_bar.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 enum AuthMode { login, register }
 
@@ -18,66 +25,28 @@ extension on AuthMode {
 // util for creating random string
 String randomString(int length) {
   const chars =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567169';
   final random = Random.secure();
   return List.generate(length, (index) => chars[random.nextInt(chars.length)])
       .join();
 }
 
-class SignInPage extends StatefulWidget {
+class SignInPage extends StatefulHookConsumerWidget {
   const SignInPage({super.key});
 
   @override
-  State<SignInPage> createState() => _SignInPageState();
+  ConsumerState<SignInPage> createState() => _SignInPageState();
 }
 
-class _SignInPageState extends State<SignInPage> {
-  late TextEditingController _nameController;
-  late TextEditingController _emailController;
-  late TextEditingController _passwordController;
-  late TextEditingController _confirmPasswordController;
-
+class _SignInPageState extends ConsumerState<SignInPage> {
   bool _isLoading = false;
-  bool _redirecting = false;
 
-  late final StreamSubscription<User?> _authStateSubscription;
-
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormBuilderState>();
 
   AuthMode mode = AuthMode.login;
 
   String placeholderUrlbase = 'https://api.dicebear.com/5.x/thumbs/png?seed=';
   String seed = randomString(10);
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController();
-    _emailController = TextEditingController();
-    _passwordController = TextEditingController();
-    _confirmPasswordController = TextEditingController();
-    _authStateSubscription =
-        FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (_redirecting) {
-        return;
-      }
-      if (user != null) {
-        _redirecting = true;
-        context.router.pop();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    _authStateSubscription.cancel();
-
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,9 +64,12 @@ class _SignInPageState extends State<SignInPage> {
             child: Center(
               child: SingleChildScrollView(
                 child: SafeArea(
-                  child: Form(
+                  child: FormBuilder(
                     key: _formKey,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    onChanged: () {
+                      _formKey.currentState!.save();
+                    },
+                    autovalidateMode: AutovalidateMode.disabled,
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(
                         maxWidth: 400,
@@ -105,106 +77,155 @@ class _SignInPageState extends State<SignInPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (mode == AuthMode.register)
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                setState(() {
-                                  seed = randomString(10);
-                                });
-                              },
-                              icon: const Icon(Icons.refresh),
-                              label: const Text('Refresh'),
-                            ),
-                          if (mode == AuthMode.register)
+                          if (mode == AuthMode.register) ...[
+                            FormBuilderField(
+                                name: 'profileImage',
+                                builder: (FormFieldState<File> state) {
+                                  return Column(
+                                    children: [
+                                      ElevatedButton.icon(
+                                        onPressed: () {
+                                          setState(() {
+                                            seed = randomString(10);
+                                          });
+                                        },
+                                        icon: const Icon(Icons.refresh),
+                                        label: const Text('Refresh'),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          final pickedFile =
+                                              await ImageUploader(
+                                            ref,
+                                            options: const ImageUploadOptions(
+                                              aspectRatio: CropAspectRatio(
+                                                ratioX: 1,
+                                                ratioY: 1,
+                                              ),
+                                            ),
+                                          ).handleImageUpload();
+
+                                          pickedFile.whenOrNull(
+                                            cropped: (file) {
+                                              state.didChange(File(file.path));
+                                            },
+                                          );
+                                        },
+                                        child: CircleAvatar(
+                                          radius: 48,
+                                          backgroundImage: NetworkImage(
+                                              '$placeholderUrlbase$seed'),
+                                          // upload icon in the right cornerx
+                                          child: const Align(
+                                            alignment: Alignment.bottomRight,
+                                            child: CircleAvatar(
+                                              radius: 12,
+                                              backgroundColor: Colors.white,
+                                              child: Icon(
+                                                // upload icon
+                                                Icons.camera_alt,
+                                                size: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }),
                             const SizedBox(height: 16),
-                          if (mode == AuthMode.register)
-                            CircleAvatar(
-                              radius: 48,
-                              backgroundImage:
-                                  NetworkImage('$placeholderUrlbase$seed'),
-                              // upload icon in the right cornerx
-                              child: const Align(
-                                alignment: Alignment.bottomRight,
-                                child: CircleAvatar(
-                                  radius: 12,
-                                  backgroundColor: Colors.white,
-                                  child: Icon(
-                                    // upload icon
-                                    Icons.camera_alt,
-                                    size: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          if (mode == AuthMode.register)
-                            const SizedBox(height: 16),
-                          if (mode == AuthMode.register)
-                            TextFormField(
-                              controller: _nameController,
+                            FormBuilderTextField(
+                              name: 'name',
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
                               decoration: const InputDecoration(
                                 labelText: 'Name',
                                 border: OutlineInputBorder(),
                               ),
-                              validator: (value) => value!.isEmpty
-                                  ? 'Please enter your name'
-                                  : null,
+                              validator: FormBuilderValidators.compose([
+                                FormBuilderValidators.required(
+                                    errorText: 'Please enter your name'),
+                                FormBuilderValidators.minLength(3,
+                                    errorText:
+                                        'Name must be at least 3 characters'),
+                                FormBuilderValidators.maxLength(32,
+                                    errorText:
+                                        'Name must be at most 32 characters'),
+                              ]),
+                              valueTransformer: (value) => value?.trim(),
                             ),
-                          if (mode == AuthMode.register)
                             const SizedBox(height: 16),
-                          TextFormField(
-                            controller: _emailController,
-                            decoration: const InputDecoration(
-                              labelText: 'Email',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) => value!.isEmpty
-                                ? 'Please enter your email'
-                                : null,
-                          ),
+                          ],
+                          FormBuilderTextField(
+                              name: 'email',
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              decoration: const InputDecoration(
+                                labelText: 'Email',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: FormBuilderValidators.compose([
+                                FormBuilderValidators.required(
+                                    errorText: 'Please enter your email'),
+                                FormBuilderValidators.email(
+                                    errorText: 'Please enter a valid email'),
+                              ]),
+                              valueTransformer: (value) => value?.trim()),
+
                           const SizedBox(height: 16),
-                          TextFormField(
-                            controller: _passwordController,
+                          FormBuilderTextField(
+                            name: 'password',
                             obscureText: true,
                             decoration: const InputDecoration(
                               labelText: 'Password',
                               border: OutlineInputBorder(),
                             ),
-                            validator: (value) => value!.isEmpty
-                                ? 'Please enter your password'
-                                : value.contains(' ')
-                                    ? 'Password cannot contain spaces'
-                                    : null,
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(
+                                  errorText: 'Please enter your password'),
+                              FormBuilderValidators.minLength(6,
+                                  errorText:
+                                      'Password must be at least 6 characters'),
+                              FormBuilderValidators.maxLength(20,
+                                  errorText:
+                                      'Password must be at most 20 characters'),
+                            ]),
                           ),
                           const SizedBox(height: 16),
-                          if (mode == AuthMode.register)
-                            TextFormField(
-                              controller: _confirmPasswordController,
+                          if (mode == AuthMode.register) ...[
+                            FormBuilderTextField(
+                              name: 'confirmPassword',
                               obscureText: true,
                               decoration: const InputDecoration(
                                 labelText: 'Confirm Password',
                                 border: OutlineInputBorder(),
                               ),
-                              validator: (value) => value!.isEmpty
-                                  ? 'Please enter your password'
-                                  : _passwordController.text !=
-                                          _confirmPasswordController.text
-                                      ? 'Passwords do not match'
-                                      : value.contains(' ')
-                                          ? 'Password cannot contain spaces'
-                                          : null,
+                              validator: FormBuilderValidators.compose([
+                                FormBuilderValidators.required(
+                                    errorText: 'Please confirm your password'),
+                                FormBuilderValidators.minLength(6,
+                                    errorText:
+                                        'Password must be at least 6 characters'),
+                                FormBuilderValidators.maxLength(20,
+                                    errorText:
+                                        'Password must be at most 20 characters'),
+                              ]),
+                              valueTransformer: (value) => value
+                                  ?.trim(), // remove leading and trailing spaces
                             ),
-                          if (mode == AuthMode.register)
                             const SizedBox(height: 16),
-                          if (mode == AuthMode.login)
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 200),
+                          ],
+                          // sign-in/sign-up/loading
+                          AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
                               child: _isLoading
                                   ? Container(
                                       height: 60,
                                       width: double.infinity,
                                       decoration: BoxDecoration(
                                         borderRadius: const BorderRadius.all(
-                                          Radius.circular(8),
+                                          Radius.circular(16),
                                         ),
                                         color: Theme.of(context)
                                             .colorScheme
@@ -218,37 +239,12 @@ class _SignInPageState extends State<SignInPage> {
                                       width: double.infinity,
                                       height: 60,
                                       child: ElevatedButton(
-                                        onPressed: _signIn,
-                                        child: const Text('Sign In'),
+                                        onPressed: mode == AuthMode.login
+                                            ? _signIn
+                                            : _signUp,
+                                        child: Text(mode.label),
                                       ),
-                                    ),
-                            ),
-                          if (mode == AuthMode.register)
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 200),
-                              child: _isLoading
-                                  ? Container(
-                                      height: 60,
-                                      width: double.infinity,
-                                      decoration: BoxDecoration(
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(8)),
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primaryContainer),
-                                      child: const Center(
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                    )
-                                  : SizedBox(
-                                      width: double.infinity,
-                                      height: 60,
-                                      child: ElevatedButton(
-                                        onPressed: _signUp,
-                                        child: const Text('Sign Up'),
-                                      ),
-                                    ),
-                            ),
+                                    )),
                           const SizedBox(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -259,9 +255,8 @@ class _SignInPageState extends State<SignInPage> {
                                     mode = mode == AuthMode.login
                                         ? AuthMode.register
                                         : AuthMode.login;
-                                    _emailController.clear();
-                                    _passwordController.clear();
-                                    _confirmPasswordController.clear();
+
+                                    _formKey.currentState!.reset();
                                   });
                                 },
                                 child: mode == AuthMode.login
@@ -291,7 +286,7 @@ class _SignInPageState extends State<SignInPage> {
                                     width: double.infinity,
                                     decoration: BoxDecoration(
                                       borderRadius: const BorderRadius.all(
-                                        Radius.circular(8),
+                                        Radius.circular(16),
                                       ),
                                       color: Theme.of(context)
                                           .colorScheme
@@ -323,15 +318,19 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Future<void> _signIn() async {
-    if (_formKey.currentState?.validate() ?? false) {
+    if (_formKey.currentState?.saveAndValidate() ?? false) {
       setState(() {
         _isLoading = true;
       });
       try {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
+          email: _formKey.currentState!.fields['email']!.value,
+          password: _formKey.currentState!.fields['password']!.value,
         );
+
+        if (mounted) {
+          context.router.replace(const HomeRoute());
+        }
       } on FirebaseAuthException catch (e) {
         switch (e.code) {
           case 'user-not-found':
@@ -372,20 +371,32 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Future<void> _signUp() async {
-    if (_formKey.currentState?.validate() ?? false) {
+    if (_formKey.currentState?.saveAndValidate() ?? false) {
       setState(() {
         _isLoading = true;
       });
       try {
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
+          email: _formKey.currentState!.fields['email']!.value,
+          password: _formKey.currentState!.fields['password']!.value,
         );
         await FirebaseAuth.instance.currentUser!.sendEmailVerification();
         await FirebaseAuth.instance.currentUser!
-            .updateDisplayName(_nameController.text.trim());
-        await FirebaseAuth.instance.currentUser!
-            .updatePhotoURL('$placeholderUrlbase$seed');
+            .updateDisplayName(_formKey.currentState!.fields['name']!.value);
+        if (_formKey.currentState!.fields['profileImage']!.value != null) {
+          final ref = FirebaseStorage.instance
+              .ref()
+              .child(FirebaseAuth.instance.currentUser!.uid)
+              .child('profile.jpg');
+          await ref
+              .putFile(_formKey.currentState!.fields['profileImage']!.value);
+          await FirebaseAuth.instance.currentUser!
+              .updatePhotoURL(await ref.getDownloadURL());
+        }
+
+        if (mounted) {
+          context.router.replace(const HomeRoute());
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -422,6 +433,10 @@ class _SignInPageState extends State<SignInPage> {
 
         // Once signed in, return the UserCredential
         await FirebaseAuth.instance.signInWithCredential(credential);
+
+        if (mounted) {
+          context.router.replace(const HomeRoute());
+        }
       }
     } on FirebaseAuthException catch (e) {
       switch (e.code) {

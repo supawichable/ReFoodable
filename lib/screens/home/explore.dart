@@ -7,9 +7,9 @@ import 'package:gdsctokyo/components/network_utility.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/distance_matrix/distance_matrix_response.dart';
 import 'package:location/location.dart' as Loc;
-import 'package:gdsctokyo/widgets/description_text.dart';
-import 'package:gdsctokyo/widgets/panel_widget.dart';
-import 'package:gdsctokyo/widgets/sorting_tab.dart';
+import 'package:location/location.dart';
+import 'package:gdsctokyo/widgets/explore/panel_widget.dart';
+import 'package:gdsctokyo/widgets/explore/sorting_tab.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../../components/location_list_tile.dart';
@@ -153,9 +153,9 @@ class _ExplorePageState extends State<ExplorePage> {
                     ),
                     searchWidgetSwitch
                         ? UseMyLocationButton(
-                          getCurrentLocation: getCurrentLocation,
-                          setSearchWidgetSwitch: setSearchWidgetSwitch,
-                        )
+                            getCurrentLocation: getCurrentLocation,
+                            setSearchWidgetSwitch: setSearchWidgetSwitch,
+                          )
                         : const SizedBox.shrink(),
                     Expanded(
                       child: searchWidgetSwitch
@@ -174,51 +174,44 @@ class _ExplorePageState extends State<ExplorePage> {
                   ]),
                 ]),
           panelBuilder: (controller) {
-            return Column(
-              children: [
-                GestureDetector(
-                  child: Container(
-                    margin: const EdgeInsets.only(
-                      top: 8,
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: GestureDetector(
+                      child: Container(
+                        width: 50,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(10),
+                          ),
+                        ),
+                      ),
+                      onVerticalDragDown: (DragDownDetails details) {
+                        panelController.close();
+                      },
                     ),
-                    width: 50,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(10),
+                  ),
+                  const SortingTab(),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Latest in the area',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  onVerticalDragDown: (DragDownDetails details) {
-                    panelController.close();
-                  },
-                ),
-                Container(
-                  height: 50,
-                  padding: const EdgeInsets.only(
-                    left: 10,
-                    right: 10,
+                  PanelWidget(
+                    controller: controller,
                   ),
-                  child: const SortingTab(),
-                ),
-                Container(
-                  padding: const EdgeInsets.only(
-                    left: 15,
-                    top: 10,
-                    bottom: 10,
-                  ),
-                  child: const Align(
-                      alignment: Alignment.centerLeft,
-                      child: DescriptionText(
-                        text: 'n places found',
-                        size: 14,
-                      )),
-                ),
-                PanelWidget(
-                  controller: controller,
-                ),
-              ],
+                ],
+              ),
             );
           }),
     );

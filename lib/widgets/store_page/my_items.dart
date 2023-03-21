@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/routes/router.gr.dart';
-import 'package:gdsctokyo/widgets/item_card.dart';
+import 'package:gdsctokyo/widgets/item/item_card.dart';
 
 class MyItems extends StatefulWidget {
   const MyItems({
