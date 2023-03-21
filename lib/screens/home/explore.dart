@@ -6,6 +6,7 @@ import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gdsctokyo/components/network_utility.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
+import 'package:gdsctokyo/models/distance_matrix/distance_matrix_response.dart';
 import 'package:location/location.dart' as Loc;
 import 'package:gdsctokyo/widgets/description_text.dart';
 import 'package:gdsctokyo/widgets/panel_widget.dart';
@@ -55,6 +56,7 @@ class _ExplorePageState extends State<ExplorePage> {
                 currentLocation = location;
                 currLatLng = LatLng(location.latitude!, location.longitude!);
               }),
+              setMapCameraToLatLng(currLatLng),
             })
         // ignore: body_might_complete_normally_catch_error
         .catchError((error) {
@@ -92,12 +94,16 @@ class _ExplorePageState extends State<ExplorePage> {
       if (result.lat != null && result.lng != null) {
         setState(() {
           currLatLng = LatLng(result.lat!, result.lng!);
-          mapController.animateCamera(CameraUpdate.newCameraPosition(
-              CameraPosition(target: currLatLng, zoom: 13.5)));
+          setMapCameraToLatLng(currLatLng);
           searchWidgetSwitch = false;
         });
       }
     }
+  }
+
+  void setMapCameraToLatLng(LatLng latlng) {
+    mapController.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: latlng, zoom: 13.5)));
   }
 
   void setSearchWidgetSwitch(bool newValue) {
@@ -112,20 +118,6 @@ class _ExplorePageState extends State<ExplorePage> {
     });
   }
 
-  // void getMarkers() async {
-  //   _storeStream.listen((snapshot) {
-  //     for (final doc in snapshot.docs) {
-  //       dynamic data = doc.data();
-  //       GeoPoint geoPoint = data.location.geoPoint;
-  //       markers.add(Marker(
-  //         markerId: MarkerId(data.name),
-  //         position: LatLng(geoPoint.latitude, geoPoint.longitude),
-  //         infoWindow: InfoWindow(title: data.name),
-  //       ));
-  //     }
-  //   });
-  // }
-
   @override
   void initState() {
     super.initState();
@@ -135,7 +127,6 @@ class _ExplorePageState extends State<ExplorePage> {
 
   @override
   Widget build(BuildContext context) {
-    // getMarkers();
     return Scaffold(
       body: SlidingUpPanel(
           controller: panelController,
@@ -163,39 +154,12 @@ class _ExplorePageState extends State<ExplorePage> {
                       setSearchWidgetSwitch: setSearchWidgetSwitch,
                       placeAutocomplete: placeAutocomplete,
                     ),
-                    // Padding(
-                    //   padding: const EdgeInsets.all(8.0),
-                    //   child: TextFormField(
-                    //       onTap: () {
-                    //         setState(() {
-                    //           searchWidgetSwitch = true;
-                    //         });
-                    //       },
-                    //       onChanged: (value) {
-                    //         placeAutocomplete(value);
-                    //         setState(() {
-                    //           searchWidgetSwitch = true;
-                    //         });
-                    //       },
-                    //       textInputAction: TextInputAction.search,
-                    //       decoration: InputDecoration(
-                    //         filled: true,
-                    //         fillColor: Colors.white,
-                    //         hintText: 'Search Location',
-                    //         suffixIcon: Icon(Icons.search),
-                    //         contentPadding:
-                    //             EdgeInsets.only(left: 20, bottom: 5, right: 5),
-                    //         focusedBorder: OutlineInputBorder(
-                    //           borderRadius: BorderRadius.circular(10),
-                    //           borderSide: BorderSide(color: Colors.white),
-                    //         ),
-                    //         enabledBorder: OutlineInputBorder(
-                    //           borderRadius: BorderRadius.circular(10),
-                    //           borderSide: BorderSide(color: Colors.white),
-                    //         ),
-                    //       )),
-                    // ),
-                    // UseMyLocationButton(),
+                    searchWidgetSwitch
+                        ? UseMyLocationButton(
+                          getCurrentLocation: getCurrentLocation,
+                          setSearchWidgetSwitch: setSearchWidgetSwitch,
+                        )
+                        : const SizedBox.shrink(),
                     Expanded(
                       child: searchWidgetSwitch
                           ? ListView.builder(
@@ -209,7 +173,7 @@ class _ExplorePageState extends State<ExplorePage> {
                                     setMapCameraviewToPlaceId(placeId);
                                   }))
                           : const SizedBox.shrink(),
-                    ),
+                    )
                   ]),
                 ]),
           panelBuilder: (controller) {
@@ -266,15 +230,8 @@ class _ExplorePageState extends State<ExplorePage> {
 
 class GMap extends StatefulWidget {
   final LatLng currLatLng;
-  // final GoogleMapController mapController;
-  // final ValueChanged<GoogleMapController> setMapController;
   final onMapCreated;
-  const GMap(
-      {super.key,
-      required this.currLatLng,
-      // required this.mapController,
-      // required this.setMapController,
-      required this.onMapCreated});
+  const GMap({super.key, required this.currLatLng, required this.onMapCreated});
 
   @override
   State<GMap> createState() => _GMapState();
@@ -284,23 +241,40 @@ class _GMapState extends State<GMap> {
   late Stream<QuerySnapshot<Store>> _storeStream;
   final Set<Marker> markers = new Set();
 
-  // void _onMapCreated(GoogleMapController controller) {
-  //   widget.setMapController(controller);
-  // }
+  Future<String?> calculateDistance(LatLng origin, LatLng destination) async {
+    Uri uri = Uri.https("maps.googleapis.com", "maps/api/distancematrix/json", {
+      "origins": origin.latitude.toString() + ',' + origin.longitude.toString(),
+      "destinations": destination.latitude.toString() +
+          ',' +
+          destination.longitude.toString(),
+      "key": dotenv.get("ANDROID_GOOGLE_API_KEY"),
+    });
+    String? response = await NetworkUtility.fetchUrl(uri);
+    if (response != null) {
+      DistanceMatrixResponse result =
+          DistanceMatrixResponse.parseDistanceMatrix(response);
+      if (result.distance != null) {
+        return result.distance!;
+      }
+    }
+  }
 
   void getMarkers() async {
-    _storeStream.listen((snapshot) {
+    _storeStream.listen((snapshot) async {
       for (final doc in snapshot.docs) {
         dynamic data = doc.data();
         GeoPoint geoPoint = data.location.geoPoint;
+        LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
         String storeId = doc.id;
+        String? distanceFromCurr =
+            await calculateDistance(widget.currLatLng, latlng);
         setState(() {
           markers.add(Marker(
             markerId: MarkerId(data.name),
-            position: LatLng(geoPoint.latitude, geoPoint.longitude),
+            position: latlng,
             infoWindow: InfoWindow(
               title: data.name,
-              snippet: "500m away",
+              snippet: distanceFromCurr.toString() + " from here",
               onTap: () {
                 context.router.pushNamed('/store/$storeId');
               },
@@ -332,20 +306,23 @@ class _GMapState extends State<GMap> {
 }
 
 class UseMyLocationButton extends StatelessWidget {
-  const UseMyLocationButton({
-    super.key,
-  });
+  final getCurrentLocation;
+  final ValueChanged<bool> setSearchWidgetSwitch;
+  const UseMyLocationButton(
+      {super.key,
+      required this.getCurrentLocation,
+      required this.setSearchWidgetSwitch});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.all(8.0),
         child: ElevatedButton.icon(
-          onPressed: () {},
-          icon: SvgPicture.asset(
-            "assets/icons/location.svg",
-            height: 16,
-          ),
+          onPressed: () {
+            getCurrentLocation();
+            setSearchWidgetSwitch(false);
+          },
+          icon: Icon(Icons.place),
           label: const Text("Use my Current Location"),
         ));
   }
