@@ -276,22 +276,14 @@ class _AddItemDialogState extends State<AddItemDialog> {
                     ),
                   ],
                 ),
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('Menu name',
-                      style:
-                          Theme.of(context).textTheme.labelLarge?.copyWith()),
-                  const SizedBox(
-                    height: 8,
+                SizedBox(
+                  height: 50,
+                  child: ItemPhoto(
+                    serverPhotoURL: _itemSnapshot?.data()?.photoURL,
+                    itemPhoto: _itemPhoto,
+                    setFile: _setFile,
                   ),
-                  SizedBox(
-                    height: 50,
-                    child: ItemPhoto(
-                      serverPhotoURL: _itemSnapshot?.data()?.photoURL,
-                      itemPhoto: _itemPhoto,
-                      setFile: _setFile,
-                    ),
-                  ),
-                ]),
+                ),
               ],
             ],
           ),
@@ -330,6 +322,9 @@ class _AddItemDialogState extends State<AddItemDialog> {
   }
 
   Future<void> _submit() async {
+    setState(() {
+      _isLoading = true;
+    });
     final name = _controllerMenuName.text;
     final compareAtPrice = double.parse(_controllerNormalPrice.text);
     final amount = double.parse(_controllerDiscountedPrice.text);
@@ -350,9 +345,8 @@ class _AddItemDialogState extends State<AddItemDialog> {
       await items.doc(itemId).set(item);
 
       if (_itemPhoto != null) {
-        final itemPhotoRef = FirebaseStorage.instance
-            .ref()
-            .child('stores/$storeId/todays_items/${_itemSnapshot?.id}/item_photo.jpg');
+        final itemPhotoRef = FirebaseStorage.instance.ref().child(
+            'stores/$storeId/todays_items/${_itemSnapshot?.id}/item_photo.jpg');
         await itemPhotoRef.putFile(_itemPhoto!);
         final itemPhotoUrl = await itemPhotoRef.getDownloadURL();
         await items.doc(itemId).updateItem(photoURL: itemPhotoUrl);
