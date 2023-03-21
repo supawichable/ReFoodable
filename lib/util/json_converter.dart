@@ -91,7 +91,7 @@ class PriceConverter extends JsonConverter<Price, Map<String, dynamic>> {
   @override
   Price fromJson(Map<String, dynamic> json) {
     return Price(
-      amount: (json['amount'] as num).toDouble(),
+      amount: (json['amount'] as num?)?.toDouble(),
       currency: Currency.values.firstWhere(
         (e) => e.toString() == 'Currency.${json['currency']}',
       ),

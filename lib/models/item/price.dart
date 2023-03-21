@@ -3,8 +3,8 @@ part of '_item.dart';
 @freezed
 class Price with _$Price {
   const factory Price({
-    required double amount,
-    required Currency currency,
+    double? amount,
+    @Default(Currency.jpy) Currency currency,
     double? compareAtPrice,
   }) = _Price;
 
