@@ -2,19 +2,19 @@ import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:gdsctokyo/routes/guard.dart';
 import 'package:gdsctokyo/screens/settings.dart';
-import 'package:gdsctokyo/screens/store_form.dart';
+import 'package:gdsctokyo/screens/store/store_form.dart';
 import 'package:gdsctokyo/screens/auth/forgot.dart';
 import 'package:gdsctokyo/screens/home/bookmark.dart';
 import 'package:gdsctokyo/screens/home/explore.dart';
 import 'package:gdsctokyo/screens/home/my_page.dart';
-import 'package:gdsctokyo/screens/my_stores.dart';
+import 'package:gdsctokyo/screens/store/my_stores.dart';
 import 'package:gdsctokyo/screens/auth/reset.dart';
 import 'package:gdsctokyo/screens/home/home.dart';
 import 'package:gdsctokyo/screens/auth/signin.dart';
 import 'package:gdsctokyo/screens/splash.dart';
-import 'package:gdsctokyo/screens/store_page.dart';
-import 'package:gdsctokyo/screens/store_page_my_item.dart';
-import 'package:gdsctokyo/screens/store_page_today_item.dart';
+import 'package:gdsctokyo/screens/store/store_page.dart';
+import 'package:gdsctokyo/screens/store/store_page_my_item.dart';
+import 'package:gdsctokyo/screens/store/store_page_today_item.dart';
 
 @MaterialAutoRouter(
   replaceInRouteName: 'Page,Route',
