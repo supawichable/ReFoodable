@@ -1,5 +1,4 @@
 import 'package:dart_geohash/dart_geohash.dart';
-import 'package:gdsctokyo/models/store/_store.dart';
 
 @Deprecated('Use [GeoFlutterFire] instead')
 class GeoFire {
