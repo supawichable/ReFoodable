@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gdsctokyo/components/network_utility.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/distance_matrix/distance_matrix_response.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:location/location.dart' as Loc;
 import 'package:gdsctokyo/widgets/description_text.dart';
 import 'package:gdsctokyo/widgets/panel_widget.dart';
@@ -36,11 +40,16 @@ class _ExplorePageState extends State<ExplorePage> {
 
   Loc.LocationData? currentLocation;
   late LatLng currLatLng;
-  late Stream<QuerySnapshot<Store>> _storeStream;
+  late Stream<List<DocumentSnapshot>> _storeStream;
+  List<DocumentSnapshot> _storeSnapshots = [];
 
-  // final Set<Marker> markers = new Set();
+  final geo = GeoFlutterFire();
+  final _firestore = FirebaseFirestore.instance;
+  late GeoFirePoint currGeoPoint;
 
   bool searchWidgetSwitch = false;
+  dynamic storeDistance = {};
+  dynamic storeLst = [];
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -48,15 +57,18 @@ class _ExplorePageState extends State<ExplorePage> {
 
   void getCurrentLocation() {
     Loc.Location location = Loc.Location();
-    location
-        .getLocation()
-        .then((location) => {
-              setState(() {
-                currentLocation = location;
-                currLatLng = LatLng(location.latitude!, location.longitude!);
-              }),
-              setMapCameraToLatLng(currLatLng),
-            })
+    location.getLocation().then((location) {
+      setState(() {
+        currentLocation = location;
+        currLatLng = LatLng(location.latitude!, location.longitude!);
+        currGeoPoint = geo.point(
+            latitude: location.latitude!, longitude: location.longitude!);
+      });
+      setMapCameraToLatLng(currLatLng);
+      setStoreDistance();
+    }).catchError((e) {
+      print("ERROR: $e");
+    })
         // ignore: body_might_complete_normally_catch_error
         .catchError((error) {});
   }
@@ -115,15 +127,85 @@ class _ExplorePageState extends State<ExplorePage> {
     });
   }
 
+  void setNearbyStores({double radius = 50000}) async {
+    var collectionReference = _firestore.collection('stores');
+    String field = 'location';
+    setState(() {
+      _storeStream = geo.collection(collectionRef: collectionReference).within(
+          center: currGeoPoint, radius: radius, field: field, strictMode: true);
+    });
+    _storeStream.listen((List<DocumentSnapshot> documentList) {
+      setState(() {
+        _storeSnapshots = documentList;
+      });
+    });
+  }
+
+  Future<Map> getDistances(LatLng origin, List<LatLng> destinationLatlngLst,
+      List<String> destinationStoreIdLst) async {
+    Map distances = {};
+    String destinationParam = '';
+    destinationLatlngLst.asMap().forEach((key, value) {
+      if (key > 0) {
+        destinationParam += '|';
+      }
+      destinationParam +=
+          value.latitude.toString() + ',' + value.longitude.toString();
+    });
+    Uri uri = Uri.https("maps.googleapis.com", "maps/api/distancematrix/json", {
+      "origins": origin.latitude.toString() + ',' + origin.longitude.toString(),
+      "destinations": destinationParam,
+      "key": dotenv.get("ANDROID_GOOGLE_API_KEY"),
+    });
+    String? response = await NetworkUtility.fetchUrl(uri);
+    if (response != null) {
+      DistanceMatrixResponse result =
+          DistanceMatrixResponse.parseDistanceMatrix(response);
+      if (result.status == "OK") {
+        result.responses!.asMap().forEach((key, value) {
+          distances[destinationStoreIdLst[key]] = value;
+        });
+      }
+    }
+    return distances;
+  }
+
+  Future<void> setStoreDistance() async {
+    List<LatLng> destinationLatlngLst = [];
+    List<String> destinationStoreIdLst = [];
+    List storeDetails = [];
+    for (final doc in _storeSnapshots) {
+      dynamic data = doc.data();
+      GeoPoint geoPoint = data['location']['geopoint'];
+      LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
+      destinationLatlngLst.add(latlng);
+      destinationStoreIdLst.add(doc.id);
+    }
+    Map distances = await getDistances(
+        currLatLng, destinationLatlngLst, destinationStoreIdLst);
+    for (final doc in _storeSnapshots) {
+      Map store = {};
+      store['id'] = doc.id;
+      store['distance'] = distances[doc.id];
+      store['data'] = doc.data();
+      storeDetails.add(store);
+    }
+    setState(() {
+      storeDistance = distances;
+      storeLst = storeDetails;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     getCurrentLocation();
-    _storeStream = FirebaseFirestore.instance.stores.snapshots();
   }
 
   @override
   Widget build(BuildContext context) {
+    setNearbyStores();
+    setStoreDistance();
     return Scaffold(
       body: SlidingUpPanel(
           controller: panelController,
@@ -142,6 +224,8 @@ class _ExplorePageState extends State<ExplorePage> {
                               color: Colors.white,
                             )
                           : GMap(
+                              // storeStream: _storeStream,
+                              storeLst: storeLst,
                               currLatLng: currLatLng,
                               onMapCreated: _onMapCreated,
                             )),
@@ -153,9 +237,9 @@ class _ExplorePageState extends State<ExplorePage> {
                     ),
                     searchWidgetSwitch
                         ? UseMyLocationButton(
-                          getCurrentLocation: getCurrentLocation,
-                          setSearchWidgetSwitch: setSearchWidgetSwitch,
-                        )
+                            getCurrentLocation: getCurrentLocation,
+                            setSearchWidgetSwitch: setSearchWidgetSwitch,
+                          )
                         : const SizedBox.shrink(),
                     Expanded(
                       child: searchWidgetSwitch
@@ -173,10 +257,10 @@ class _ExplorePageState extends State<ExplorePage> {
                     )
                   ]),
                 ]),
-          panelBuilder: (controller) {
-            return Column(
-              children: [
-                GestureDetector(
+          panel: Column(
+            children: [
+              GestureDetector(
+                child: Center(
                   child: Container(
                     margin: const EdgeInsets.only(
                       top: 8,
@@ -190,102 +274,126 @@ class _ExplorePageState extends State<ExplorePage> {
                       ),
                     ),
                   ),
-                  onVerticalDragDown: (DragDownDetails details) {
-                    panelController.close();
-                  },
                 ),
-                Container(
-                  height: 50,
-                  padding: const EdgeInsets.only(
-                    left: 10,
-                    right: 10,
+                onVerticalDragDown: (DragDownDetails details) {
+                  panelController.close();
+                },
+              ),
+              Container(
+                height: 50,
+                padding: const EdgeInsets.only(
+                  left: 10,
+                  right: 10,
+                ),
+                child: const SortingTab(),
+              ),
+              Container(
+                padding: const EdgeInsets.only(
+                  left: 15,
+                  top: 10,
+                  bottom: 10,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    _storeSnapshots.length <= 1
+                        ? _storeSnapshots.length.toString() + " place found"
+                        : _storeSnapshots.length.toString() + " places found",
                   ),
-                  child: const SortingTab(),
                 ),
-                Container(
-                  padding: const EdgeInsets.only(
-                    left: 15,
-                    top: 10,
-                    bottom: 10,
-                  ),
-                  child: const Align(
-                      alignment: Alignment.centerLeft,
-                      child: DescriptionText(
-                        text: 'n places found',
-                        size: 14,
-                      )),
-                ),
-                PanelWidget(
-                  controller: controller,
-                ),
-              ],
-            );
-          }),
+              ),
+              Expanded(child: PanelWidget(storeLst: storeLst))
+              // child: ListView.builder(
+              //     itemCount: storeLst.length,
+              //     itemBuilder: (BuildContext context, int index) {
+              //       return PanelWidget(storeData: storeLst[index]);
+              //     }))
+            ],
+          )),
     );
   }
 }
 
 class GMap extends StatefulWidget {
+  final storeLst;
   final LatLng currLatLng;
   final onMapCreated;
-  const GMap({super.key, required this.currLatLng, required this.onMapCreated});
+  // final storeDistances;
+  const GMap({
+    super.key,
+    required this.storeLst,
+    required this.currLatLng,
+    required this.onMapCreated,
+  });
 
   @override
   State<GMap> createState() => _GMapState();
 }
 
 class _GMapState extends State<GMap> {
-  late Stream<QuerySnapshot<Store>> _storeStream;
   final Set<Marker> markers = new Set();
 
-  Future<String?> calculateDistance(LatLng origin, LatLng destination) async {
-    Uri uri = Uri.https("maps.googleapis.com", "maps/api/distancematrix/json", {
-      "origins": origin.latitude.toString() + ',' + origin.longitude.toString(),
-      "destinations": destination.latitude.toString() +
-          ',' +
-          destination.longitude.toString(),
-      "key": dotenv.get("ANDROID_GOOGLE_API_KEY"),
-    });
-    String? response = await NetworkUtility.fetchUrl(uri);
-    if (response != null) {
-      DistanceMatrixResponse result =
-          DistanceMatrixResponse.parseDistanceMatrix(response);
-      if (result.distance != null) {
-        return result.distance!;
-      }
-    }
-  }
+  // Future<String?> calculateDistance(LatLng origin, LatLng destination) async {
+  //   Uri uri = Uri.https("maps.googleapis.com", "maps/api/distancematrix/json", {
+  //     "origins": origin.latitude.toString() + ',' + origin.longitude.toString(),
+  //     "destinations": destination.latitude.toString() +
+  //         ',' +
+  //         destination.longitude.toString(),
+  //     "key": dotenv.get("ANDROID_GOOGLE_API_KEY"),
+  //   });
+  //   String? response = await NetworkUtility.fetchUrl(uri);
+  //   if (response != null) {
+  //     DistanceMatrixResponse result =
+  //         DistanceMatrixResponse.parseDistanceMatrix(response);
+  //     if (result.distance != null) {
+  //       return result.distance!;
+  //     }
+  //   }
+  // }
 
   void getMarkers() async {
-    _storeStream.listen((snapshot) async {
-      for (final doc in snapshot.docs) {
-        dynamic data = doc.data();
-        GeoPoint geoPoint = data.location.geoPoint;
-        LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
-        String storeId = doc.id;
-        String? distanceFromCurr =
-            await calculateDistance(widget.currLatLng, latlng);
-        setState(() {
-          markers.add(Marker(
-            markerId: MarkerId(data.name),
-            position: latlng,
-            infoWindow: InfoWindow(
-              title: data.name,
-              snippet: distanceFromCurr.toString() + " from here",
+    for (final store in widget.storeLst) {
+      GeoPoint geoPoint = store.data.location.geopoint;
+      LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
+      markers.add(Marker(
+          markerId: MarkerId(store.data.name),
+          position: latlng,
+          infoWindow: InfoWindow(
+              title: store.data.name,
+              snippet: store.distance.text + " from here",
               onTap: () {
-                context.router.pushNamed('/store/$storeId');
-              },
-            ),
-          ));
-        });
-      }
-    });
+                context.router.pushNamed('/store/${store.id}');
+              })));
+    }
   }
+  // widget.storeStream.listen((documentList) async {
+  //   for (final doc in documentList) {
+  //     dynamic data = doc.data();
+  //     GeoPoint geoPoint = data.location.geopoint;
+  //     LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
+  //     String storeId = doc.id;
+  //     // String? distanceFromCurr =
+  //     //     await calculateDistance(widget.currLatLng, latlng);
+  //     setState(() {
+  //       markers.add(Marker(
+  //         markerId: MarkerId(data.name),
+  //         position: latlng,
+  //         infoWindow: InfoWindow(
+  //           title: data.name,
+  //           // snippet: distanceFromCurr.toString() + " from here",
+  //           onTap: () {
+  //             context.router.pushNamed('/store/$storeId');
+  //           },
+  //         ),
+  //       ));
+  //     });
+  //   }
+  // });
+  // }
 
   @override
   void initState() {
     super.initState();
-    _storeStream = FirebaseFirestore.instance.stores.snapshots();
     getMarkers();
   }
 

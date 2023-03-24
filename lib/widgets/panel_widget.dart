@@ -3,114 +3,108 @@ import 'package:gdsctokyo/widgets/big_text_bold.dart';
 import 'package:gdsctokyo/widgets/icon_text.dart';
 
 class PanelWidget extends StatelessWidget {
-  final ScrollController controller;
+  final List storeLst;
 
   const PanelWidget({
     Key? key,
-    required this.controller,
+    required this.storeLst,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      child: ListView(
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        controller: controller,
-        children: List<Widget>.generate(
-          10,
-          (index) => Padding(
-            padding: const EdgeInsets.only(
-              left: 10,
-              right: 10,
-              top: 5,
-              bottom: 5,
+    return ListView(
+      scrollDirection: Axis.vertical,
+      shrinkWrap: true,
+      children: List<Widget>.generate(
+        storeLst.length,
+        (index) => Padding(
+          padding: const EdgeInsets.only(
+            left: 10,
+            right: 10,
+            top: 5,
+            bottom: 5,
+          ),
+          child: Container(
+            height: 130,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 1,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-            child: Container(
-              height: 130,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(
+                    left: 10,
+                    right: 10,
                   ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(
-                      left: 10,
-                      right: 10,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                            margin: const EdgeInsets.only(
-                              top: 10,
-                            ),
-                            child: const BigBoldText(text: 'Restuarant Name')),
-                        Container(
-                          margin: const EdgeInsets.only(
-                            top: 15,
-                          ),
-                          child: IconText(
-                              icon: Icons.location_pin,
-                              iconColor: Colors.red[300],
-                              text: '500m from here'),
-                        ),
-                        Container(
-                            margin: const EdgeInsets.only(top: 2),
-                            child: IconText(
-                                icon: Icons.bento,
-                                iconColor: Colors.red[300],
-                                text: 'bento (food type)')),
-                        Container(
-                            margin: const EdgeInsets.only(
-                              top: 15,
-                            ),
-                            child: IconText(
-                                icon: Icons.discount,
-                                iconColor: Colors.red[300],
-                                text: '40% - 80% Discounted')),
-                      ],
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        margin: const EdgeInsets.only(
-                          right: 20,
-                        ),
-                        width: 80,
-                        height: 80,
-                        decoration: const BoxDecoration(
-                            image: DecorationImage(
-                          image: AssetImage('lib/assets/images/tomyum.jpg'),
-                          fit: BoxFit.cover,
-                        )),
-                      ),
+                          margin: const EdgeInsets.only(
+                            top: 10,
+                          ),
+                          child: BigBoldText(
+                              text: storeLst[index]["data"]["name"])),
                       Container(
                         margin: const EdgeInsets.only(
-                          top: 10,
-                          right: 20,
+                          top: 15,
                         ),
                         child: IconText(
-                            icon: Icons.schedule,
+                            icon: Icons.location_pin,
                             iconColor: Colors.red[300],
-                            text: 'close 23:00'),
+                            text: storeLst[index]["distance"].status == "OK"
+                            ? storeLst[index]["distance"].text + " from here"
+                            :"no detected route"
+                        ),
                       ),
+                      Container(
+                          margin: const EdgeInsets.only(top: 2),
+                          child: IconText(
+                              icon: Icons.bento,
+                              iconColor: Colors.red[300],
+                              text: storeLst[index]["data"]["category"]
+                                  .join(", "))),
                     ],
                   ),
-                ],
-              ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(
+                        right: 20,
+                      ),
+                      width: 80,
+                      height: 80,
+                      decoration: const BoxDecoration(
+                          image: DecorationImage(
+                        image: AssetImage('lib/assets/images/tomyum.jpg'),
+                        fit: BoxFit.cover,
+                      )),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(
+                        top: 10,
+                        right: 20,
+                      ),
+                      child: IconText(
+                          icon: Icons.schedule,
+                          iconColor: Colors.red[300],
+                          text: 'close 23:00'),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
