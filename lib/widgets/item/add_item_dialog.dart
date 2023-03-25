@@ -70,11 +70,11 @@ class _AddItemDialogState extends State<AddItemDialog> {
 
   DiscountView currentDiscountView = DiscountView.byPrice;
 
-  void _handleDiscountViewChanged(Set<DiscountView> newView) {
-    setState(() {
-      currentDiscountView = newView.first;
-    });
-  }
+  // void _handleDiscountViewChanged(Set<DiscountView> newView) {
+  //   setState(() {
+  //     currentDiscountView = newView.first;
+  //   });
+  // }
 
   DocumentSnapshot<Item>? _itemSnapshot;
   bool _isLoading = true;

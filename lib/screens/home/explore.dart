@@ -1,16 +1,29 @@
+import 'dart:async';
+
+import 'package:auto_route/auto_route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gdsctokyo/components/network_utility.dart';
+import 'package:gdsctokyo/extension/firebase_extension.dart';
+import 'package:gdsctokyo/models/distance_matrix/distance_matrix_response.dart';
+import 'package:gdsctokyo/util/logger.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:location/location.dart' as Loc;
 import 'package:location/location.dart';
 import 'package:gdsctokyo/widgets/explore/panel_widget.dart';
 import 'package:gdsctokyo/widgets/explore/sorting_tab.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:gdsctokyo/components/location_list_tile.dart';
-import 'package:gdsctokyo/models/place_autocomplete/autocomplete_prediction.dart';
-import 'package:gdsctokyo/models/place_autocomplete/place_auto_complete_response.dart';
-import 'package:gdsctokyo/models/place_details/place_details_response.dart';
+import '../../components/location_list_tile.dart';
+import '../../models/place_autocomplete/autocomplete_prediction.dart';
+import '../../models/place_autocomplete/place_auto_complete_response.dart';
+import '../../models/place_details/place_details_response.dart';
+import '../../models/store/_store.dart';
+import '../../routes/router.gr.dart';
+
+final _geo = GeoFlutterFire();
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -23,12 +36,14 @@ class _ExplorePageState extends State<ExplorePage> {
   TextEditingController textController = TextEditingController();
   final PanelController panelController = PanelController();
 
-  late GoogleMapController mapController;
+  GoogleMapController? mapController;
 
   List<AutocompletePrediction> placePredictions = [];
 
-  LocationData? currentLocation;
-  LatLng currLatLng = const LatLng(0.0, 0.0);
+  Loc.LocationData? currentLocation;
+  late LatLng currLatLng;
+
+  // final Set<Marker> markers = new Set();
 
   bool searchWidgetSwitch = false;
 
@@ -37,7 +52,7 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   void getCurrentLocation() {
-    Location location = Location();
+    Loc.Location location = Loc.Location();
     location
         .getLocation()
         .then((location) => {
@@ -45,9 +60,11 @@ class _ExplorePageState extends State<ExplorePage> {
                 currentLocation = location;
                 currLatLng = LatLng(location.latitude!, location.longitude!);
               }),
+              setMapCameraToLatLng(currLatLng),
             })
-        // ignore: body_might_complete_normally_catch_error
-        .catchError((error) {});
+        .catchError((e) => {
+              logger.e(e),
+            });
   }
 
   Future<void> placeAutocomplete(String query) async {
@@ -80,12 +97,28 @@ class _ExplorePageState extends State<ExplorePage> {
       if (result.lat != null && result.lng != null) {
         setState(() {
           currLatLng = LatLng(result.lat!, result.lng!);
-          mapController.animateCamera(CameraUpdate.newCameraPosition(
-              CameraPosition(target: currLatLng, zoom: 13.5)));
+          setMapCameraToLatLng(currLatLng);
           searchWidgetSwitch = false;
         });
       }
     }
+  }
+
+  void setMapCameraToLatLng(LatLng latlng) {
+    mapController?.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: latlng, zoom: 13.5)));
+  }
+
+  void setSearchWidgetSwitch(bool newValue) {
+    setState(() {
+      searchWidgetSwitch = newValue;
+    });
+  }
+
+  void setMapController(GoogleMapController newController) {
+    setState(() {
+      mapController = newController;
+    });
   }
 
   @override
@@ -107,55 +140,28 @@ class _ExplorePageState extends State<ExplorePage> {
               ? const Center(child: Text('Loading'))
               : Stack(children: [
                   SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    width: double.infinity,
-                    child: searchWidgetSwitch
-                        ? Container(
-                            color: Colors.white,
-                          )
-                        : GoogleMap(
-                            onMapCreated: _onMapCreated,
-                            initialCameraPosition: CameraPosition(
-                              target: currLatLng,
-                              zoom: 13.5,
-                            ),
-                          ),
-                  ),
+                      height: MediaQuery.of(context).size.height,
+                      width: double.infinity,
+                      child: searchWidgetSwitch
+                          ? Container(
+                              color: Colors.white,
+                            )
+                          : GMap(
+                              currLatLng: currLatLng,
+                              onMapCreated: _onMapCreated,
+                            )),
                   Column(children: [
-                    // LocationSearchBox(),sdlj
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                          onTap: () {
-                            setState(() {
-                              searchWidgetSwitch = true;
-                            });
-                          },
-                          onChanged: (value) {
-                            placeAutocomplete(value);
-                            setState(() {
-                              searchWidgetSwitch = true;
-                            });
-                          },
-                          textInputAction: TextInputAction.search,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            hintText: 'Search Location',
-                            suffixIcon: const Icon(Icons.search),
-                            contentPadding: const EdgeInsets.only(
-                                left: 20, bottom: 5, right: 5),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Colors.white),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Colors.white),
-                            ),
-                          )),
+                    LocationSearchBox(
+                      searchWidgetSwitch: searchWidgetSwitch,
+                      setSearchWidgetSwitch: setSearchWidgetSwitch,
+                      placeAutocomplete: placeAutocomplete,
                     ),
-                    // UseMyLocationButton(),
+                    searchWidgetSwitch
+                        ? UseMyLocationButton(
+                            getCurrentLocation: getCurrentLocation,
+                            setSearchWidgetSwitch: setSearchWidgetSwitch,
+                          )
+                        : const SizedBox.shrink(),
                     Expanded(
                       child: searchWidgetSwitch
                           ? ListView.builder(
@@ -169,7 +175,7 @@ class _ExplorePageState extends State<ExplorePage> {
                                     setMapCameraviewToPlaceId(placeId);
                                   }))
                           : const SizedBox.shrink(),
-                    ),
+                    )
                   ]),
                 ]),
           panelBuilder: (controller) {
@@ -217,37 +223,138 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 }
 
+class GMap extends StatefulWidget {
+  final LatLng currLatLng;
+  final onMapCreated;
+  const GMap({super.key, required this.currLatLng, required this.onMapCreated});
+
+  @override
+  State<GMap> createState() => _GMapState();
+}
+
+class _GMapState extends State<GMap> {
+  late LatLng cameraPos = widget.currLatLng;
+  late StreamSubscription<List<DocumentSnapshot>> _storeStream;
+  final Set<Marker> markers = {};
+
+  Future<String?> calculateDistance(LatLng origin, LatLng destination) async {
+    Uri uri = Uri.https('maps.googleapis.com', 'maps/api/distancematrix/json', {
+      'origins': '${origin.latitude},${origin.longitude}',
+      'destinations': '${destination.latitude},${destination.longitude}',
+      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
+    });
+    String? response = await NetworkUtility.fetchUrl(uri);
+    if (response != null) {
+      DistanceMatrixResponse result =
+          DistanceMatrixResponse.parseDistanceMatrix(response);
+      if (result.distance != null) {
+        return result.distance!;
+      }
+    }
+    return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _storeStream = FirebaseFirestore.instance.stores
+        .withinAsSingleStreamSubscription(
+            _geo.point(
+                latitude: cameraPos.latitude, longitude: cameraPos.longitude),
+            10000)
+        .listen((snapshots) async {
+      for (final doc in snapshots) {
+        final data = Store.fromJson(doc.data()! as Map<String, dynamic>);
+        GeoPoint? geoPoint = data.location?.geoPoint;
+        if (geoPoint == null) {
+          return;
+        }
+        LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
+        String storeId = doc.id;
+        String? distanceFromCurr =
+            await calculateDistance(widget.currLatLng, latlng);
+
+        setState(() {
+          markers.add(Marker(
+            markerId: MarkerId(doc.id),
+            position: latlng,
+            infoWindow: InfoWindow(
+              title: data.name,
+              snippet: '$distanceFromCurr from here',
+              onTap: () {
+                context.router.pushNamed('/store/$storeId');
+              },
+            ),
+          ));
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _storeStream.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GoogleMap(
+      onMapCreated: widget.onMapCreated,
+      initialCameraPosition: CameraPosition(
+        target: widget.currLatLng,
+        zoom: 13.5,
+      ),
+      markers: markers,
+    );
+  }
+}
+
 class UseMyLocationButton extends StatelessWidget {
-  const UseMyLocationButton({
-    super.key,
-  });
+  final getCurrentLocation;
+  final ValueChanged<bool> setSearchWidgetSwitch;
+  const UseMyLocationButton(
+      {super.key,
+      required this.getCurrentLocation,
+      required this.setSearchWidgetSwitch});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.all(8.0),
         child: ElevatedButton.icon(
-          onPressed: () {},
-          icon: SvgPicture.asset(
-            'assets/icons/location.svg',
-            height: 16,
-          ),
-          label: const Text('Use my Current Location'),
+          onPressed: () {
+            getCurrentLocation();
+            setSearchWidgetSwitch(false);
+          },
+          icon: Icon(Icons.place),
+          label: const Text("Use my Current Location"),
         ));
   }
 }
 
 class LocationSearchBox extends StatelessWidget {
-  const LocationSearchBox({
-    super.key,
-  });
+  final bool searchWidgetSwitch;
+  final ValueChanged<bool> setSearchWidgetSwitch;
+  final ValueChanged<String> placeAutocomplete;
+  const LocationSearchBox(
+      {super.key,
+      required this.searchWidgetSwitch,
+      required this.setSearchWidgetSwitch,
+      required this.placeAutocomplete});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
-          onChanged: (value) {},
+          onTap: () {
+            setSearchWidgetSwitch(true);
+          },
+          onChanged: (value) {
+            placeAutocomplete(value);
+            setSearchWidgetSwitch(true);
+          },
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
             filled: true,

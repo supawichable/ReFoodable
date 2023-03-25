@@ -177,11 +177,21 @@ class _StoreFormPageState extends State<StoreFormPage> {
                             children: [
                               ElevatedButton(
                                 onPressed: () async {
-                                  final lat = Random().nextInt(180) - 90;
-                                  final lon = Random().nextInt(360) - 180;
+                                  const centerLat = 35.67;
+                                  const centerLon = 139.70;
+
+                                  // around 15 km from this center
+                                  final lat = centerLat +
+                                      (Random().nextDouble() - 0.5) * 0.1;
+                                  final lon = centerLon +
+                                      (Random().nextDouble() - 0.5) * 0.1;
+
+                                  // use only 4 significant digits
                                   final location = _geo.point(
-                                      latitude: lat.toDouble(),
-                                      longitude: lon.toDouble());
+                                      latitude:
+                                          double.parse(lat.toStringAsFixed(4)),
+                                      longitude:
+                                          double.parse(lon.toStringAsFixed(4)));
 
                                   field.didChange(location);
                                 },
