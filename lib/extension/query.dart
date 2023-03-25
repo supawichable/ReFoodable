@@ -21,17 +21,14 @@ extension StoreQueryX on StoreQuery {
   /// [Stream] of [QuerySnapshot] of the stores within the [radius] of [center].
   /// The [radius] is in meters.
   ///
-  /// Example:
-  /// ```dart
-  ///
-  Stream<QuerySnapshot<Store>> withinAsSingleStreamSubscription(
+  /// /// Warning: this makes you lose the type cast so you have to cast it manually.
+  /// ```
+  Stream<List<DocumentSnapshot<Object?>>> withinAsSingleStreamSubscription(
       GeoFirePoint center, double radius) {
     return _geo
-        .collection(collectionRef: this)
+        .collection(collectionRef: firestore.collection(ApiPath.stores))
         .withinAsSingleStreamSubscription(
-            center: center,
-            radius: radius,
-            field: 'location') as Stream<QuerySnapshot<Store>>;
+            center: center, radius: radius, field: 'location');
   }
 }
 
