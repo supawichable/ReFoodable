@@ -392,6 +392,9 @@ class _SignInPageState extends ConsumerState<SignInPage> {
               .putFile(_formKey.currentState!.fields['profileImage']!.value);
           await FirebaseAuth.instance.currentUser!
               .updatePhotoURL(await ref.getDownloadURL());
+        } else {
+          await FirebaseAuth.instance.currentUser!
+              .updatePhotoURL('$placeholderUrlbase$seed');
         }
 
         if (mounted) {
