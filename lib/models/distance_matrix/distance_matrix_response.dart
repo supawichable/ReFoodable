@@ -21,10 +21,15 @@ class DistanceMatrixResponse {
     json['rows'].asMap().forEach((key, value) {
       returnResponses.add(DistanceMatrixItem(
           status: value['elements'][0]['status'],
-          text: value['elements'][0]['status'] == 'OK'? value['elements'][0]['distance']['text']: null,
-          value: value['elements'][0]['status'] == 'OK'? value['elements'][0]['distance']['value']: null));
+          text: value['elements'][0]['status'] == 'OK'
+              ? value['elements'][0]['distance']['text']
+              : null,
+          value: value['elements'][0]['status'] == 'OK'
+              ? value['elements'][0]['distance']['value']
+              : null));
     });
-    return DistanceMatrixResponse(status: json['status'], responses: returnResponses);
+    return DistanceMatrixResponse(
+        status: json['status'], responses: returnResponses);
   }
 
   static DistanceMatrixResponse parseDistanceMatrix(String responseBody) {

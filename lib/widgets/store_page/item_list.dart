@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
-import 'package:gdsctokyo/widgets/item_card.dart';
+import 'package:gdsctokyo/widgets/item/item_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 enum SortBy { cheapest, recent }
@@ -38,7 +38,7 @@ class _StreamedItemListState extends ConsumerState<StreamedItemList> {
                 // filter out bad items
                 snapshot.data!.docs.removeWhere((element) =>
                     element.data().name == null ||
-                    element.data().price == null ||
+                    element.data().price?.amount == null ||
                     element.data().createdAt == null);
 
                 return SortedItemList(items: snapshot.data!.docs);
@@ -63,7 +63,7 @@ class SortedItemList extends HookConsumerWidget {
     switch (ref.watch(selectedSortByProvider)) {
       case SortBy.cheapest:
         items.sort((a, b) =>
-            a.data()!.price!.amount.compareTo(b.data()!.price!.amount));
+            a.data()!.price!.amount!.compareTo(b.data()!.price!.amount!));
         break;
       case SortBy.recent:
         items.sort(

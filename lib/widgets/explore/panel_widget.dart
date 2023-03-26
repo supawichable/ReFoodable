@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/widgets/big_text_bold.dart';
-import 'package:gdsctokyo/widgets/icon_text.dart';
+import 'package:gdsctokyo/widgets/common/icon_text.dart';
 
 class PanelWidget extends StatelessWidget {
   final List storeLst;
@@ -58,8 +57,7 @@ class PanelWidget extends StatelessWidget {
                             margin: const EdgeInsets.only(
                               top: 10,
                             ),
-                            child: BigBoldText(
-                                text: storeLst[index]["data"]["name"])),
+                            child: Text(storeLst[index]["data"]["name"])),
                         Container(
                           margin: const EdgeInsets.only(
                             top: 15,

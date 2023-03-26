@@ -33,6 +33,21 @@ extension StoreX on Store {
 /// enums for food category
 /// add more as needed
 enum FoodCategory {
-  @JsonValue('japanese')
   japanese,
+}
+
+extension Prop on FoodCategory {
+  String get name {
+    switch (this) {
+      case FoodCategory.japanese:
+        return 'Japanese';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case FoodCategory.japanese:
+        return Icons.restaurant;
+    }
+  }
 }

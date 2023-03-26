@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
-import 'package:gdsctokyo/widgets/add_item_dialog.dart';
+import 'package:gdsctokyo/widgets/item/add_item_dialog.dart';
 import 'package:gdsctokyo/widgets/store_page/item_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -19,7 +19,7 @@ class ItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     late final item = snapshot.data()!;
     late final storeId = snapshot.reference.parent.parent!.id;
-    late final String name = item.name!;
+    late final String name = item.name ?? '(Untitled)';
     late final Price price = item.price!;
     late final String addedBy = item.addedBy!;
     late final Future<String?> addedByName = FirebaseFirestore.instance.users
