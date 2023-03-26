@@ -4,24 +4,21 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gdsctokyo/components/network_utility.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/distance_matrix/distance_matrix_response.dart';
 import 'package:gdsctokyo/util/logger.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
-import 'package:location/location.dart' as Loc;
-import 'package:location/location.dart';
+import 'package:location/location.dart' as loc;
 import 'package:gdsctokyo/widgets/explore/panel_widget.dart';
 import 'package:gdsctokyo/widgets/explore/sorting_tab.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import '../../components/location_list_tile.dart';
-import '../../models/place_autocomplete/autocomplete_prediction.dart';
-import '../../models/place_autocomplete/place_auto_complete_response.dart';
-import '../../models/place_details/place_details_response.dart';
-import '../../models/store/_store.dart';
-import '../../routes/router.gr.dart';
+import 'package:gdsctokyo/components/location_list_tile.dart';
+import 'package:gdsctokyo/models/place_autocomplete/autocomplete_prediction.dart';
+import 'package:gdsctokyo/models/place_autocomplete/place_auto_complete_response.dart';
+import 'package:gdsctokyo/models/place_details/place_details_response.dart';
+import 'package:gdsctokyo/models/store/_store.dart';
 
 final _geo = GeoFlutterFire();
 
@@ -40,7 +37,7 @@ class _ExplorePageState extends State<ExplorePage> {
 
   List<AutocompletePrediction> placePredictions = [];
 
-  Loc.LocationData? currentLocation;
+  loc.LocationData? currentLocation;
   late LatLng currLatLng;
 
   // final Set<Marker> markers = new Set();
@@ -52,7 +49,7 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   void getCurrentLocation() {
-    Loc.Location location = Loc.Location();
+    loc.Location location = loc.Location();
     location
         .getLocation()
         .then((location) => {
@@ -225,7 +222,7 @@ class _ExplorePageState extends State<ExplorePage> {
 
 class GMap extends StatefulWidget {
   final LatLng currLatLng;
-  final onMapCreated;
+  final void Function(GoogleMapController) onMapCreated;
   const GMap({super.key, required this.currLatLng, required this.onMapCreated});
 
   @override
@@ -311,7 +308,7 @@ class _GMapState extends State<GMap> {
 }
 
 class UseMyLocationButton extends StatelessWidget {
-  final getCurrentLocation;
+  final void Function() getCurrentLocation;
   final ValueChanged<bool> setSearchWidgetSwitch;
   const UseMyLocationButton(
       {super.key,
@@ -327,8 +324,8 @@ class UseMyLocationButton extends StatelessWidget {
             getCurrentLocation();
             setSearchWidgetSwitch(false);
           },
-          icon: Icon(Icons.place),
-          label: const Text("Use my Current Location"),
+          icon: const Icon(Icons.place),
+          label: const Text('Use my Current Location'),
         ));
   }
 }
