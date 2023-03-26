@@ -116,70 +116,67 @@ class ItemCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        snapshot.reference.parent.id == ApiPath.myItems
-                            ? GestureDetector(
-                                onTap: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) => AddItemDialog(
-                                            storeId: storeId,
-                                            itemId: snapshot.id,
-                                            bucket: ItemBucket.my2today,
-                                          ));
-                                },
-                                child: Text('Add to Today\'s Item',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.apply(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface,
-                                        )),
-                              )
-                            : FutureBuilder(
-                                future: addedByName,
-                                builder: (BuildContext context, snapshot) {
-                                  return Text.rich(
-                                    TextSpan(
-                                      text: 'Added by ',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.apply(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface,
-                                          ),
-                                      children: [
-                                        TextSpan(
-                                          text: snapshot.data ?? 'Unknown',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.apply(
+                        if (snapshot.reference.parent.id == ApiPath.myItems)
+                          GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) => AddItemDialog(
+                                        storeId: storeId,
+                                        itemId: snapshot.id,
+                                        bucket: ItemBucket.my2today,
+                                      ));
+                            },
+                            child: Text('Add to Today\'s Item',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.apply(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                    )),
+                          )
+                        else
+                          Row(children: [
+                            Text('Added by: ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.apply(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                    )),
+                            SizedBox(
+                              width: 100,
+                              child: FutureBuilder<String?>(
+                                  future: addedByName,
+                                  builder: (context, snapshot) {
+                                    return Text(snapshot.data ?? 'Unknown',
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.apply(
                                                 color: Theme.of(context)
                                                     .colorScheme
                                                     .onSurface,
-                                                fontWeightDelta: 2,
-                                              ),
-                                        ),
-                                        TextSpan(
-                                          text: ' at $timeString',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.apply(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
+                                                fontWeightDelta: 2));
+                                  }),
+                            ),
+                            // at $timeString
+                            Text(' at $timeString',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.apply(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                    )),
+                          ]),
                         GestureDetector(
                           onTap: () async {
                             final willDelete = await showDialog(
