@@ -75,11 +75,11 @@ class SortedItemList extends HookConsumerWidget {
       child: ListView(
         children: [
           for (final item in items)
-            if (item
-                .data()!
-                .name!
-                .toLowerCase()
-                .contains(ref.watch(searchTextProvider).toLowerCase()))
+            if (item.data()!.name!.toLowerCase().replaceAll(' ', '').contains(
+                ref
+                    .watch(searchTextProvider)
+                    .toLowerCase()
+                    .replaceAll(' ', '')))
               ItemCard(key: ValueKey(item.id), snapshot: item)
         ],
       ),
