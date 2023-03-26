@@ -30,7 +30,7 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
-  TextEditingController textController = TextEditingController();
+  final TextEditingController textController = TextEditingController();
   final PanelController panelController = PanelController();
 
   GoogleMapController? mapController;
@@ -59,136 +59,15 @@ class _ExplorePageState extends State<ExplorePage> {
         currentLocation = location;
         if (location.latitude != null && location.longitude != null) {
           currLatLng = LatLng(location.latitude!, location.longitude!);
+
           currGeoPoint = _geo.point(
               latitude: location.latitude!, longitude: location.longitude!);
         }
       });
-      if (currLatLng != null) {
-        setMapCameraToLatLng(currLatLng!);
-      }
+      setMapCameraToLatLng(currLatLng!);
       setStoreDistance();
     }).catchError((e) {
       logger.e(e);
-    });
-  }
-
-  Future<void> placeAutocomplete(String query) async {
-    Uri uri =
-        Uri.https('maps.googleapis.com', 'maps/api/place/autocomplete/json', {
-      'input': query,
-      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
-    });
-    String? response = await NetworkUtility.fetchUrl(uri);
-    if (response != null) {
-      PlaceAutocompleteResponse result =
-          PlaceAutocompleteResponse.parseAutocompleteResult(response);
-      if (result.predictions != null) {
-        setState(() {
-          placePredictions = result.predictions!;
-        });
-      }
-    }
-  }
-
-  Future<void> setMapCameraviewToPlaceId(String placeId) async {
-    Uri uri = Uri.https('maps.googleapis.com', 'maps/api/place/details/json', {
-      'place_id': placeId,
-      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
-    });
-    String? response = await NetworkUtility.fetchUrl(uri);
-    if (response != null) {
-      PlaceDetailsResponse result =
-          PlaceDetailsResponse.parsePlaceDetails(response);
-      if (result.lat != null && result.lng != null) {
-        setState(() {
-          currLatLng = LatLng(result.lat!, result.lng!);
-          setMapCameraToLatLng(currLatLng!);
-          searchWidgetSwitch = false;
-        });
-      }
-    }
-  }
-
-  void setMapCameraToLatLng(LatLng latlng) {
-    mapController?.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: latlng, zoom: 13.5)));
-  }
-
-  void setSearchWidgetSwitch(bool newValue) {
-    setState(() {
-      searchWidgetSwitch = newValue;
-    });
-  }
-
-  void setMapController(GoogleMapController newController) {
-    setState(() {
-      mapController = newController;
-    });
-  }
-
-  Future<void> setNearbyStores({double radius = 50000}) async {
-    setState(() {
-      _storeStream = _firestore.stores
-          .withinAsSingleStreamSubscription(currGeoPoint!, radius);
-    });
-    _storeStream.listen((List<DocumentSnapshot> documentList) {
-      setState(() {
-        _storeSnapshots = documentList;
-      });
-    });
-  }
-
-  Future<Map> getDistances(LatLng origin, List<LatLng> destinationLatlngLst,
-      List<String> destinationStoreIdLst) async {
-    Map distances = {};
-    String destinationParam = '';
-    destinationLatlngLst.asMap().forEach((key, value) {
-      if (key > 0) {
-        destinationParam += '|';
-      }
-      destinationParam += '${value.latitude},${value.longitude}';
-    });
-    Uri uri = Uri.https('maps.googleapis.com', 'maps/api/distancematrix/json', {
-      'origins': '${origin.latitude},${origin.longitude}',
-      'destinations': destinationParam,
-      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
-    });
-    String? response = await NetworkUtility.fetchUrl(uri);
-    if (response != null) {
-      DistanceMatrixResponse result =
-          DistanceMatrixResponse.parseDistanceMatrix(response);
-      if (result.status == 'OK') {
-        result.responses!.asMap().forEach((key, value) {
-          distances[destinationStoreIdLst[key]] = value;
-        });
-      }
-    }
-    return distances;
-  }
-
-  Future<void> setStoreDistance() async {
-    List<LatLng> destinationLatlngLst = [];
-    List<String> destinationStoreIdLst = [];
-    List storeDetails = [];
-    for (final doc in _storeSnapshots) {
-      dynamic data = doc.data();
-      GeoPoint geoPoint = data['location']['geopoint'];
-      LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
-      destinationLatlngLst.add(latlng);
-      destinationStoreIdLst.add(doc.id);
-    }
-    Map distances = await getDistances(
-        currLatLng!, destinationLatlngLst, destinationStoreIdLst);
-    for (final doc in _storeSnapshots) {
-      Map store = {};
-      store['id'] = doc.id;
-      store['distance'] = distances[doc.id];
-      store['data'] = doc.data();
-      storeDetails.add(store);
-    }
-    setState(() {
-      storeDistance = distances;
-      storeLst = storeDetails;
     });
   }
 
@@ -316,6 +195,126 @@ class _ExplorePageState extends State<ExplorePage> {
             ],
           )),
     );
+  }
+
+  Future<void> placeAutocomplete(String query) async {
+    Uri uri =
+        Uri.https('maps.googleapis.com', 'maps/api/place/autocomplete/json', {
+      'input': query,
+      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
+    });
+    String? response = await NetworkUtility.fetchUrl(uri);
+    if (response != null) {
+      PlaceAutocompleteResponse result =
+          PlaceAutocompleteResponse.parseAutocompleteResult(response);
+      if (result.predictions != null) {
+        setState(() {
+          placePredictions = result.predictions!;
+        });
+      }
+    }
+  }
+
+  Future<void> setMapCameraviewToPlaceId(String placeId) async {
+    Uri uri = Uri.https('maps.googleapis.com', 'maps/api/place/details/json', {
+      'place_id': placeId,
+      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
+    });
+    String? response = await NetworkUtility.fetchUrl(uri);
+    if (response != null) {
+      PlaceDetailsResponse result =
+          PlaceDetailsResponse.parsePlaceDetails(response);
+      if (result.lat != null && result.lng != null) {
+        setState(() {
+          currLatLng = LatLng(result.lat!, result.lng!);
+          setMapCameraToLatLng(currLatLng!);
+          searchWidgetSwitch = false;
+        });
+      }
+    }
+  }
+
+  void setMapCameraToLatLng(LatLng latlng) {
+    mapController?.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: latlng, zoom: 13.5)));
+  }
+
+  void setSearchWidgetSwitch(bool newValue) {
+    setState(() {
+      searchWidgetSwitch = newValue;
+    });
+  }
+
+  void setMapController(GoogleMapController newController) {
+    setState(() {
+      mapController = newController;
+    });
+  }
+
+  Future<void> setNearbyStores({double radius = 50000}) async {
+    setState(() {
+      _storeStream = _firestore.stores
+          .withinAsSingleStreamSubscription(currGeoPoint!, radius);
+    });
+    _storeStream.listen((List<DocumentSnapshot> documentList) {
+      setState(() {
+        _storeSnapshots = documentList;
+      });
+    });
+  }
+
+  Future<Map> getDistances(LatLng origin, List<LatLng> destinationLatlngLst,
+      List<String> destinationStoreIdLst) async {
+    Map distances = {};
+    String destinationParam = '';
+    destinationLatlngLst.asMap().forEach((key, value) {
+      if (key > 0) {
+        destinationParam += '|';
+      }
+      destinationParam += '${value.latitude},${value.longitude}';
+    });
+    Uri uri = Uri.https('maps.googleapis.com', 'maps/api/distancematrix/json', {
+      'origins': '${origin.latitude},${origin.longitude}',
+      'destinations': destinationParam,
+      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
+    });
+    String? response = await NetworkUtility.fetchUrl(uri);
+    if (response != null) {
+      DistanceMatrixResponse result =
+          DistanceMatrixResponse.parseDistanceMatrix(response);
+      if (result.status == 'OK') {
+        result.responses!.asMap().forEach((key, value) {
+          distances[destinationStoreIdLst[key]] = value;
+        });
+      }
+    }
+    return distances;
+  }
+
+  Future<void> setStoreDistance() async {
+    List<LatLng> destinationLatlngLst = [];
+    List<String> destinationStoreIdLst = [];
+    List storeDetails = [];
+    for (final doc in _storeSnapshots) {
+      dynamic data = doc.data();
+      GeoPoint geoPoint = data['location']['geopoint'];
+      LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
+      destinationLatlngLst.add(latlng);
+      destinationStoreIdLst.add(doc.id);
+    }
+    Map distances = await getDistances(
+        currLatLng!, destinationLatlngLst, destinationStoreIdLst);
+    for (final doc in _storeSnapshots) {
+      Map store = {};
+      store['id'] = doc.id;
+      store['distance'] = distances[doc.id];
+      store['data'] = doc.data();
+      storeDetails.add(store);
+    }
+    setState(() {
+      storeDistance = distances;
+      storeLst = storeDetails;
+    });
   }
 }
 
