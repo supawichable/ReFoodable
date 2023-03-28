@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
+import 'package:gdsctokyo/util/logger.dart';
 import 'package:gdsctokyo/widgets/item/add_item_dialog.dart';
 import 'package:gdsctokyo/widgets/store_page/item_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -20,8 +22,8 @@ class ItemCard extends StatelessWidget {
     late final item = snapshot.data()!;
     late final storeId = snapshot.reference.parent.parent!.id;
     late final String name = item.name ?? '(Untitled)';
-    late final Price price = item.price!;
-    late final String addedBy = item.addedBy!;
+    late final Price? price = item.price;
+    late final String? addedBy = item.addedBy;
     late final Future<String?> addedByName = FirebaseFirestore.instance.users
         .doc(addedBy)
         .get()
@@ -68,39 +70,38 @@ class ItemCard extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        if (price.compareAtPrice != null) ...[
+                        if (price?.compareAtPrice != null) ...[
                           Image.asset('lib/assets/images/Sale.png',
                               height: 16, width: 16),
                           const SizedBox(width: 4),
-                          snapshot.reference.parent.id == ApiPath.myItems
-                              ? Text(
-                                  '${price.currency.symbol}${price.compareAtPrice}',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onBackground),
-                                )
-                              : Text(
-                                  '${price.currency.symbol}${price.compareAtPrice}',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                          decoration:
-                                              TextDecoration.lineThrough,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .error),
-                                ),
+                          if (snapshot.reference.parent.id == ApiPath.myItems)
+                            Text(
+                              '${price?.currency.symbol ?? ''}${price?.compareAtPrice ?? '...'}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onBackground),
+                            )
+                          else if (price?.compareAtPrice != null)
+                            Text(
+                              '${price?.currency.symbol ?? ''}${price?.compareAtPrice ?? '...'}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                      decoration: TextDecoration.lineThrough,
+                                      color:
+                                          Theme.of(context).colorScheme.error),
+                            ),
                           const SizedBox(width: 4),
                         ],
                         snapshot.reference.parent.id == ApiPath.myItems
                             ? const SizedBox.shrink()
                             : Text(
-                                '${price.currency.symbol}${price.amount}',
+                                '${price?.currency.symbol ?? ''}${price?.amount ?? ''}',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
@@ -243,12 +244,23 @@ class ItemCard extends StatelessWidget {
               ),
             ),
             if (photoURL != null)
-              Image.network(
-                photoURL,
-                height: 100,
-                width: 100,
-                fit: BoxFit.cover,
-              )
+              Image.network(photoURL,
+                  height: 100, width: 100, fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                // try refetching the image
+                final itemPhotoRef = FirebaseStorage.instance.ref().child(
+                    'stores/$storeId/todays_items/${snapshot.id}/item_photo.jpg');
+                itemPhotoRef.getDownloadURL().then((itemPhotoUrl) async {
+                  await snapshot.reference
+                      .update({'photo_u_r_l': itemPhotoUrl});
+                });
+                return Image.asset(
+                  'lib/assets/images/tomyum.jpg',
+                  height: 100,
+                  width: 100,
+                  fit: BoxFit.cover,
+                );
+              })
             else
               Image.asset(
                 'lib/assets/images/tomyum.jpg',

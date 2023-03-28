@@ -66,8 +66,8 @@ class SortedItemList extends HookConsumerWidget {
             a.data()!.price!.amount!.compareTo(b.data()!.price!.amount!));
         break;
       case SortBy.recent:
-        items.sort(
-            (a, b) => b.data()!.updatedAt!.compareTo(a.data()!.updatedAt!));
+        items.sort((a, b) => (b.data()!.updatedAt ?? DateTime.now())
+            .compareTo((a.data()!.updatedAt ?? DateTime.now())));
         break;
     }
 
