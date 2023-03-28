@@ -282,35 +282,12 @@ class _Title extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final searchedName = ref.watch(searchTextProvider);
-    final regExp = RegExp(searchedName, caseSensitive: false);
-    final matchedPart = regExp.firstMatch(name)?.group(0);
-    // highlight the matched part by setting background color
-
-    return Text.rich(
-      TextSpan(
-        text: name.substring(0, regExp.firstMatch(name)!.start),
+    return Text(name,
         style: Theme.of(context).textTheme.headlineSmall?.apply(
               color: Theme.of(context).colorScheme.onSurface,
+              fontWeightDelta: 2,
             ),
-        children: [
-          TextSpan(
-            text: matchedPart,
-            style: Theme.of(context).textTheme.headlineSmall?.apply(
-                  backgroundColor: Theme.of(context).colorScheme.secondary,
-                  color: Theme.of(context).colorScheme.onSecondary,
-                  fontWeightDelta: 2,
-                ),
-          ),
-          TextSpan(
-            text: name.substring(regExp.firstMatch(name)!.end),
-            style: Theme.of(context).textTheme.headlineSmall?.apply(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeightDelta: 2,
-                ),
-          ),
-        ],
-      ),
-    );
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1);
   }
 }
