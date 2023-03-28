@@ -24,33 +24,41 @@ class _StreamedItemListState extends ConsumerState<StreamedItemList> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SearchBar(),
-        const OrderTab(),
-        StreamBuilder(
-            stream: itemStream,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const LinearProgressIndicator();
-              }
+    return WillPopScope(
+      onWillPop: () async {
+        ref.read(searchTextProvider.notifier).update((state) => '');
+        return true;
+      },
+      child: Column(
+        children: [
+          const SearchBar(),
+          const OrderTab(),
+          StreamBuilder(
+              stream: itemStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const LinearProgressIndicator();
+                }
 
-              if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                // filter out bad items
-                snapshot.data!.docs.removeWhere((element) =>
-                    element.data().name == null ||
-                    element.data().price == null ||
-                    element.data().updatedAt == null ||
-                    element.data().createdAt == null);
+                if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                  // filter out bad items
+                  final filtered = snapshot.data!.docs
+                      .where((element) =>
+                          element.data().name != null &&
+                          element.data().price != null &&
+                          element.data().updatedAt != null &&
+                          element.data().createdAt != null)
+                      .toList();
 
-                return SortedItemList(items: snapshot.data!.docs);
-              }
+                  return SortedItemList(items: filtered);
+                }
 
-              return const Center(
-                child: Text('No items'),
-              );
-            }),
-      ],
+                return const Center(
+                  child: Text('No items'),
+                );
+              }),
+        ],
+      ),
     );
   }
 }
@@ -142,7 +150,10 @@ class _SearchBarState extends ConsumerState<SearchBar> {
     );
   }
 
-  void _clear() {}
+  void _clear() {
+    _searchController.clear();
+    ref.read(searchTextProvider.notifier).state = '';
+  }
 }
 
 class OrderTab extends HookConsumerWidget {
