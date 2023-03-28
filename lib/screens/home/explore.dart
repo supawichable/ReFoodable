@@ -41,12 +41,6 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
   late final CurrentLocationNotifier currentLocationNotifier =
       ref.read(currentLocationProvider.notifier);
 
-  /// 2. MapController
-  /// Should the getCurrentLocation function be called, the map will be
-  /// initiallized on the current location
-  /// And after that, the map will be controlled by the mapController
-  late GoogleMapController? mapController;
-
   Future<void> setMapCameraviewToPlaceId(String placeId) async {
     Uri uri = Uri.https('maps.googleapis.com', 'maps/api/place/details/json', {
       'place_id': placeId,
@@ -67,8 +61,9 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
   /// If we set it to an asynchronous function, we can know when the camera
   /// has finished moving then we can safely do something with the mapController
   Future<void> setMapCameraToLatLng(LatLng latlng) async {
-    await mapController?.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: latlng, zoom: 13.5)));
+    await ref.read(mapControllerProvider)?.animateCamera(
+        CameraUpdate.newCameraPosition(
+            CameraPosition(target: latlng, zoom: 13.5)));
   }
 
   /// 3. SearchController
@@ -93,11 +88,7 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
     }
   }
 
-  /// 4. StoresStream
-  late final Stream<List<DocumentSnapshot<Object?>>> storesStream;
-  late final StoreQueryInputNotifier queryInputNotifier;
-
-  /// 5. Distance Matrix
+  /// Distance Matrix
   /// This is used to cache the distance between the current location.
   /// Could be accessed through [id]
   late Map<String, String> storeDistances;
@@ -340,6 +331,7 @@ class _GMapState extends ConsumerState<GMap> {
         try {
           // might error out if something wrong with the response
           await getDistances(latLng, storeLst.asData!.value);
+          setState(() {});
         } catch (e, stackTrace) {
           logger.e('Oh no. Can\'t get distances', e, stackTrace);
         }
@@ -379,12 +371,12 @@ class _GMapState extends ConsumerState<GMap> {
             .then((_) {
           ref.read(currentLocationProvider).when(
             success: (locationData, latLng, geoFirePoint) async {
-              // this sets the map camera to the current location
               await controller.animateCamera(CameraUpdate.newLatLng(latLng));
-              // we can safely call this function after the map has been initialized
-              await ref
-                  .read(storeQueryInputProvider.notifier)
-                  .updateStoreStreamFromMapController(controller);
+              Future<void>.delayed(const Duration(seconds: 2), () async {
+                await ref
+                    .read(storeQueryInputProvider.notifier)
+                    .updateStoreStreamFromMapController(controller);
+              });
             },
             failure: (String message) {
               logger.e(message);
