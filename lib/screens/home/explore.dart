@@ -106,6 +106,8 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
 
     return Scaffold(
       body: SlidingUpPanel(
+        onPanelSlide: (_) => setState(() {}),
+        minHeight: 150,
         controller: panelController,
         body: Stack(children: [
           const GMap(),
@@ -156,6 +158,30 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
                   ),
                 ]);
               }),
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 100),
+            bottom: (panelController.panelPosition + 0.9) * 350,
+            right: 20,
+            child: FloatingActionButton(
+                onPressed: () async {
+                  final location = await ref
+                      .read(currentLocationProvider.notifier)
+                      .getCurrentLocation();
+                  if (location == null && mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Location not found'),
+                      ),
+                    );
+                  }
+                  await ref.read(mapControllerProvider)?.animateCamera(
+                      CameraUpdate.newCameraPosition(CameraPosition(
+                          target:
+                              LatLng(location!.latitude!, location.longitude!),
+                          zoom: 13.5)));
+                },
+                child: const Icon(Icons.my_location)),
+          )
         ]),
         panelBuilder: (sc) => Column(children: [
           GestureDetector(
@@ -172,6 +198,9 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
                 ),
               ),
             ),
+            onVerticalDragDown: (details) {
+              panelController.close();
+            },
           ),
           const Padding(
             padding: EdgeInsets.all(8.0),
@@ -220,7 +249,9 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
                           return StoreCard(
                               storeDoc.id,
                               Store.fromJson(
-                                  storeDoc.data()! as Map<String, dynamic>));
+                                  storeDoc.data()! as Map<String, dynamic>),
+                              distanceText:
+                                  ref.read(storeDistanceProvider)[storeDoc.id]);
                         },
                         separatorBuilder: (BuildContext context, int index) {
                           return const Divider();

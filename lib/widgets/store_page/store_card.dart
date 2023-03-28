@@ -54,11 +54,14 @@ enum StoreCardImageShow { coverPhoto, featuredMenu }
 
 class StoreCard extends StatelessWidget {
   final String storeId;
+  final String? distanceText;
   final Store? store;
   final StoreCardImageShow imageShow;
 
   const StoreCard(this.storeId, this.store,
-      {super.key, this.imageShow = StoreCardImageShow.coverPhoto});
+      {super.key,
+      this.imageShow = StoreCardImageShow.coverPhoto,
+      this.distanceText});
 
   @override
   Widget build(BuildContext context) {
@@ -88,10 +91,11 @@ class StoreCard extends StatelessWidget {
                     const SizedBox(
                       height: 8,
                     ),
-                    IconText(
-                        icon: Icons.location_pin,
-                        iconColor: Colors.red[300],
-                        text: '500m from here'),
+                    if (distanceText != null)
+                      IconText(
+                          icon: Icons.location_pin,
+                          iconColor: Colors.red[300],
+                          text: '$distanceText from here'),
                     Container(
                         margin: const EdgeInsets.only(top: 2),
                         child: IconText(
