@@ -293,6 +293,8 @@ class _AddItemDialogState extends State<AddItemDialog> {
                                       errorText: 'Required'),
                                 FormBuilderValidators.numeric(
                                     errorText: 'Must be a number'),
+                                FormBuilderValidators.min(0,
+                                    errorText: 'Must be more than 0'),
                               ]),
                               valueTransformer: (value) =>
                                   double.tryParse(value ?? ''))
@@ -302,211 +304,223 @@ class _AddItemDialogState extends State<AddItemDialog> {
                   ),
                   if (widget.bucket != ItemBucket.my) ...[
                     const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Flexible(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text.rich(
-                                  TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: 'Discounted price',
-                                        style: currentDiscountView ==
-                                                DiscountView.byPercent
-                                            ? TextStyle(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurfaceVariant,
-                                              )
-                                            : null,
-                                      ),
-                                      if (currentDiscountView ==
-                                          DiscountView.byPrice)
-                                        const TextSpan(
-                                          text: ' *',
-                                          style: TextStyle(color: Colors.red),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 8,
-                                ),
-                                FormBuilderTextField(
-                                  name: FormField.discountPrice.name,
-                                  initialValue: _itemSnapshot
-                                          ?.data()
-                                          ?.price
-                                          ?.amount
-                                          ?.toStringAsFixed(2) ??
-                                      _itemSnapshot
-                                          ?.data()
-                                          ?.price
-                                          ?.compareAtPrice
-                                          ?.toString() ??
-                                      '',
-                                  autofocus: true,
-                                  autovalidateMode:
-                                      AutovalidateMode.onUserInteraction,
-                                  keyboardType: TextInputType.number,
-                                  validator: FormBuilderValidators.compose(
-                                    [
-                                      FormBuilderValidators.required(
-                                          errorText: 'Required'),
-                                      FormBuilderValidators.numeric(
-                                          errorText: 'Must be a number'),
-                                    ],
-                                  ),
-                                  valueTransformer: (value) =>
-                                      double.tryParse(value ?? ''),
-                                  onTap: () {
-                                    if (currentDiscountView ==
-                                        DiscountView.byPercent) {
-                                      setState(() {
-                                        currentDiscountView =
-                                            DiscountView.byPrice;
-                                      });
-                                    }
-                                  },
-                                  onChanged: (_) {
-                                    if (currentDiscountView ==
-                                        DiscountView.byPrice) {
-                                      _formKey
-                                          .currentState?.fields.discountPercent!
-                                          .didChange(getPercentage(
-                                        _formKey.currentState
-                                            ?.value[FormField.normalPrice.name],
-                                        _formKey.currentState?.value[
-                                            FormField.discountPrice.name],
-                                      )?.toStringAsFixed(2));
-                                    }
-                                  },
-                                  decoration: InputDecoration(
-                                    contentPadding:
-                                        const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                                    border: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .outlineVariant),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .outline)),
-                                  ),
-                                ),
-                              ],
-                            )),
-                        const SizedBox(
-                          width: 8,
-                        ),
-                        Flexible(
-                            child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text.rich(
-                              TextSpan(
+                    SizedBox(
+                      height: 100,
+                      child: Row(
+                        children: [
+                          Flexible(
+                              flex: 1,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  TextSpan(
-                                    text: 'Discount %',
-                                    // readonly if by price
-                                    style: currentDiscountView ==
-                                            DiscountView.byPrice
-                                        ? TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurfaceVariant,
-                                          )
-                                        : null,
-                                  ),
-                                  if (currentDiscountView ==
-                                      DiscountView.byPercent)
-                                    const TextSpan(
-                                      text: ' *',
-                                      style: TextStyle(color: Colors.red),
+                                  Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: 'Discounted price',
+                                          style: currentDiscountView ==
+                                                  DiscountView.byPercent
+                                              ? TextStyle(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                )
+                                              : null,
+                                        ),
+                                        if (currentDiscountView ==
+                                            DiscountView.byPrice)
+                                          const TextSpan(
+                                            text: ' *',
+                                            style: TextStyle(color: Colors.red),
+                                          ),
+                                      ],
                                     ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            FormBuilderTextField(
-                              name: FormField.discountPercent.name,
-                              initialValue: getPercentage(
-                                    _itemSnapshot
-                                        ?.data()
-                                        ?.price
-                                        ?.compareAtPrice,
-                                    _itemSnapshot?.data()?.price?.amount ??
+                                  ),
+                                  const SizedBox(
+                                    height: 8,
+                                  ),
+                                  FormBuilderTextField(
+                                    name: FormField.discountPrice.name,
+                                    initialValue: _itemSnapshot
+                                            ?.data()
+                                            ?.price
+                                            ?.amount
+                                            ?.toStringAsFixed(2) ??
                                         _itemSnapshot
                                             ?.data()
                                             ?.price
-                                            ?.compareAtPrice,
-                                  )?.toStringAsFixed(2) ??
-                                  '',
-                              autofocus: true,
-                              keyboardType: TextInputType.number,
-                              valueTransformer: (value) =>
-                                  double.tryParse(value ?? ''),
-                              validator: FormBuilderValidators.compose(
-                                [
-                                  FormBuilderValidators.required(
-                                      errorText: 'Required'),
-                                  FormBuilderValidators.numeric(
-                                      errorText: 'Must be a number'),
+                                            ?.compareAtPrice
+                                            ?.toString() ??
+                                        '',
+                                    autofocus: true,
+                                    autovalidateMode:
+                                        AutovalidateMode.onUserInteraction,
+                                    keyboardType: TextInputType.number,
+                                    validator: FormBuilderValidators.compose(
+                                      [
+                                        FormBuilderValidators.required(
+                                            errorText: 'Required'),
+                                        FormBuilderValidators.numeric(
+                                            errorText: 'Must be a number'),
+                                        // more than 0
+                                        FormBuilderValidators.min(0,
+                                            errorText: 'Must be more than 0'),
+                                      ],
+                                    ),
+                                    valueTransformer: (value) =>
+                                        double.tryParse(value ?? ''),
+                                    onTap: () {
+                                      if (currentDiscountView ==
+                                          DiscountView.byPercent) {
+                                        setState(() {
+                                          currentDiscountView =
+                                              DiscountView.byPrice;
+                                        });
+                                      }
+                                    },
+                                    onChanged: (_) {
+                                      if (currentDiscountView ==
+                                          DiscountView.byPrice) {
+                                        _formKey.currentState?.fields
+                                            .discountPercent!
+                                            .didChange(getPercentage(
+                                          _formKey.currentState?.value[
+                                              FormField.normalPrice.name],
+                                          _formKey.currentState?.value[
+                                              FormField.discountPrice.name],
+                                        )?.toStringAsFixed(2));
+                                      }
+                                    },
+                                    decoration: InputDecoration(
+                                      contentPadding: const EdgeInsets.fromLTRB(
+                                          12, 8, 12, 8),
+                                      border: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .outlineVariant),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .outline)),
+                                    ),
+                                  ),
                                 ],
-                              ),
-                              onTap: () {
-                                if (currentDiscountView ==
-                                    DiscountView.byPrice) {
-                                  setState(() {
-                                    currentDiscountView =
-                                        DiscountView.byPercent;
-                                  });
-                                }
-                              },
-                              onChanged: (_) {
-                                if (currentDiscountView ==
-                                    DiscountView.byPercent) {
-                                  try {
-                                    _formKey.currentState?.fields.discountPrice
-                                        ?.didChange(getDiscountedPrice(
-                                      _formKey.currentState
-                                          ?.value[FormField.normalPrice.name],
-                                      _formKey.currentState?.value[
-                                          FormField.discountPercent.name],
-                                    )?.toStringAsFixed(2));
-                                  } catch (e) {
-                                    logger.w(e);
-                                  }
-                                }
-                              },
-                              decoration: InputDecoration(
-                                suffixIcon: const Icon(Icons.percent),
-                                contentPadding:
-                                    const EdgeInsets.fromLTRB(12, 8, 0, 8),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .outlineVariant),
+                              )),
+                          const SizedBox(
+                            width: 8,
+                          ),
+                          Flexible(
+                              child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'Discount %',
+                                      // readonly if by price
+                                      style: currentDiscountView ==
+                                              DiscountView.byPrice
+                                          ? TextStyle(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                            )
+                                          : null,
+                                    ),
+                                    if (currentDiscountView ==
+                                        DiscountView.byPercent)
+                                      const TextSpan(
+                                        text: ' *',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                  ],
                                 ),
-                                focusedBorder: OutlineInputBorder(
+                              ),
+                              const SizedBox(
+                                height: 8,
+                              ),
+                              FormBuilderTextField(
+                                name: FormField.discountPercent.name,
+                                initialValue: getPercentage(
+                                      _itemSnapshot
+                                          ?.data()
+                                          ?.price
+                                          ?.compareAtPrice,
+                                      _itemSnapshot?.data()?.price?.amount ??
+                                          _itemSnapshot
+                                              ?.data()
+                                              ?.price
+                                              ?.compareAtPrice,
+                                    )?.toStringAsFixed(2) ??
+                                    '',
+                                autofocus: true,
+                                keyboardType: TextInputType.number,
+                                valueTransformer: (value) =>
+                                    double.tryParse(value ?? ''),
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                validator: FormBuilderValidators.compose(
+                                  [
+                                    FormBuilderValidators.required(
+                                        errorText: 'Required'),
+                                    FormBuilderValidators.numeric(
+                                        errorText: 'Must be a number'),
+                                    // more than 0
+                                    FormBuilderValidators.min(0,
+                                        errorText: 'Must be more than 0'),
+                                  ],
+                                ),
+                                onTap: () {
+                                  if (currentDiscountView ==
+                                      DiscountView.byPrice) {
+                                    setState(() {
+                                      currentDiscountView =
+                                          DiscountView.byPercent;
+                                    });
+                                  }
+                                },
+                                onChanged: (_) {
+                                  if (currentDiscountView ==
+                                      DiscountView.byPercent) {
+                                    try {
+                                      _formKey
+                                          .currentState?.fields.discountPrice
+                                          ?.didChange(getDiscountedPrice(
+                                        _formKey.currentState
+                                            ?.value[FormField.normalPrice.name],
+                                        _formKey.currentState?.value[
+                                            FormField.discountPercent.name],
+                                      )?.toStringAsFixed(2));
+                                    } catch (e) {
+                                      logger.w(e);
+                                    }
+                                  }
+                                },
+                                decoration: InputDecoration(
+                                  suffixIcon: const Icon(Icons.percent),
+                                  contentPadding:
+                                      const EdgeInsets.fromLTRB(12, 8, 0, 8),
+                                  border: OutlineInputBorder(
                                     borderSide: BorderSide(
                                         color: Theme.of(context)
                                             .colorScheme
-                                            .outline)),
+                                            .outlineVariant),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .outline)),
+                                ),
                               ),
-                            ),
-                          ],
-                        ))
-                      ],
+                            ],
+                          ))
+                        ],
+                      ),
                     ),
                   ],
                   const SizedBox(height: 8),
