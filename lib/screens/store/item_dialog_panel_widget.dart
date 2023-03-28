@@ -43,7 +43,6 @@ class _ItemDialogPanelWidgetState extends ConsumerState<ItemDialogPanelWidget> {
 
   Future<void> deleteDialog() async {
     final snapshot = ref.read(itemInContextProvider)!;
-    final storeId = snapshot.reference.parent.parent!.id;
     final willDelete = await showDialog(
       context: context,
       builder: (context) => AlertDialog(

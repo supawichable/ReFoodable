@@ -6,7 +6,6 @@ import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/providers/item_in_context.dart';
 import 'package:gdsctokyo/screens/store/item_dialog_panel_widget.dart';
-import 'package:gdsctokyo/util/logger.dart';
 import 'package:gdsctokyo/widgets/store_page/store_info.dart';
 import 'package:gdsctokyo/widgets/store_page/my_items.dart';
 import 'package:gdsctokyo/widgets/store_page/today_items.dart';

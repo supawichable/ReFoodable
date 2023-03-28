@@ -1,12 +1,11 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/providers/item_in_context.dart';
-import 'package:gdsctokyo/util/logger.dart';
-import 'package:gdsctokyo/widgets/item/add_item_dialog.dart';
-import 'package:gdsctokyo/widgets/store_page/item_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
