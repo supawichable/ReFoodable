@@ -202,6 +202,7 @@ class _StoreFormPageState extends State<StoreFormPage> {
                         const SizedBox(height: 4),
                         FormBuilderTextField(
                           name: FormField.email.name,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                           ),
@@ -219,6 +220,7 @@ class _StoreFormPageState extends State<StoreFormPage> {
                             border: OutlineInputBorder(),
                           ),
                           // phone number validator
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: FormBuilderValidators.compose([
                             FormBuilderValidators.match(r'^\+?[0-9]+$',
                                 errorText: 'Invalid Phone Number.')
@@ -227,11 +229,51 @@ class _StoreFormPageState extends State<StoreFormPage> {
                         const SizedBox(height: 12),
                         FormBuilderField(
                           name: FormField.category.name,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(
+                                errorText: 'Required'),
+                            // must be at least one
+                            (value) {
+                              if ((value as List<FoodCategory>?) == null) {
+                                return 'Invalid Input';
+                              }
+                              final categoryList = value as List<FoodCategory>;
+                              if (categoryList.isEmpty) {
+                                return 'At least one category is required';
+                              }
+                              return null;
+                            }
+                          ]),
                           builder: (FormFieldState<List<FoodCategory>> field) =>
                               Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Category'),
+                              Row(
+                                children: [
+                                  const Text.rich(
+                                    TextSpan(
+                                      text: 'Category',
+                                      children: [
+                                        TextSpan(
+                                          text: ' *',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  if (field.hasError)
+                                    Text(
+                                      field.errorText ?? '',
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                ],
+                              ),
                               const SizedBox(height: 12),
                               Wrap(
                                 spacing: 8,
@@ -332,8 +374,9 @@ class _StoreFormPageState extends State<StoreFormPage> {
         _isLoading = false;
       });
 
-      // ignore: use_build_context_synchronously
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 }
