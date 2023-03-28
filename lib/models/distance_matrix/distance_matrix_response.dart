@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
+import 'package:gdsctokyo/util/logger.dart';
 
 class DistanceMatrixItem {
   final String? status;
@@ -17,17 +18,19 @@ class DistanceMatrixResponse {
   DistanceMatrixResponse({this.status, this.responses});
 
   factory DistanceMatrixResponse.fromJson(Map<String, dynamic> json) {
-    List<DistanceMatrixItem>? returnResponses = [];
-    json['rows'].asMap().forEach((key, value) {
-      returnResponses.add(DistanceMatrixItem(
-          status: value['elements'][0]['status'],
-          text: value['elements'][0]['status'] == 'OK'
-              ? value['elements'][0]['distance']['text']
-              : null,
-          value: value['elements'][0]['status'] == 'OK'
-              ? value['elements'][0]['distance']['value']
-              : null));
-    });
+    final rows = json['rows'] as List?;
+    if (rows?.isEmpty ?? true) {
+      // INVALID_REQUEST らしい
+      return DistanceMatrixResponse(status: json['status'], responses: []);
+    }
+    final List<DistanceMatrixItem> returnResponses = (rows?[0]?['elements']
+                as List?)
+            ?.map((response) => DistanceMatrixItem(
+                status: response['status'] as String?,
+                text: response['distance']?['text'] as String?,
+                value: (response['distance']?['value'] as num?)?.toDouble()))
+            .toList() ??
+        [];
     return DistanceMatrixResponse(
         status: json['status'], responses: returnResponses);
   }

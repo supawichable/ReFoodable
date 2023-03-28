@@ -5,11 +5,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gdsctokyo/components/network_utility.dart';
-import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/distance_matrix/distance_matrix_response.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:gdsctokyo/models/store/_store.dart';
+import 'package:gdsctokyo/providers/explore.dart';
 import 'package:gdsctokyo/util/logger.dart';
-import 'package:location/location.dart' as loc;
+import 'package:gdsctokyo/widgets/store_page/store_card.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:gdsctokyo/widgets/explore/panel_widget.dart';
 import 'package:gdsctokyo/widgets/explore/sorting_tab.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -22,181 +24,57 @@ import 'package:gdsctokyo/models/place_details/place_details_response.dart';
 final _geo = GeoFlutterFire();
 final _firestore = FirebaseFirestore.instance;
 
-class ExplorePage extends StatefulWidget {
+class ExplorePage extends StatefulHookConsumerWidget {
   const ExplorePage({super.key});
 
   @override
-  State<ExplorePage> createState() => _ExplorePageState();
+  ConsumerState<ExplorePage> createState() => _ExplorePageState();
 }
 
-class _ExplorePageState extends State<ExplorePage> {
-  final TextEditingController textController = TextEditingController();
+class _ExplorePageState extends ConsumerState<ExplorePage> {
   final PanelController panelController = PanelController();
 
-  GoogleMapController? mapController;
+  /// 1. currentPositionProvider
+  /// This is a provider that will be used to get the current location
+  /// as a context throughout the app
+  /// more info: providers/explore.dart
+  late final CurrentLocationNotifier currentLocationNotifier =
+      ref.read(currentLocationProvider.notifier);
 
-  List<AutocompletePrediction> placePredictions = [];
+  /// 2. MapController
+  /// Should the getCurrentLocation function be called, the map will be
+  /// initiallized on the current location
+  /// And after that, the map will be controlled by the mapController
+  late GoogleMapController? mapController;
 
-  loc.LocationData? currentLocation;
-  LatLng? currLatLng;
-  GeoFirePoint? currGeoPoint;
-
-  late Stream<List<DocumentSnapshot>> _storeStream;
-  List<DocumentSnapshot> _storeSnapshots = [];
-
-  bool searchWidgetSwitch = false;
-  dynamic storeDistance = {};
-  dynamic storeLst = [];
-
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
-  }
-
-  void getCurrentLocation() {
-    loc.Location location = loc.Location();
-    location.getLocation().then((location) {
-      setState(() {
-        currentLocation = location;
-        if (location.latitude != null && location.longitude != null) {
-          currLatLng = LatLng(location.latitude!, location.longitude!);
-
-          currGeoPoint = _geo.point(
-              latitude: location.latitude!, longitude: location.longitude!);
-        }
-      });
-      setMapCameraToLatLng(currLatLng!);
-      setStoreDistance();
-    }).catchError((e) {
-      logger.e(e);
+  Future<void> setMapCameraviewToPlaceId(String placeId) async {
+    Uri uri = Uri.https('maps.googleapis.com', 'maps/api/place/details/json', {
+      'place_id': placeId,
+      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
     });
+    String? response = await NetworkUtility.fetchUrl(uri);
+    if (response != null) {
+      PlaceDetailsResponse result =
+          PlaceDetailsResponse.parsePlaceDetails(response);
+      if (result.lat != null && result.lng != null) {
+        LatLng latlng = LatLng(result.lat!, result.lng!);
+        await setMapCameraToLatLng(latlng);
+        setSearchWidgetSwitch(false);
+      }
+    }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getCurrentLocation();
-
-    setNearbyStores();
-    setStoreDistance();
+  /// If we set it to an asynchronous function, we can know when the camera
+  /// has finished moving then we can safely do something with the mapController
+  Future<void> setMapCameraToLatLng(LatLng latlng) async {
+    await mapController?.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: latlng, zoom: 13.5)));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SlidingUpPanel(
-          controller: panelController,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-          body: currentLocation == null
-              ? const Center(child: Text('Loading'))
-              : Stack(children: [
-                  SizedBox(
-                      height: MediaQuery.of(context).size.height,
-                      width: double.infinity,
-                      child: searchWidgetSwitch
-                          ? Container(
-                              color: Colors.white,
-                            )
-                          : GMap(
-                              // storeStream: _storeStream,
-                              storeLst: storeLst,
-                              currLatLng: currLatLng!,
-                              onMapCreated: _onMapCreated,
-                            )),
-                  Column(children: [
-                    LocationSearchBox(
-                      searchWidgetSwitch: searchWidgetSwitch,
-                      setSearchWidgetSwitch: setSearchWidgetSwitch,
-                      placeAutocomplete: placeAutocomplete,
-                    ),
-                    searchWidgetSwitch
-                        ? UseMyLocationButton(
-                            getCurrentLocation: getCurrentLocation,
-                            setSearchWidgetSwitch: setSearchWidgetSwitch,
-                          )
-                        : const SizedBox.shrink(),
-                    Expanded(
-                      child: searchWidgetSwitch
-                          ? ListView.builder(
-                              itemCount: placePredictions.length,
-                              itemBuilder: (context, index) => LocationListTile(
-                                  location:
-                                      placePredictions[index].description!,
-                                  press: () {
-                                    String placeId =
-                                        placePredictions[index].placeId!;
-                                    setMapCameraviewToPlaceId(placeId);
-                                  }))
-                          : const SizedBox.shrink(),
-                    )
-                  ]),
-                ]),
-          panel: Column(
-            children: [
-              GestureDetector(
-                child: Center(
-                  child: Container(
-                    height: 5,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    margin: const EdgeInsets.only(
-                      top: 8,
-                    ),
-                  ),
-                ),
-                onVerticalDragDown: (DragDownDetails details) {
-                  panelController.close();
-                },
-              ),
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'Latest in the area',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Container(
-                height: 50,
-                padding: const EdgeInsets.only(
-                  left: 10,
-                  right: 10,
-                ),
-                child: const SortingTab(),
-              ),
-              Container(
-                padding: const EdgeInsets.only(
-                  left: 15,
-                  top: 10,
-                  bottom: 10,
-                ),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    _storeSnapshots.length <= 1
-                        ? '${_storeSnapshots.length} place found'
-                        : '${_storeSnapshots.length} places found',
-                  ),
-                ),
-              ),
-              Expanded(child: PanelWidget(storeLst: storeLst))
-              // child: ListView.builder(
-              //     itemCount: storeLst.length,
-              //     itemBuilder: (BuildContext context, int index) {
-              //       return PanelWidget(storeData: storeLst[index]);
-              //     }))
-            ],
-          )),
-    );
-  }
-
+  /// 3. SearchController
+  final TextEditingController textController = TextEditingController();
+  List<AutocompletePrediction> placePredictions = [];
+  bool searchWidgetSwitch = false;
   Future<void> placeAutocomplete(String query) async {
     Uri uri =
         Uri.https('maps.googleapis.com', 'maps/api/place/autocomplete/json', {
@@ -215,28 +93,159 @@ class _ExplorePageState extends State<ExplorePage> {
     }
   }
 
-  Future<void> setMapCameraviewToPlaceId(String placeId) async {
-    Uri uri = Uri.https('maps.googleapis.com', 'maps/api/place/details/json', {
-      'place_id': placeId,
-      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
-    });
-    String? response = await NetworkUtility.fetchUrl(uri);
-    if (response != null) {
-      PlaceDetailsResponse result =
-          PlaceDetailsResponse.parsePlaceDetails(response);
-      if (result.lat != null && result.lng != null) {
-        setState(() {
-          currLatLng = LatLng(result.lat!, result.lng!);
-          setMapCameraToLatLng(currLatLng!);
-          searchWidgetSwitch = false;
-        });
-      }
-    }
+  /// 4. StoresStream
+  late final Stream<List<DocumentSnapshot<Object?>>> storesStream;
+  late final StoreQueryInputNotifier queryInputNotifier;
+
+  /// 5. Distance Matrix
+  /// This is used to cache the distance between the current location.
+  /// Could be accessed through [id]
+  late Map<String, String> storeDistances;
+
+  @override
+  void initState() {
+    super.initState();
+    // request permission
   }
 
-  void setMapCameraToLatLng(LatLng latlng) {
-    mapController?.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: latlng, zoom: 13.5)));
+  @override
+  Widget build(BuildContext context) {
+    final currentLocationState = ref.watch(currentLocationProvider);
+    final storesStream = ref.watch(storesStreamProvider);
+
+    return Scaffold(
+      body: SlidingUpPanel(
+        controller: panelController,
+        body: Stack(children: [
+          const GMap(),
+          currentLocationState.when(
+              success: (locationData, latLng, geoPoint) => Column(children: [
+                    LocationSearchBox(
+                      searchWidgetSwitch: searchWidgetSwitch,
+                      setSearchWidgetSwitch: setSearchWidgetSwitch,
+                      placeAutocomplete: placeAutocomplete,
+                    ),
+                    ElevatedButton.icon(
+                        onPressed: () {
+                          final mapController = ref.read(mapControllerProvider);
+                          if (mapController != null) {
+                            ref
+                                .read(storeQueryInputProvider.notifier)
+                                .updateStoreStreamFromMapController(
+                                    mapController);
+                          }
+                        },
+                        icon: const Icon(Icons.search),
+                        label: const Text('Search in this area')),
+                    Expanded(
+                      child: searchWidgetSwitch
+                          ? ListView.builder(
+                              itemCount: placePredictions.length,
+                              itemBuilder: (context, index) => LocationListTile(
+                                  location:
+                                      placePredictions[index].description!,
+                                  press: () {
+                                    String placeId =
+                                        placePredictions[index].placeId!;
+                                    setMapCameraviewToPlaceId(placeId);
+                                  }))
+                          : const SizedBox.shrink(),
+                    )
+                  ]),
+              failure: (String message) {
+                return Center(child: Text(message));
+              },
+              standby: () {
+                return Column(children: [
+                  const LinearProgressIndicator(),
+                  Expanded(
+                    child: Container(
+                      color: Theme.of(context).colorScheme.surface,
+                    ),
+                  ),
+                ]);
+              }),
+        ]),
+        panelBuilder: (sc) => Column(children: [
+          GestureDetector(
+            child: Center(
+              child: Container(
+                height: 5,
+                width: 50,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: const EdgeInsets.only(
+                  top: 8,
+                ),
+              ),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              'Latest in the area',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Container(
+            height: 50,
+            padding: const EdgeInsets.only(
+              left: 10,
+              right: 10,
+            ),
+            child: const SortingTab(),
+          ),
+          ...storesStream.when(
+              data: (data) => [
+                    Container(
+                      padding: const EdgeInsets.only(
+                        left: 15,
+                        top: 10,
+                        bottom: 10,
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          data.length <= 1
+                              ? '${data.length} place found'
+                              : '${data.length} places found',
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.separated(
+                        controller: sc,
+                        itemCount: data.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == data.length) {
+                            return Container();
+                          }
+                          final storeDoc = data[index];
+                          return StoreCard(
+                              storeDoc.id,
+                              Store.fromJson(
+                                  storeDoc.data()! as Map<String, dynamic>));
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return const Divider();
+                        },
+                      ),
+                    ),
+                  ],
+              error: (e, st) => [
+                    const Center(
+                      child: Text('Error'),
+                    ),
+                  ],
+              loading: () => [const LinearProgressIndicator()]),
+        ]),
+      ),
+    );
   }
 
   void setSearchWidgetSwitch(bool newValue) {
@@ -244,98 +253,18 @@ class _ExplorePageState extends State<ExplorePage> {
       searchWidgetSwitch = newValue;
     });
   }
-
-  void setMapController(GoogleMapController newController) {
-    setState(() {
-      mapController = newController;
-    });
-  }
-
-  Future<void> setNearbyStores({double radius = 50000}) async {
-    setState(() {
-      _storeStream = _firestore.stores
-          .withinAsSingleStreamSubscription(currGeoPoint!, radius);
-    });
-    _storeStream.listen((List<DocumentSnapshot> documentList) {
-      setState(() {
-        _storeSnapshots = documentList;
-      });
-    });
-  }
-
-  Future<Map> getDistances(LatLng origin, List<LatLng> destinationLatlngLst,
-      List<String> destinationStoreIdLst) async {
-    Map distances = {};
-    String destinationParam = '';
-    destinationLatlngLst.asMap().forEach((key, value) {
-      if (key > 0) {
-        destinationParam += '|';
-      }
-      destinationParam += '${value.latitude},${value.longitude}';
-    });
-    Uri uri = Uri.https('maps.googleapis.com', 'maps/api/distancematrix/json', {
-      'origins': '${origin.latitude},${origin.longitude}',
-      'destinations': destinationParam,
-      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
-    });
-    String? response = await NetworkUtility.fetchUrl(uri);
-    if (response != null) {
-      DistanceMatrixResponse result =
-          DistanceMatrixResponse.parseDistanceMatrix(response);
-      if (result.status == 'OK') {
-        result.responses!.asMap().forEach((key, value) {
-          distances[destinationStoreIdLst[key]] = value;
-        });
-      }
-    }
-    return distances;
-  }
-
-  Future<void> setStoreDistance() async {
-    List<LatLng> destinationLatlngLst = [];
-    List<String> destinationStoreIdLst = [];
-    List storeDetails = [];
-    for (final doc in _storeSnapshots) {
-      dynamic data = doc.data();
-      GeoPoint geoPoint = data['location']['geopoint'];
-      LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
-      destinationLatlngLst.add(latlng);
-      destinationStoreIdLst.add(doc.id);
-    }
-    Map distances = await getDistances(
-        currLatLng!, destinationLatlngLst, destinationStoreIdLst);
-    for (final doc in _storeSnapshots) {
-      Map store = {};
-      store['id'] = doc.id;
-      store['distance'] = distances[doc.id];
-      store['data'] = doc.data();
-      storeDetails.add(store);
-    }
-    setState(() {
-      storeDistance = distances;
-      storeLst = storeDetails;
-    });
-  }
 }
 
-class GMap extends StatefulWidget {
-  final storeLst;
-  final LatLng currLatLng;
-  final onMapCreated;
-  // final storeDistances;
-  const GMap({
-    super.key,
-    required this.storeLst,
-    required this.currLatLng,
-    required this.onMapCreated,
-  });
+class GMap extends StatefulHookConsumerWidget {
+  const GMap({super.key});
 
   @override
-  State<GMap> createState() => _GMapState();
+  ConsumerState<GMap> createState() => _GMapState();
 }
 
-class _GMapState extends State<GMap> {
-  final Set<Marker> markers = {};
+class _GMapState extends ConsumerState<GMap> {
+  late final StateController<GoogleMapController?> mapControllerNotifier =
+      ref.read(mapControllerProvider.notifier);
 
   // Future<String?> calculateDistance(LatLng origin, LatLng destination) async {
   //   Uri uri = Uri.https("maps.googleapis.com", "maps/api/distancematrix/json", {
@@ -355,58 +284,124 @@ class _GMapState extends State<GMap> {
   //   }
   // }
 
-  Future<void> getMarkers() async {
-    for (final store in widget.storeLst) {
-      GeoPoint geoPoint = store.data.location.geopoint;
-      LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
-      markers.add(Marker(
-          markerId: MarkerId(store.data.name),
-          position: latlng,
-          infoWindow: InfoWindow(
-              title: store.data.name,
-              snippet: store.distance.text + ' from here',
-              onTap: () {
-                context.router.pushNamed('/store/${store.id}');
-              })));
-    }
-  }
-  // widget.storeStream.listen((documentList) async {
-  //   for (final doc in documentList) {
-  //     dynamic data = doc.data();
-  //     GeoPoint geoPoint = data.location.geopoint;
-  //     LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
-  //     String storeId = doc.id;
-  //     // String? distanceFromCurr =
-  //     //     await calculateDistance(widget.currLatLng, latlng);
-  //     setState(() {
-  //       markers.add(Marker(
-  //         markerId: MarkerId(data.name),
-  //         position: latlng,
-  //         infoWindow: InfoWindow(
-  //           title: data.name,
-  //           // snippet: distanceFromCurr.toString() + " from here",
-  //           onTap: () {
-  //             context.router.pushNamed('/store/$storeId');
-  //           },
-  //         ),
-  //       ));
-  //     });
-  //   }
-  // });
-  // }
+  Future<Map<String, String>> getDistances(
+      LatLng origin, List<DocumentSnapshot<Object?>> storeLst) async {
+    // 1. Filter out cached distances
+    final List<DocumentSnapshot<Object?>> filteredStoreLst = storeLst
+        .where((storeDoc) =>
+            !ref.read(storeDistanceProvider).containsKey(storeDoc.id))
+        .toList();
 
-  @override
-  void initState() {
-    super.initState();
-    getMarkers();
+    // 2. Get the list of destinationLatLng for uncached distances
+    final List<LatLng> destinationLatLngLst = filteredStoreLst.map((storeDoc) {
+      final store = Store.fromJson(storeDoc.data() as Map<String, dynamic>);
+      final geoPoint = store.location!.geoPoint;
+      return LatLng(geoPoint.latitude, geoPoint.longitude);
+    }).toList();
+
+    // 3. Create a destinationParam which is a string of latlng separated by '|'
+    String destinationParam = '';
+    for (final latLng in destinationLatLngLst) {
+      destinationParam += '${latLng.latitude},${latLng.longitude}|';
+    }
+    Uri uri = Uri.https('maps.googleapis.com', 'maps/api/distancematrix/json', {
+      'origins': '${origin.latitude},${origin.longitude}',
+      'destinations': destinationParam,
+      'key': dotenv.get('ANDROID_GOOGLE_API_KEY'),
+    });
+    String? response = await NetworkUtility.fetchUrl(uri);
+    // 4. Parse the response and save the result.responses.first.text
+    // to the storeDistanceProvider while also returning the result
+    if (response != null) {
+      DistanceMatrixResponse result =
+          DistanceMatrixResponse.parseDistanceMatrix(response);
+      if (result.status == 'OK') {
+        for (int i = 0; i < result.responses!.length; i++) {
+          final storeDoc = filteredStoreLst[i];
+          final String? distance = result.responses![i].text;
+          if (distance == null) {
+            continue;
+          }
+          ref
+              .read(storeDistanceProvider)
+              .putIfAbsent(storeDoc.id, () => distance);
+        }
+      }
+    }
+
+    return ref.read(storeDistanceProvider);
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(storesStreamProvider, (pref, storeLst) {
+      ref.read(currentLocationProvider).whenOrNull(
+          success: (locationData, latLng, geoFirePoint) async {
+        try {
+          // might error out if something wrong with the response
+          await getDistances(latLng, storeLst.asData!.value);
+        } catch (e, stackTrace) {
+          logger.e('Oh no. Can\'t get distances', e, stackTrace);
+        }
+      });
+    });
+
+    final Set<Marker> markers = ref
+            .watch(storesStreamProvider)
+            .whenData((storeLst) => storeLst.map((storeDoc) {
+                  final store =
+                      Store.fromJson(storeDoc.data() as Map<String, dynamic>);
+                  GeoPoint geoPoint = store.location!.geoPoint;
+                  LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
+
+                  return Marker(
+                      markerId: MarkerId(storeDoc.id),
+                      position: latlng,
+                      infoWindow: InfoWindow(
+                          title: store.name,
+                          snippet:
+                              '${ref.watch(storeDistanceProvider)[storeDoc.id] ?? '...'} from here',
+                          onTap: () {
+                            context.router.pushNamed('/store/${storeDoc.id}');
+                          }));
+                }).toSet())
+            .asData
+            ?.value ??
+        {};
     return GoogleMap(
-      onMapCreated: widget.onMapCreated,
+      myLocationEnabled: true,
+      myLocationButtonEnabled: true,
+      onMapCreated: (controller) {
+        mapControllerNotifier.update((state) => controller);
+        ref
+            .read(currentLocationProvider.notifier)
+            .getCurrentLocation()
+            .then((_) {
+          ref.read(currentLocationProvider).when(
+            success: (locationData, latLng, geoFirePoint) async {
+              // this sets the map camera to the current location
+              await controller.animateCamera(CameraUpdate.newLatLng(latLng));
+              // we can safely call this function after the map has been initialized
+              await ref
+                  .read(storeQueryInputProvider.notifier)
+                  .updateStoreStreamFromMapController(controller);
+            },
+            failure: (String message) {
+              logger.e(message);
+            },
+            standby: () {
+              logger.w('Still in standby state. Something might went wrong.');
+            },
+          );
+        });
+      },
       initialCameraPosition: CameraPosition(
-        target: widget.currLatLng,
+        target: ref.read(currentLocationProvider).maybeWhen(
+            orElse: () => const LatLng(
+                  35.681236,
+                  139.767125,
+                ),
+            success: (_, latlng, __) => latlng),
         zoom: 13.5,
       ),
       markers: markers,
@@ -414,21 +409,27 @@ class _GMapState extends State<GMap> {
   }
 }
 
-class UseMyLocationButton extends StatelessWidget {
-  final getCurrentLocation;
+class UseMyLocationButton extends ConsumerWidget {
   final ValueChanged<bool> setSearchWidgetSwitch;
-  const UseMyLocationButton(
-      {super.key,
-      required this.getCurrentLocation,
-      required this.setSearchWidgetSwitch});
+  const UseMyLocationButton({super.key, required this.setSearchWidgetSwitch});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
         padding: const EdgeInsets.all(8.0),
         child: ElevatedButton.icon(
-          onPressed: () {
-            getCurrentLocation();
+          onPressed: () async {
+            await ref
+                .read(currentLocationProvider.notifier)
+                .getCurrentLocation();
+            ref.read(mapControllerProvider)?.animateCamera(
+                CameraUpdate.newLatLng(
+                    ref.read(currentLocationProvider).maybeWhen(
+                        orElse: () => const LatLng(
+                              35.681236,
+                              139.767125,
+                            ),
+                        success: (_, latlng, __) => latlng)));
             setSearchWidgetSwitch(false);
           },
           icon: const Icon(Icons.place),
@@ -454,6 +455,10 @@ class LocationSearchBox extends StatelessWidget {
       child: TextFormField(
           onTap: () {
             setSearchWidgetSwitch(true);
+          },
+          onTapOutside: (_) {
+            setSearchWidgetSwitch(false);
+            FocusScope.of(context).unfocus();
           },
           onChanged: (value) {
             placeAutocomplete(value);
