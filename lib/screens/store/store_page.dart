@@ -4,35 +4,75 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
+import 'package:gdsctokyo/providers/item_in_context.dart';
+import 'package:gdsctokyo/screens/store/item_dialog_panel_widget.dart';
+import 'package:gdsctokyo/util/logger.dart';
 import 'package:gdsctokyo/widgets/store_page/store_info.dart';
 import 'package:gdsctokyo/widgets/store_page/my_items.dart';
 import 'package:gdsctokyo/widgets/store_page/today_items.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-class StorePage extends StatelessWidget {
+final _pc = PanelController();
+
+class StorePage extends HookConsumerWidget {
   final String storeId;
 
   const StorePage({super.key, @PathParam('storeId') required this.storeId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(itemInContextProvider, (prev, next) {
+      if (next != null) {
+        _pc.open();
+      } else {
+        _pc.close();
+      }
+    });
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          _BookMarkButton(storeId: storeId),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.share),
-          ),
-        ],
-      ),
-      body: ListView(
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        children: [
-          StoreInfo(storeId: storeId),
-        ],
-      ),
-    );
+        appBar: AppBar(
+          actions: [
+            _BookMarkButton(storeId: storeId),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.share),
+            ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            ListView(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              children: [
+                StoreInfo(storeId: storeId),
+              ],
+            ),
+            SlidingUpPanel(
+              backdropColor: Colors.black,
+              backdropEnabled: true,
+              backdropOpacity: 0.5,
+              backdropTapClosesPanel: true,
+              onPanelClosed: () {
+                ref
+                    .read(itemInContextProvider.notifier)
+                    .update((state) => null);
+              },
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+              minHeight: 0,
+              maxHeight:
+                  ref.watch(itemInContextProvider)?.reference.parent.id ==
+                          ApiPath.myItems
+                      ? 150
+                      : 100,
+              controller: _pc,
+              panel: const ItemDialogPanelWidget(),
+            ),
+          ],
+        ));
   }
 }
 
