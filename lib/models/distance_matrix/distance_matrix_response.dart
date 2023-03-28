@@ -1,8 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/widgets.dart';
-import 'package:gdsctokyo/util/logger.dart';
-
 class DistanceMatrixItem {
   final String? status;
   final String? text;

@@ -10,9 +10,9 @@ import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/providers/explore.dart';
 import 'package:gdsctokyo/util/logger.dart';
 import 'package:gdsctokyo/widgets/store_page/store_card.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:gdsctokyo/widgets/explore/panel_widget.dart';
+// will uncomment the sorting_tab when needed
+// ignore: unused_import
 import 'package:gdsctokyo/widgets/explore/sorting_tab.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -20,9 +20,6 @@ import 'package:gdsctokyo/components/location_list_tile.dart';
 import 'package:gdsctokyo/models/place_autocomplete/autocomplete_prediction.dart';
 import 'package:gdsctokyo/models/place_autocomplete/place_auto_complete_response.dart';
 import 'package:gdsctokyo/models/place_details/place_details_response.dart';
-
-final _geo = GeoFlutterFire();
-final _firestore = FirebaseFirestore.instance;
 
 class ExplorePage extends StatefulHookConsumerWidget {
   const ExplorePage({super.key});
