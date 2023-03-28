@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/widgets/item/item_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -38,7 +39,8 @@ class _StreamedItemListState extends ConsumerState<StreamedItemList> {
                 // filter out bad items
                 snapshot.data!.docs.removeWhere((element) =>
                     element.data().name == null ||
-                    element.data().price?.amount == null ||
+                    element.data().price == null ||
+                    element.data().updatedAt == null ||
                     element.data().createdAt == null);
 
                 return SortedItemList(items: snapshot.data!.docs);
@@ -62,8 +64,19 @@ class SortedItemList extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     switch (ref.watch(selectedSortByProvider)) {
       case SortBy.cheapest:
-        items.sort((a, b) =>
-            a.data()!.price!.amount!.compareTo(b.data()!.price!.amount!));
+        if (items[0].reference.parent.id == ApiPath.todaysItems) {
+          // sort by amount
+          items.sort((a, b) =>
+              a.data()!.price!.amount!.compareTo(b.data()!.price!.amount!));
+        } else {
+          // sort by compareAtPrice
+          items.sort((a, b) => a
+              .data()!
+              .price!
+              .compareAtPrice!
+              .compareTo(b.data()!.price!.compareAtPrice!));
+        }
+
         break;
       case SortBy.recent:
         items.sort((a, b) => (b.data()!.updatedAt ?? DateTime.now())
