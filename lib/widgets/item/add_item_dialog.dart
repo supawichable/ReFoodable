@@ -305,7 +305,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                   if (widget.bucket != ItemBucket.my) ...[
                     const SizedBox(height: 8),
                     SizedBox(
-                      height: 100,
+                      height: 112,
                       child: Row(
                         children: [
                           Flexible(
