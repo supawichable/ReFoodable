@@ -22,7 +22,6 @@ extension StoreQueryX on StoreQuery {
   /// The [radius] is in meters.
   ///
   /// /// Warning: this makes you lose the type cast so you have to cast it manually.
-  /// ```
   Stream<List<DocumentSnapshot<Object?>>> withinAsSingleStreamSubscription(
       GeoFirePoint center, double radius) {
     return _geo
