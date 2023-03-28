@@ -1,7 +1,6 @@
 import 'dart:io';
-import 'dart:math';
 
-import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -12,6 +11,7 @@ import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/providers/image_upload.dart';
+import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -177,30 +177,14 @@ class _StoreFormPageState extends State<StoreFormPage> {
                             children: [
                               ElevatedButton(
                                 onPressed: () async {
-                                  const centerLat = 35.67;
-                                  const centerLon = 139.70;
-
-                                  // around 15 km from this center
-                                  final lat = centerLat +
-                                      (Random().nextDouble() - 0.5) * 0.1;
-                                  final lon = centerLon +
-                                      (Random().nextDouble() - 0.5) * 0.1;
-
-                                  // use only 4 significant digits
-                                  final location = _geo.point(
-                                      latitude:
-                                          double.parse(lat.toStringAsFixed(4)),
-                                      longitude:
-                                          double.parse(lon.toStringAsFixed(4)));
-
-                                  field.didChange(location);
+                                  context.router.push(StoreLocationRoute(locationField: field));
                                 },
                                 child: const Text('Set Location'),
                               ),
                               const SizedBox(width: 12),
                               if (field.value != null)
                                 Text(
-                                    '${field.value!.latitude}, ${field.value!.longitude}'),
+                                    '${field.value!.latitude.toStringAsFixed(4)}, ${field.value!.longitude.toStringAsFixed(4)}'),
                             ],
                           ),
                         ),
