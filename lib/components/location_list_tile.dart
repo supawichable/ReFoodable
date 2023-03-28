@@ -14,7 +14,7 @@ class LocationListTile extends StatelessWidget {
       children: [
         Material(
           child: ListTile(
-              tileColor: Colors.white,
+              tileColor: Theme.of(context).colorScheme.surface,
               onTap: press,
               horizontalTitleGap: 0,
               title: Text(
@@ -23,10 +23,10 @@ class LocationListTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               )),
         ),
-        const Divider(
+        Divider(
           height: 0,
           thickness: 1,
-          color: Color(0xFFF8F8F8),
+          color: Theme.of(context).dividerColor,
         )
       ],
     );
