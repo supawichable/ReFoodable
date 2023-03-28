@@ -113,6 +113,7 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
         }),
         minHeight: 150,
         controller: panelController,
+        color: Theme.of(context).colorScheme.surface,
         body: Stack(children: [
           const GMap(),
           currentLocationState.when(
@@ -141,10 +142,10 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
                               itemBuilder: (context, index) => LocationListTile(
                                   location:
                                       placePredictions[index].description!,
-                                  press: () {
+                                  press: () async {
                                     String placeId =
                                         placePredictions[index].placeId!;
-                                    setMapCameraviewToPlaceId(placeId);
+                                    await setMapCameraviewToPlaceId(placeId);
                                   }))
                           : const SizedBox.shrink(),
                     )
@@ -194,7 +195,7 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
                 height: 5,
                 width: 50,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: Theme.of(context).colorScheme.onSurface,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 margin: const EdgeInsets.only(
@@ -216,14 +217,14 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
               ),
             ),
           ),
-          Container(
-            height: 50,
-            padding: const EdgeInsets.only(
-              left: 10,
-              right: 10,
-            ),
-            child: const SortingTab(),
-          ),
+          // Container(
+          //   height: 50,
+          //   padding: const EdgeInsets.only(
+          //     left: 10,
+          //     right: 10,
+          //   ),
+          //   child: const SortingTab(),
+          // ),
           ...storesStream.when(
               data: (data) => [
                     Container(
@@ -398,6 +399,9 @@ class _GMapState extends ConsumerState<GMap> {
     return GoogleMap(
       myLocationEnabled: true,
       myLocationButtonEnabled: true,
+      onTap: (_) {
+        FocusScope.of(context).unfocus();
+      },
       onMapCreated: (controller) {
         mapControllerNotifier.update((state) => controller);
         ref
@@ -483,10 +487,6 @@ class LocationSearchBox extends StatelessWidget {
           onTap: () {
             setSearchWidgetSwitch(true);
           },
-          onTapOutside: (_) {
-            setSearchWidgetSwitch(false);
-            FocusScope.of(context).unfocus();
-          },
           onChanged: (value) {
             placeAutocomplete(value);
             setSearchWidgetSwitch(true);
@@ -494,18 +494,20 @@ class LocationSearchBox extends StatelessWidget {
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.white,
+            fillColor: Theme.of(context).colorScheme.surface,
             hintText: 'Search Location',
             suffixIcon: const Icon(Icons.search),
             contentPadding:
                 const EdgeInsets.only(left: 20, bottom: 5, right: 5),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Colors.white),
+              borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.surfaceVariant),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Colors.white),
+              borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.surfaceVariant),
             ),
           )),
     );
