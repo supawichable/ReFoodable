@@ -16,6 +16,7 @@ class _ItemDialogPanelWidgetState extends ConsumerState<ItemDialogPanelWidget> {
   Future<T> editDialog<T>() async {
     final snapshot = ref.read(itemInContextProvider)!;
     final storeId = snapshot.reference.parent.parent!.id;
+    ref.read(itemInContextProvider.notifier).update((state) => null);
     return await showDialog(
         context: context,
         builder: (context) => AddItemDialog(
@@ -30,6 +31,7 @@ class _ItemDialogPanelWidgetState extends ConsumerState<ItemDialogPanelWidget> {
   Future<T> addToMyItem<T>() async {
     final snapshot = ref.read(itemInContextProvider)!;
     final storeId = snapshot.reference.parent.parent!.id;
+    ref.read(itemInContextProvider.notifier).update((state) => null);
     return await showDialog(
         context: context,
         builder: (context) => AddItemDialog(

@@ -2,10 +2,16 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
+import 'package:gdsctokyo/providers/item_in_context.dart';
+import 'package:gdsctokyo/screens/store/store_page.dart';
 import 'package:gdsctokyo/widgets/item/add_item_dialog.dart';
 import 'package:gdsctokyo/widgets/store_page/item_list.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-class StoreTodayItemPage extends StatefulWidget {
+final _pc = PanelController();
+
+class StoreTodayItemPage extends HookConsumerWidget {
   final String storeId;
 
   const StoreTodayItemPage(
@@ -13,18 +19,20 @@ class StoreTodayItemPage extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<StoreTodayItemPage> createState() => _StoreTodayItemPageState();
-}
-
-class _StoreTodayItemPageState extends State<StoreTodayItemPage> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(itemInContextProvider, (prev, next) {
+      if (next != null) {
+        _pc.open();
+      } else {
+        _pc.close();
+      }
+    });
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () => showDialog(
             context: context,
             builder: (context) => AddItemDialog(
-                  storeId: widget.storeId,
+                  storeId: storeId,
                   bucket: ItemBucket.today,
                 )),
         child: const Icon(Icons.add),
@@ -33,10 +41,14 @@ class _StoreTodayItemPageState extends State<StoreTodayItemPage> {
         title: const Text("Today's Items"),
         centerTitle: true,
       ),
-      body: StreamedItemList(
-          itemBucket: FirebaseFirestore.instance.stores
-              .doc(widget.storeId)
-              .todaysItems),
+      body: Stack(
+        children: [
+          StreamedItemList(
+              itemBucket:
+                  FirebaseFirestore.instance.stores.doc(storeId).todaysItems),
+          ItemMorePanel(pc: _pc)
+        ],
+      ),
     );
   }
 }

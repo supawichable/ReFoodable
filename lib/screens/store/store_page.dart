@@ -48,31 +48,40 @@ class StorePage extends HookConsumerWidget {
                 StoreInfo(storeId: storeId),
               ],
             ),
-            SlidingUpPanel(
-              backdropColor: Colors.black,
-              backdropEnabled: true,
-              backdropOpacity: 0.5,
-              backdropTapClosesPanel: true,
-              onPanelClosed: () {
-                ref
-                    .read(itemInContextProvider.notifier)
-                    .update((state) => null);
-              },
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-              minHeight: 0,
-              maxHeight:
-                  ref.watch(itemInContextProvider)?.reference.parent.id ==
-                          ApiPath.myItems
-                      ? 150
-                      : 100,
-              controller: _pc,
-              panel: const ItemDialogPanelWidget(),
-            ),
+            ItemMorePanel(pc: _pc)
           ],
         ));
+  }
+}
+
+class ItemMorePanel extends HookConsumerWidget {
+  final PanelController pc;
+
+  const ItemMorePanel({super.key, required this.pc});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SlidingUpPanel(
+      color: Theme.of(context).colorScheme.surface,
+      backdropColor: Colors.black,
+      backdropEnabled: true,
+      backdropOpacity: 0.5,
+      backdropTapClosesPanel: true,
+      onPanelClosed: () {
+        ref.read(itemInContextProvider.notifier).update((state) => null);
+      },
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(16),
+        topRight: Radius.circular(16),
+      ),
+      minHeight: 0,
+      maxHeight: ref.watch(itemInContextProvider)?.reference.parent.id ==
+              ApiPath.myItems
+          ? 150
+          : 100,
+      controller: pc,
+      panel: const ItemDialogPanelWidget(),
+    );
   }
 }
 
