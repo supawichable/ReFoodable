@@ -99,6 +99,8 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
     // request permission
   }
 
+  late double _fabPos = 0.9 * 350;
+
   @override
   Widget build(BuildContext context) {
     final currentLocationState = ref.watch(currentLocationProvider);
@@ -106,7 +108,9 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
 
     return Scaffold(
       body: SlidingUpPanel(
-        onPanelSlide: (_) => setState(() {}),
+        onPanelSlide: (_) => setState(() {
+          _fabPos = 350 * (0.9 + _);
+        }),
         minHeight: 150,
         controller: panelController,
         body: Stack(children: [
@@ -160,7 +164,7 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
               }),
           AnimatedPositioned(
             duration: const Duration(milliseconds: 100),
-            bottom: (panelController.panelPosition + 0.9) * 350,
+            bottom: _fabPos,
             right: 20,
             child: FloatingActionButton(
                 onPressed: () async {
