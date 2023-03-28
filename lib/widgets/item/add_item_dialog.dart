@@ -608,21 +608,23 @@ class _AddItemDialogState extends State<AddItemDialog> {
             updatedAt: null,
             photoURL: _itemSnapshot?.data()?.photoURL);
 
+        // if this went well we can early pop
         await addCollection.doc(itemId).set(item);
-
-        if (image != null) {
-          final itemPhotoRef = FirebaseStorage.instance.ref().child(
-              'stores/$storeId/todays_items/${_itemSnapshot?.id}/item_photo.jpg');
-          await itemPhotoRef.putFile(image);
-          final itemPhotoUrl = await itemPhotoRef.getDownloadURL();
-          await addCollection.doc(itemId).updateItem(photoURL: itemPhotoUrl);
-        }
 
         if (mounted) {
           // Find the ScaffoldMessenger in the widget tree
           // and use it to show a SnackBar.
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
           Navigator.pop(context);
+        }
+
+        if (image != null) {
+          final itemPhotoRef = FirebaseStorage.instance
+              .ref()
+              .child('stores/$storeId/todays_items/$itemId/item_photo.jpg');
+          await itemPhotoRef.putFile(image);
+          final itemPhotoUrl = await itemPhotoRef.getDownloadURL();
+          await addCollection.doc(itemId).updateItem(photoURL: itemPhotoUrl);
         }
       }
     } catch (e, stackTrace) {
@@ -637,9 +639,11 @@ class _AddItemDialogState extends State<AddItemDialog> {
         FormField.image.name: _formKey.currentState?.fields.image?.value,
       }, e, stackTrace);
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 }
