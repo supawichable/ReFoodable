@@ -137,7 +137,7 @@ class _SearchBarState extends ConsumerState<SearchBar> {
         onChanged: (value) =>
             ref.read(searchTextProvider.notifier).state = value,
         decoration: InputDecoration(
-          hintText: 'Filter',
+          hintText: 'Search',
           prefixIcon: const Icon(Icons.search),
           border: const OutlineInputBorder(),
           suffixIcon:
