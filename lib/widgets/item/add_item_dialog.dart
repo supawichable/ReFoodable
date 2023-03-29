@@ -552,10 +552,10 @@ class _AddItemDialogState extends State<AddItemDialog> {
       ),
       actions: [
         Container(
-          padding: const EdgeInsets.only(right: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           color: Theme.of(context).colorScheme.primaryContainer,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton(
                 onPressed: () {
@@ -702,7 +702,7 @@ class ItemPhoto extends HookConsumerWidget {
                   ? Image.file(itemPhoto!)
                   : serverPhotoURL != null
                       ? Image.network(serverPhotoURL!)
-                      : const SizedBox.shrink(),
+                      : const Icon(Icons.photo, size: 32,),
             ),
           ],
         ),
