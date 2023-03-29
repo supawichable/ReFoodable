@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/providers/item_in_context.dart';
+import 'package:gdsctokyo/routes/router.gr.dart';
 import 'package:gdsctokyo/screens/store/item_dialog_panel_widget.dart';
 import 'package:gdsctokyo/widgets/store_page/store_info.dart';
 import 'package:gdsctokyo/widgets/store_page/my_items.dart';
@@ -45,9 +46,16 @@ class StorePage extends HookConsumerWidget {
               shrinkWrap: true,
               children: [
                 StoreInfo(storeId: storeId),
+                ElevatedButton(
+                  child: const Text('Claim this Business'),
+                  onPressed: () {
+                    context.router
+                        .push(StoreVerificationFormRoute(storeId: storeId));
+                  },
+                ),
               ],
             ),
-            ItemMorePanel(pc: _pc)
+            ItemMorePanel(pc: _pc),
           ],
         ));
   }

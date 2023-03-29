@@ -16,6 +16,7 @@ import 'package:gdsctokyo/screens/store/store_location.dart';
 import 'package:gdsctokyo/screens/store/store_page.dart';
 import 'package:gdsctokyo/screens/store/store_page_my_item.dart';
 import 'package:gdsctokyo/screens/store/store_page_today_item.dart';
+import 'package:gdsctokyo/screens/store/store_verification_form.dart';
 
 @MaterialAutoRouter(
   replaceInRouteName: 'Page,Route',
@@ -37,6 +38,7 @@ import 'package:gdsctokyo/screens/store/store_page_today_item.dart';
     AutoRoute(page: StoreTodayItemPage, path: '/store/:storeId/today-item'),
     AutoRoute(page: StoreMyItemPage, path: '/store/:storeId/my-item'),
     AutoRoute(page: StoreLocationPage, path: '/store-location'),
+    AutoRoute(page: StoreVerificationFormPage, path: '/store/:storeId/verify'),
   ],
 )
 class $AppRouter {}
