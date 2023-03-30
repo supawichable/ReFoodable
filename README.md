@@ -4,19 +4,9 @@ A new Flutter project.
 
 ## Getting Started
 
-### About `debug.dart`
-
-Currently, we don't have an official home page, but to facilitate individual development, I decided to create a debug page that will contain all the routes to the pages that are currently being developed. Therefore, you can watch the changes in hot reload.
-
-Just follow the instructions in the `debug.dart` file.
-
 ### Setting Up Environmental Variables
 
 Please refer to instructions on `.env.example` file.
-
-### Setting Up Firebase Emulators (if needed)
-
-Please refer to instructions on `infra/README.md` file.
 
 ## Running the App in Development Mode
 
@@ -26,6 +16,12 @@ Check if there are any problems by running:
 ```bash
 flutter doctor
 ```
+Make sure you run the following command to generate the files needed for the app to run:
+
+```bash
+flutter pub run build_runner build
+```
+
 
 Then, if VS Code has Flutter extension installed, you can run
 
@@ -46,7 +42,3 @@ To run individual test, run the following command
 ```bash
 flutter test test/<path_to_test_file>
 ```
-
-## Standards and Naming Conventions
-
-Use `snake_case` for JSON and `camelCase` for variable names.
