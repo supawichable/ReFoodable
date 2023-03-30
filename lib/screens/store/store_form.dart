@@ -177,7 +177,8 @@ class _StoreFormPageState extends State<StoreFormPage> {
                             children: [
                               ElevatedButton(
                                 onPressed: () async {
-                                  context.router.push(StoreLocationRoute(locationField: field));
+                                  context.router.push(
+                                      StoreLocationRoute(locationField: field));
                                 },
                                 child: const Text('Set Location'),
                               ),
@@ -315,7 +316,7 @@ class _StoreFormPageState extends State<StoreFormPage> {
                             child: ElevatedButton.icon(
                               icon: const Icon(Icons.shopping_bag),
                               onPressed: _submit,
-                              label: const Text('Create a store'),
+                              label: const Text('Submit'),
                             ),
                           ),
                       ],
