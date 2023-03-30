@@ -287,6 +287,25 @@ class _AddItemDialogState extends State<AddItemDialog> {
                                             .colorScheme
                                             .outline)),
                               ),
+                              onChanged: (value) {
+                                // reactively change discounted price from discount %
+                                final normalPrice = double.tryParse(_formKey
+                                    .currentState!
+                                    .fields[FormField.normalPrice.name]!
+                                    .value);
+                                final discountPercent = double.tryParse(_formKey
+                                    .currentState!
+                                    .fields[FormField.discountPercent.name]!
+                                    .value);
+                                if (normalPrice != null &&
+                                    discountPercent != null) {
+                                  _formKey.currentState!
+                                      .fields[FormField.discountPrice.name]!
+                                      .didChange(getDiscountedPrice(
+                                              normalPrice, discountPercent)
+                                          ?.toStringAsFixed(2));
+                                }
+                              },
                               validator: FormBuilderValidators.compose([
                                 if (widget.bucket == ItemBucket.my)
                                   FormBuilderValidators.required(
@@ -641,6 +660,15 @@ class _AddItemDialogState extends State<AddItemDialog> {
           await addCollection.doc(itemId).updateItem(photoURL: itemPhotoUrl);
         }
       }
+    } on FirebaseException catch (e) {
+      if (e.code == 'permission-denied') {
+        // email not verified show scaffold snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please verify your email address'),
+          ),
+        );
+      }
     } catch (e, stackTrace) {
       logger.e({
         FormField.name.name: _formKey.currentState?.fields.name?.value,
@@ -702,7 +730,10 @@ class ItemPhoto extends HookConsumerWidget {
                   ? Image.file(itemPhoto!)
                   : serverPhotoURL != null
                       ? Image.network(serverPhotoURL!)
-                      : const Icon(Icons.photo, size: 32,),
+                      : const Icon(
+                          Icons.photo,
+                          size: 32,
+                        ),
             ),
           ],
         ),
