@@ -35,27 +35,28 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Center(
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Text('App Name', style: Theme.of(context).textTheme.headlineLarge),
-      // const SizedBox(height: 20),
-      // if (FirebaseAuth.instance.currentUser == null)
-      //   ElevatedButton(
-      //       onPressed: () {
-      //         FirebaseAuth.instance.signInAnonymously().then((cred) {
-      //           context.router.replace(const HomeRoute());
-      //         }).onError((FirebaseAuthException error, stackTrace) {
-      //           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      //             content: Text(error.message ?? 'Unknown Error'),
-      //           ));
-      //         });
-      //       },
-      //       // make this button bigger
-      //       style: ElevatedButton.styleFrom(
-      //           padding:
-      //               const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-      //           textStyle: Theme.of(context).textTheme.headlineSmall),
-      //       child: const Text('Get Started')),
-    ])));
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+          CircularProgressIndicator(),
+          // const SizedBox(height: 20),
+          // if (FirebaseAuth.instance.currentUser == null)
+          //   ElevatedButton(
+          //       onPressed: () {
+          //         FirebaseAuth.instance.signInAnonymously().then((cred) {
+          //           context.router.replace(const HomeRoute());
+          //         }).onError((FirebaseAuthException error, stackTrace) {
+          //           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          //             content: Text(error.message ?? 'Unknown Error'),
+          //           ));
+          //         });
+          //       },
+          //       // make this button bigger
+          //       style: ElevatedButton.styleFrom(
+          //           padding:
+          //               const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+          //           textStyle: Theme.of(context).textTheme.headlineSmall),
+          //       child: const Text('Get Started')),
+        ])));
   }
 }
