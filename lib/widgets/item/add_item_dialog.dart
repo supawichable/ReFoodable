@@ -665,7 +665,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
         // email not verified show scaffold snackbar
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Please verify your email address'),
+            content: Text('Cannot add item. Please verify your email address.'),
           ),
         );
       }
@@ -680,12 +680,18 @@ class _AddItemDialogState extends State<AddItemDialog> {
             _formKey.currentState?.fields.discountPercent?.value,
         FormField.image.name: _formKey.currentState?.fields.image?.value,
       }, e, stackTrace);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Something went wrong.'),
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
       }
+      Navigator.pop(context);
     }
   }
 }
