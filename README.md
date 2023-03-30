@@ -1,6 +1,4 @@
-# gdsctokyo
-
-A new Flutter project.
+# Refoodable
 
 ## Getting Started
 
@@ -19,9 +17,8 @@ flutter doctor
 Make sure you run the following command to generate the files needed for the app to run:
 
 ```bash
-flutter pub run build_runner build
+flutter pub run build_runner build --delete-conflicting-outputs
 ```
-
 
 Then, if VS Code has Flutter extension installed, you can run
 
