@@ -1,5 +1,8 @@
 # Refoodable
 
+## Presentation Video
+[![Presentation Video on YouTube](https://img.youtube.com/vi/UtVPyPvjBGY/0.jpg)](https://youtu.be/UtVPyPvjBGY)
+
 ## Getting Started
 
 ### Setting Up Environmental Variables
