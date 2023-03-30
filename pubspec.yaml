@@ -99,6 +99,7 @@ dev_dependencies:
   fake_cloud_firestore: ^2.4.0
   firebase_auth_mocks: ^0.10.3
   google_sign_in_mocks: ^0.2.1
+  flutter_launcher_icons: ^0.12.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -136,3 +137,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+flutter_icons:
+  image_path: "lib/assets/images/icon.png"
+  android: true
