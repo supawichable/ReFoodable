@@ -8,8 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gdsctokyo/extension/listener.dart';
 import 'package:gdsctokyo/firebase_options.dart';
 import 'package:gdsctokyo/providers/theme.dart';
-import 'package:gdsctokyo/routes/guard.dart';
-import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:gdsctokyo/routes/router.dart';
 import 'package:gdsctokyo/theme/color_schemes.dart';
 import 'package:gdsctokyo/util/logger.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -46,7 +45,7 @@ void main() async {
 class Main extends HookConsumerWidget {
   Main({super.key});
 
-  final _appRouter = AppRouter(authGuard: AuthGuard());
+  final _appRouter = AppRouter();
 
   // This widget is the root of your application.
   @override

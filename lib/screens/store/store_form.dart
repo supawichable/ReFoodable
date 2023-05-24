@@ -11,7 +11,7 @@ import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/providers/image_upload.dart';
-import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:gdsctokyo/routes/router.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -37,6 +37,7 @@ extension
   List<FoodCategory> get category => this[FormField.category.name]?.value;
 }
 
+@RoutePage()
 class StoreFormPage extends StatefulWidget {
   final String? storeId;
   const StoreFormPage({super.key, @PathParam('storeId') this.storeId});

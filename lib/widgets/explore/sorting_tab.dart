@@ -85,7 +85,7 @@ class _SortingTabState extends State<SortingTab> {
                     : Colors.brown[50],
                 borderRadius: BorderRadius.circular(20)),
             alignment: Alignment.center,
-            child: Row(children: const [
+            child: const Row(children: [
               Text('Category'),
               Icon(
                 Icons.arrow_drop_down,

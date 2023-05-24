@@ -1,8 +1,10 @@
+import 'package:auto_route/annotations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/widgets/my_page/my_stores.dart';
 import 'package:gdsctokyo/widgets/my_page/profile_card.dart';
 
+@RoutePage()
 class MypagePage extends StatelessWidget {
   const MypagePage({super.key});
 

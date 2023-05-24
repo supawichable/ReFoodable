@@ -11,6 +11,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 final _pc = PanelController();
 
+@RoutePage()
 class StoreMyItemPage extends HookConsumerWidget {
   final String storeId;
 

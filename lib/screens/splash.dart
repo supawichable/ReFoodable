@@ -1,13 +1,14 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/providers/current_user.dart';
-import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:gdsctokyo/routes/router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 // Splash Screen is for initiating the app
 // Originally it was intended to be signInAnonymously-inator but the idea
 // was scrapped because we don't want to store unauthenticated user data
 
+@RoutePage()
 class SplashPage extends StatefulHookConsumerWidget {
   const SplashPage({super.key});
 
@@ -33,30 +34,29 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
         body: Center(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-          CircularProgressIndicator(),
-          // const SizedBox(height: 20),
-          // if (FirebaseAuth.instance.currentUser == null)
-          //   ElevatedButton(
-          //       onPressed: () {
-          //         FirebaseAuth.instance.signInAnonymously().then((cred) {
-          //           context.router.replace(const HomeRoute());
-          //         }).onError((FirebaseAuthException error, stackTrace) {
-          //           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          //             content: Text(error.message ?? 'Unknown Error'),
-          //           ));
-          //         });
-          //       },
-          //       // make this button bigger
-          //       style: ElevatedButton.styleFrom(
-          //           padding:
-          //               const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-          //           textStyle: Theme.of(context).textTheme.headlineSmall),
-          //       child: const Text('Get Started')),
-        ])));
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+      CircularProgressIndicator(),
+      // const SizedBox(height: 20),
+      // if (FirebaseAuth.instance.currentUser == null)
+      //   ElevatedButton(
+      //       onPressed: () {
+      //         FirebaseAuth.instance.signInAnonymously().then((cred) {
+      //           context.router.replace(const HomeRoute());
+      //         }).onError((FirebaseAuthException error, stackTrace) {
+      //           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //             content: Text(error.message ?? 'Unknown Error'),
+      //           ));
+      //         });
+      //       },
+      //       // make this button bigger
+      //       style: ElevatedButton.styleFrom(
+      //           padding:
+      //               const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+      //           textStyle: Theme.of(context).textTheme.headlineSmall),
+      //       child: const Text('Get Started')),
+    ])));
   }
 }

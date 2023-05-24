@@ -21,6 +21,7 @@ import 'package:gdsctokyo/models/place_autocomplete/autocomplete_prediction.dart
 import 'package:gdsctokyo/models/place_autocomplete/place_auto_complete_response.dart';
 import 'package:gdsctokyo/models/place_details/place_details_response.dart';
 
+@RoutePage()
 class ExplorePage extends StatefulHookConsumerWidget {
   const ExplorePage({super.key});
 

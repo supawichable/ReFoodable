@@ -14,6 +14,7 @@ extension
   String? get verificationMode => this[FormField.verificationMode.name]?.value;
 }
 
+@RoutePage()
 class StoreVerificationFormPage extends StatefulWidget {
   final String? storeId;
   const StoreVerificationFormPage(
@@ -110,7 +111,7 @@ class _StoreVerificationFormPageState extends State<StoreVerificationFormPage> {
   }
 
   Future<void> _submit() async {
-    String? _message;
+    String? message;
     if (_formKey.currentState!.saveAndValidate()) {
       setState(() {
         _isLoading = true;
@@ -126,17 +127,17 @@ class _StoreVerificationFormPageState extends State<StoreVerificationFormPage> {
           'phone': fields.phone,
           'mode': fields.verificationMode
         });
-        _message = 'Submitted successfully';
+        message = 'Submitted successfully';
       } catch (e) {
-        _message = 'Error submitting';
+        message = 'Error submitting';
         setState(() {
           _isLoading = false;
         });
       }
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(_message)));
       if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(message)));
         context.router.pop();
       }
     }

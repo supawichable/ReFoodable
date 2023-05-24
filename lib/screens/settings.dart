@@ -1,9 +1,11 @@
+import 'package:auto_route/annotations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/providers/current_user.dart';
 import 'package:gdsctokyo/providers/theme.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+@RoutePage()
 class SettingsPage extends HookConsumerWidget {
   const SettingsPage({super.key});
 

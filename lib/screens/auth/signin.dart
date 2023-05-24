@@ -8,7 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:gdsctokyo/providers/image_upload.dart';
-import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:gdsctokyo/routes/router.dart';
 import 'package:gdsctokyo/widgets/common/or_bar.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
@@ -31,6 +31,7 @@ String randomString(int length) {
       .join();
 }
 
+@RoutePage()
 class SignInPage extends StatefulHookConsumerWidget {
   const SignInPage({super.key});
 
