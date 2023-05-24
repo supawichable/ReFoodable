@@ -2,11 +2,14 @@ import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gdsctokyo/components/network_utility.dart';
+import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/distance_matrix/distance_matrix_response.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
+import 'package:gdsctokyo/providers/current_user.dart';
 import 'package:gdsctokyo/providers/explore.dart';
 import 'package:gdsctokyo/util/logger.dart';
 import 'package:gdsctokyo/widgets/store_page/store_card.dart';
@@ -20,6 +23,8 @@ import 'package:gdsctokyo/components/location_list_tile.dart';
 import 'package:gdsctokyo/models/place_autocomplete/autocomplete_prediction.dart';
 import 'package:gdsctokyo/models/place_autocomplete/place_auto_complete_response.dart';
 import 'package:gdsctokyo/models/place_details/place_details_response.dart';
+
+final _firestore = FirebaseFirestore.instance;
 
 @RoutePage()
 class ExplorePage extends StatefulHookConsumerWidget {
@@ -388,7 +393,32 @@ class _GMapState extends ConsumerState<GMap> {
               snippet:
                   '${ref.watch(storeDistanceProvider)[placeOrStore.id] ?? '...'} from here',
               onTap: () {
-                context.router.pushNamed('/store/${placeOrStore.id}');
+                if (placeOrStore.type == PlaceOrStoreType.store) {
+                  context.router.pushNamed('/store/${placeOrStore.id}');
+                  return;
+                }
+                _firestore.stores
+                    .where('placeId', isEqualTo: placeOrStore.id)
+                    .get()
+                    .then((value) {
+                  if (value.docs.isNotEmpty) {
+                    context.router.pushNamed('/store/${value.docs.first.id}');
+                  } else {
+                    _firestore.stores
+                        .add(Store(
+                      name: placeOrStore.name,
+                      placeId: placeOrStore.id,
+                      address: placeOrStore.address,
+                      location: placeOrStore.geoFirePoint,
+                      ownerId: FirebaseAuth.instance.currentUser!.uid,
+                    ))
+                        .then((value) {
+                      context.router.pushNamed('/store/${value.id}');
+                    }).catchError((error) {
+                      logger.e(error);
+                    });
+                  }
+                });
               }));
     }).toSet();
 

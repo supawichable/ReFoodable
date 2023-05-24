@@ -14,6 +14,7 @@ class Store with _$Store {
     String? email,
     String? phone,
     String? photoURL,
+    String? placeId,
     List<FoodCategory>? category,
   }) = _Store;
 

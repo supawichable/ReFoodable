@@ -143,7 +143,6 @@ final placesProvider = StreamProvider((ref) {
       type: 'convenience_store',
     );
 
-    logger.d(input.radius);
     final nearBySuperMarketFuture = _places.searchNearbyWithRadius(
         places_ex.Location(
             lat: input.center.latitude, lng: input.center.longitude),
@@ -196,6 +195,14 @@ final placesAndStoresWrapperProvider = StateProvider((ref) {
                 if (store.location == null || store.name == null) {
                   return null;
                 }
+                // remove from places if placeId matches the place.id and the location is very close
+                placesWCommonFields.removeWhere((place) =>
+                    place.id == store.placeId &&
+                    place.geoFirePoint.distance(
+                            lat: store.location!.latitude,
+                            lng: store.location!.longitude) <
+                        0.1);
+
                 return PlaceOrStore(
                     id: storeDoc.id,
                     name: store.name!,
