@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
-import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:gdsctokyo/routes/router.dart';
 
 class StoreCard extends StatefulWidget {
   final String storeId;

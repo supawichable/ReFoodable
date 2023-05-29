@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
 import 'package:gdsctokyo/providers/item_in_context.dart';
-import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:gdsctokyo/routes/router.dart';
 import 'package:gdsctokyo/screens/store/item_dialog_panel_widget.dart';
 import 'package:gdsctokyo/widgets/store_page/store_info.dart';
 import 'package:gdsctokyo/widgets/store_page/my_items.dart';
@@ -15,6 +15,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 final _pc = PanelController();
 
+@RoutePage()
 class StorePage extends HookConsumerWidget {
   final String storeId;
 

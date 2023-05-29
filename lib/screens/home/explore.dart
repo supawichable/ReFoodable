@@ -2,11 +2,14 @@ import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gdsctokyo/components/network_utility.dart';
+import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/distance_matrix/distance_matrix_response.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
+import 'package:gdsctokyo/providers/current_user.dart';
 import 'package:gdsctokyo/providers/explore.dart';
 import 'package:gdsctokyo/util/logger.dart';
 import 'package:gdsctokyo/widgets/store_page/store_card.dart';
@@ -21,6 +24,9 @@ import 'package:gdsctokyo/models/place_autocomplete/autocomplete_prediction.dart
 import 'package:gdsctokyo/models/place_autocomplete/place_auto_complete_response.dart';
 import 'package:gdsctokyo/models/place_details/place_details_response.dart';
 
+final _firestore = FirebaseFirestore.instance;
+
+@RoutePage()
 class ExplorePage extends StatefulHookConsumerWidget {
   const ExplorePage({super.key});
 
@@ -309,19 +315,18 @@ class _GMapState extends ConsumerState<GMap> {
   // }
 
   Future<Map<String, String>> getDistances(
-      LatLng origin, List<DocumentSnapshot<Object?>> storeLst) async {
+      LatLng origin, List<PlaceOrStore> storeOrPlaceLst) async {
     // 1. Filter out cached distances
-    final List<DocumentSnapshot<Object?>> filteredStoreLst = storeLst
-        .where((storeDoc) =>
-            !ref.read(storeDistanceProvider).containsKey(storeDoc.id))
+    final filteredStoreLst = storeOrPlaceLst
+        .where(
+            (store) => !ref.read(storeDistanceProvider).containsKey(store.id))
         .toList();
 
     // 2. Get the list of destinationLatLng for uncached distances
-    final List<LatLng> destinationLatLngLst = filteredStoreLst.map((storeDoc) {
-      final store = Store.fromJson(storeDoc.data() as Map<String, dynamic>);
-      final geoPoint = store.location!.geoPoint;
-      return LatLng(geoPoint.latitude, geoPoint.longitude);
-    }).toList();
+    final List<LatLng> destinationLatLngLst = filteredStoreLst
+        .map((store) =>
+            LatLng(store.geoFirePoint.latitude, store.geoFirePoint.longitude))
+        .toList();
 
     // 3. Create a destinationParam which is a string of latlng separated by '|'
     String destinationParam = '';
@@ -358,12 +363,12 @@ class _GMapState extends ConsumerState<GMap> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(storesStreamProvider, (pref, storeLst) {
+    ref.listen(placesAndStoresWrapperProvider, (pref, storeLst) {
       ref.read(currentLocationProvider).whenOrNull(
           success: (locationData, latLng, geoFirePoint) async {
         try {
           // might error out if something wrong with the response
-          await getDistances(latLng, storeLst.asData!.value);
+          await getDistances(latLng, storeLst);
           setState(() {});
         } catch (e, stackTrace) {
           logger.e('Oh no. Can\'t get distances', e, stackTrace);
@@ -371,28 +376,52 @@ class _GMapState extends ConsumerState<GMap> {
       });
     });
 
-    final Set<Marker> markers = ref
-            .watch(storesStreamProvider)
-            .whenData((storeLst) => storeLst.map((storeDoc) {
-                  final store =
-                      Store.fromJson(storeDoc.data() as Map<String, dynamic>);
-                  GeoPoint geoPoint = store.location!.geoPoint;
-                  LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
+    final Set<Marker> markers =
+        ref.watch(placesAndStoresWrapperProvider).map((placeOrStore) {
+      final geoPoint = placeOrStore.geoFirePoint;
+      LatLng latlng = LatLng(geoPoint.latitude, geoPoint.longitude);
 
-                  return Marker(
-                      markerId: MarkerId(storeDoc.id),
-                      position: latlng,
-                      infoWindow: InfoWindow(
-                          title: store.name,
-                          snippet:
-                              '${ref.watch(storeDistanceProvider)[storeDoc.id] ?? '...'} from here',
-                          onTap: () {
-                            context.router.pushNamed('/store/${storeDoc.id}');
-                          }));
-                }).toSet())
-            .asData
-            ?.value ??
-        {};
+      return Marker(
+          markerId: MarkerId(placeOrStore.id),
+          position: latlng,
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+              placeOrStore.type == PlaceOrStoreType.place
+                  ? BitmapDescriptor.hueGreen
+                  : BitmapDescriptor.hueRed),
+          infoWindow: InfoWindow(
+              title: placeOrStore.name,
+              snippet:
+                  '${ref.watch(storeDistanceProvider)[placeOrStore.id] ?? '...'} from here',
+              onTap: () {
+                if (placeOrStore.type == PlaceOrStoreType.store) {
+                  context.router.pushNamed('/store/${placeOrStore.id}');
+                  return;
+                }
+                _firestore.stores
+                    .where('placeId', isEqualTo: placeOrStore.id)
+                    .get()
+                    .then((value) {
+                  if (value.docs.isNotEmpty) {
+                    context.router.pushNamed('/store/${value.docs.first.id}');
+                  } else {
+                    _firestore.stores
+                        .add(Store(
+                      name: placeOrStore.name,
+                      placeId: placeOrStore.id,
+                      address: placeOrStore.address,
+                      location: placeOrStore.geoFirePoint,
+                      ownerId: FirebaseAuth.instance.currentUser!.uid,
+                    ))
+                        .then((value) {
+                      context.router.pushNamed('/store/${value.id}');
+                    }).catchError((error) {
+                      logger.e(error);
+                    });
+                  }
+                });
+              }));
+    }).toSet();
+
     return GoogleMap(
       myLocationEnabled: true,
       myLocationButtonEnabled: true,

@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:gdsctokyo/routes/router.dart';
 
 class MyStoresCard extends StatelessWidget {
   const MyStoresCard({super.key});
@@ -11,20 +11,19 @@ class MyStoresCard extends StatelessWidget {
       onTap: () {
         context.router.push(const MyStoresRoute());
       },
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: const [
-              Icon(Icons.store, size: 48),
-              SizedBox(width: 16),
-              Text('Manage My Stores'),
-              Spacer(),
-              Icon(Icons.arrow_forward_ios),
-            ],
-          ),
-        )
-      ),
+      child: const Card(
+          child: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            Icon(Icons.store, size: 48),
+            SizedBox(width: 16),
+            Text('Manage My Stores'),
+            Spacer(),
+            Icon(Icons.arrow_forward_ios),
+          ],
+        ),
+      )),
     );
   }
 }

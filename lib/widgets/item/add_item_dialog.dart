@@ -161,7 +161,6 @@ class _AddItemDialogState extends State<AddItemDialog> {
       content: FormBuilder(
         key: _formKey,
         autovalidateMode: AutovalidateMode.disabled,
-        autoFocusOnValidationFailure: true,
         onChanged: () => _formKey.currentState?.save(),
         child: Container(
           color: Theme.of(context).colorScheme.background,

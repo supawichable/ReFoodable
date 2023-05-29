@@ -1,12 +1,14 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:gdsctokyo/util/logger.dart';
+// ignore: unused_import
 import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 final _geo = GeoFlutterFire();
 
+@RoutePage()
 class StoreLocationPage extends StatefulWidget {
   final locationField;
   const StoreLocationPage({super.key, required this.locationField});
@@ -29,7 +31,7 @@ class _StoreLocationPageState extends State<StoreLocationPage> {
         currLatLng = LatLng(location.latitude!, location.longitude!);
       });
     }).catchError((e) {
-      print('_getCurrentLocation error: $e');
+      logger.e('_getCurrentLocation error: $e');
     });
   }
 
@@ -46,11 +48,13 @@ class _StoreLocationPageState extends State<StoreLocationPage> {
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
-            widget.locationField.didChange(_geo.point(latitude: currLatLng!.latitude, longitude: currLatLng!.longitude));
+            widget.locationField.didChange(_geo.point(
+                latitude: currLatLng!.latitude,
+                longitude: currLatLng!.longitude));
             context.router.pop();
           },
-          label: Row(
-            children: const [
+          label: const Row(
+            children: [
               Icon(Icons.save),
               Text('Save'),
             ],
@@ -64,17 +68,17 @@ class _StoreLocationPageState extends State<StoreLocationPage> {
                   target: currLatLng!,
                   zoom: 13.5,
                 ),
-                markers: Set<Marker>.of(<Marker>[
-                  Marker(
-                      draggable: true,
-                      markerId: MarkerId("1"),
-                      position: currLatLng!,
-                      onDragEnd: ((newPosition) {
-                        setState(() {
-                          currLatLng = LatLng(
-                              newPosition.latitude!, newPosition.longitude!);
-                        });
-                      }))
-                ])));
+                markers: <Marker>{
+                    Marker(
+                        draggable: true,
+                        markerId: const MarkerId('1'),
+                        position: currLatLng!,
+                        onDragEnd: ((newPosition) {
+                          setState(() {
+                            currLatLng = LatLng(
+                                newPosition.latitude, newPosition.longitude);
+                          });
+                        }))
+                  }));
   }
 }

@@ -1,7 +1,9 @@
 // reset password page
+import 'package:auto_route/annotations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+@RoutePage()
 class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({super.key});
 

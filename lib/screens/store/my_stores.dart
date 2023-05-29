@@ -4,9 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
-import 'package:gdsctokyo/routes/router.gr.dart';
+import 'package:gdsctokyo/routes/router.dart';
 import 'package:gdsctokyo/widgets/store_page/store_card.dart';
 
+@RoutePage()
 class MyStoresPage extends StatefulWidget {
   const MyStoresPage({super.key});
 

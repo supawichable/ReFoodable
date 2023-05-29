@@ -1,16 +1,22 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/explore/_explore.dart';
+import 'package:gdsctokyo/models/store/_store.dart';
+import 'package:gdsctokyo/util/logger.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:location/location.dart';
+import 'package:location/location.dart' as location;
 import 'package:rxdart/rxdart.dart';
+import 'package:google_maps_webservice_ex/places.dart' as places_ex;
 
 final _geo = GeoFlutterFire();
 final _fireStore = FirebaseFirestore.instance;
+final _places =
+    places_ex.GoogleMapsPlaces(apiKey: dotenv.get('ANDROID_GOOGLE_API_KEY'));
 
 final currentLocationProvider =
     StateNotifierProvider<CurrentLocationNotifier, LocationState>(
@@ -18,12 +24,12 @@ final currentLocationProvider =
 );
 
 class CurrentLocationNotifier extends StateNotifier<LocationState> {
-  static final _location = Location();
+  static final _location = location.Location();
   CurrentLocationNotifier() : super(const LocationState.standby());
 
   void _updateLocation(double latitude, double longitude) {
     state = LocationState.success(
-      locationData: LocationData.fromMap({
+      locationData: location.LocationData.fromMap({
         'latitude': latitude,
         'longitude': longitude,
       }),
@@ -41,7 +47,7 @@ class CurrentLocationNotifier extends StateNotifier<LocationState> {
     _updateLocation(geoFirePoint.latitude, geoFirePoint.longitude);
   }
 
-  void setStateByLocationData(LocationData locationData) {
+  void setStateByLocationData(location.LocationData locationData) {
     if (locationData.latitude == null || locationData.longitude == null) {
       state = const LocationState.failure(
         message: 'Location is null',
@@ -56,7 +62,7 @@ class CurrentLocationNotifier extends StateNotifier<LocationState> {
   /// but also returns the [LocationData] if you want to use it.
   /// Keep in mind that it doesn't return [LocationState] because
   /// that would be redundant.
-  Future<LocationData?> getCurrentLocation() async {
+  Future<location.LocationData?> getCurrentLocation() async {
     final locationData = await _location.getLocation();
     setStateByLocationData(locationData);
     return locationData;
@@ -125,6 +131,112 @@ final storesStreamProvider = StreamProvider<List<DocumentSnapshot>>((ref) {
     );
   });
 });
+
+final placesProvider = StreamProvider((ref) {
+  final queryInput = ref.read(storeQueryInputProvider);
+  return queryInput.switchMap((input) {
+    final nearByConvenienceStoreFuture = _places.searchNearbyWithRadius(
+      places_ex.Location(
+          lat: input.center.latitude, lng: input.center.longitude),
+      input.radius,
+      keyword: 'コンビニ',
+      type: 'convenience_store',
+    );
+
+    final nearBySuperMarketFuture = _places.searchNearbyWithRadius(
+        places_ex.Location(
+            lat: input.center.latitude, lng: input.center.longitude),
+        input.radius,
+        keyword: 'スーパー',
+        type: 'supermarket');
+
+    // convert into stream and combine both stream with an arbitrary function combinePlaces
+    // you can use `combinePlaces` however you want. I will implement the function later
+    return Rx.combineLatest2(Stream.fromFuture(nearByConvenienceStoreFuture),
+        Stream.fromFuture(nearBySuperMarketFuture),
+        (places_ex.PlacesSearchResponse convenienceStoreResponse,
+            places_ex.PlacesSearchResponse superMarketResponse) {
+      return [
+        ...convenienceStoreResponse.results,
+        ...superMarketResponse.results
+      ];
+    });
+  });
+});
+
+final placesAndStoresWrapperProvider = StateProvider((ref) {
+  final AsyncValue<List<places_ex.PlacesSearchResult>> places =
+      ref.watch(placesProvider);
+  final AsyncValue<List<DocumentSnapshot<Object?>>> storeDocuments =
+      ref.watch(storesStreamProvider);
+
+  final placesWCommonFields = places.whenOrNull(
+          data: (data) =>
+              data.where((place) => place.geometry != null).map((place) {
+                final object = PlaceOrStore(
+                    id: place.placeId,
+                    name: place.name,
+                    address: place.formattedAddress,
+                    types: place.types,
+                    geoFirePoint: _geo.point(
+                        latitude: place.geometry!.location.lat,
+                        longitude: place.geometry!.location.lng),
+                    type: PlaceOrStoreType.place);
+
+                return object;
+              }).toList()) ??
+      [];
+
+  final storesWCommonFields = storeDocuments.whenOrNull(
+          data: (data) => data
+              .map((storeDoc) {
+                final store =
+                    Store.fromJson(storeDoc.data() as Map<String, dynamic>);
+                if (store.location == null || store.name == null) {
+                  return null;
+                }
+                // remove from places if placeId matches the place.id and the location is very close
+                placesWCommonFields.removeWhere((place) =>
+                    place.id == store.placeId &&
+                    place.geoFirePoint.distance(
+                            lat: store.location!.latitude,
+                            lng: store.location!.longitude) <
+                        0.1);
+
+                return PlaceOrStore(
+                    id: storeDoc.id,
+                    name: store.name!,
+                    address: store.address,
+                    types: store.category?.map((e) => e.name).toList() ?? [],
+                    geoFirePoint: store.location!,
+                    type: PlaceOrStoreType.store);
+              })
+              .whereType<PlaceOrStore>()
+              .toList()) ??
+      [];
+
+  final placesAndStores = [...placesWCommonFields, ...storesWCommonFields];
+  return placesAndStores;
+});
+
+enum PlaceOrStoreType { place, store }
+
+class PlaceOrStore {
+  final PlaceOrStoreType type;
+  final String id;
+  final String name;
+  final String? address;
+  final List<String> types;
+  final GeoFirePoint geoFirePoint;
+
+  PlaceOrStore(
+      {required this.id,
+      required this.name,
+      required this.address,
+      required this.types,
+      required this.geoFirePoint,
+      required this.type});
+}
 
 final storeDistanceProvider = StateProvider<Map<String, String>>((ref) {
   return {};

@@ -1,3 +1,4 @@
+import 'package:auto_route/annotations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
@@ -5,6 +6,7 @@ import 'package:gdsctokyo/providers/current_user.dart';
 import 'package:gdsctokyo/widgets/store_page/store_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+@RoutePage()
 class BookmarkPage extends StatefulHookConsumerWidget {
   const BookmarkPage({super.key});
 
