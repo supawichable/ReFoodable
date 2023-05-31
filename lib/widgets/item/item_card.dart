@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 import 'package:gdsctokyo/providers/item_in_context.dart';
+import 'package:gdsctokyo/widgets/item/buy_item_dialog.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -123,6 +124,23 @@ class ItemCard extends HookConsumerWidget {
                         style: Theme.of(context).textTheme.bodySmall?.apply(
                               color: Theme.of(context).colorScheme.onSurface,
                             )),
+                    snapshot.reference.parent.id == ApiPath.myItems
+                        ? const SizedBox.shrink()
+                        : GestureDetector(
+                            onTap: () => showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return BuyItemDialog(item: item);
+                                }),
+                            child: Text('Buy this',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.apply(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    )),
+                          )
                   ],
                 ),
               ],
