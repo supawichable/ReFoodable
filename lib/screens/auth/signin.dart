@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -397,6 +398,11 @@ class _SignInPageState extends ConsumerState<SignInPage> {
           await FirebaseAuth.instance.currentUser!
               .updatePhotoURL('$placeholderUrlbase$seed');
         }
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .set({'money_saved': 0, 'food_item_saved': 0}, SetOptions(merge: true));
 
         if (mounted) {
           context.router.replace(const HomeRoute());
