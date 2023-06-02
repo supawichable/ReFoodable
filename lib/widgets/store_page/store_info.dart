@@ -29,7 +29,7 @@ class _StoreCardState extends State<StoreCard> {
     return snapshot.data()?.displayName;
   });
   late final bool editable = ownerId != null
-      ? FirebaseAuth.instance.currentUser!.uid == ownerId
+      ? FirebaseAuth.instance.currentUser?.uid == ownerId
       : false;
 
   @override
@@ -40,7 +40,7 @@ class _StoreCardState extends State<StoreCard> {
           // crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Store Info',
+            Text('Info',
                 style: Theme.of(context)
                     .textTheme
                     .headlineSmall
