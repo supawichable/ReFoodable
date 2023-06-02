@@ -9,8 +9,8 @@ import 'package:gdsctokyo/components/network_utility.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
 import 'package:gdsctokyo/models/distance_matrix/distance_matrix_response.dart';
 import 'package:gdsctokyo/models/store/_store.dart';
-import 'package:gdsctokyo/providers/current_user.dart';
 import 'package:gdsctokyo/providers/explore.dart';
+import 'package:gdsctokyo/routes/router.dart';
 import 'package:gdsctokyo/util/logger.dart';
 import 'package:gdsctokyo/widgets/store_page/store_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -386,17 +386,46 @@ class _GMapState extends ConsumerState<GMap> {
           position: latlng,
           icon: BitmapDescriptor.defaultMarkerWithHue(
               placeOrStore.type == PlaceOrStoreType.place
-                  ? BitmapDescriptor.hueGreen
+                  ? BitmapDescriptor.hueYellow
                   : BitmapDescriptor.hueRed),
           infoWindow: InfoWindow(
               title: placeOrStore.name,
               snippet:
                   '${ref.watch(storeDistanceProvider)[placeOrStore.id] ?? '...'} from here',
-              onTap: () {
+              onTap: () async {
                 if (placeOrStore.type == PlaceOrStoreType.store) {
                   context.router.pushNamed('/store/${placeOrStore.id}');
                   return;
                 }
+
+                // Handle user not logged in
+                if (FirebaseAuth.instance.currentUser == null) {
+                  // show dialog to login
+                  await showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Login'),
+                          content: const Text(
+                              'This store is not yet registered. Please login to be the first to register it!'),
+                          actions: [
+                            TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Cancel')),
+                            TextButton(
+                                onPressed: () {
+                                  context.router.push(const SignInRoute());
+                                },
+                                child: const Text('Login')),
+                            // dismiss the dialog
+                          ],
+                        );
+                      });
+                  return;
+                }
+
                 _firestore.stores
                     .where('placeId', isEqualTo: placeOrStore.id)
                     .get()

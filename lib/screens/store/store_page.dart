@@ -103,7 +103,7 @@ class _BookMarkButton extends StatefulWidget {
 }
 
 class __BookMarkButtonState extends State<_BookMarkButton> {
-  late Stream<DocumentSnapshot> _bookmarkStream;
+  Stream<DocumentSnapshot>? _bookmarkStream;
 
   @override
   void initState() {
@@ -121,26 +121,30 @@ class __BookMarkButtonState extends State<_BookMarkButton> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<DocumentSnapshot>(
-        stream: _bookmarkStream,
-        builder: (context, snapshot) {
-          return IconButton(
-            onPressed: () async {
-              if (snapshot.data?.exists == true) {
-                await FirebaseFirestore.instance.users
-                    .doc(FirebaseAuth.instance.currentUser?.uid)
-                    .bookmarks
-                    .doc(widget.storeId)
-                    .delete();
-              } else {
-                await _addToBookmark();
-              }
-            },
-            icon: Icon(snapshot.data?.exists == true
-                ? Icons.bookmark
-                : Icons.bookmark_border),
-          );
-        });
+    if (_bookmarkStream == null) {
+      return Container();
+    } else {
+      return StreamBuilder<DocumentSnapshot>(
+          stream: _bookmarkStream,
+          builder: (context, snapshot) {
+            return IconButton(
+              onPressed: () async {
+                if (snapshot.data?.exists == true) {
+                  await FirebaseFirestore.instance.users
+                      .doc(FirebaseAuth.instance.currentUser?.uid)
+                      .bookmarks
+                      .doc(widget.storeId)
+                      .delete();
+                } else {
+                  await _addToBookmark();
+                }
+              },
+              icon: Icon(snapshot.data?.exists == true
+                  ? Icons.bookmark
+                  : Icons.bookmark_border),
+            );
+          });
+    }
   }
 
   Future<void> _addToBookmark() async {
