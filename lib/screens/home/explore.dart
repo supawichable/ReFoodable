@@ -220,14 +220,6 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
               ),
             ),
           ),
-          // Container(
-          //   height: 50,
-          //   padding: const EdgeInsets.only(
-          //     left: 10,
-          //     right: 10,
-          //   ),
-          //   child: const SortingTab(),
-          // ),
           ...storesStream.when(
               data: (data) => [
                     Container(

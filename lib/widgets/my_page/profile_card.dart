@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/models/image_upload/_image_upload.dart';
@@ -35,33 +36,43 @@ class ProfileCard extends HookConsumerWidget {
   }
 }
 
-class ProfileData extends StatelessWidget {
+class ProfileData extends StatefulWidget {
   final User? user;
   const ProfileData({super.key, this.user});
 
   @override
+  State<ProfileData> createState() => _ProfileDataState();
+}
+
+class _ProfileDataState extends State<ProfileData> {
+  double? moneySaved;
+  int? foodItemSaved;
+
+  @override
   Widget build(BuildContext context) {
+    String? userUid = widget.user?.uid;
+
     return Column(
       children: [
         Row(
           children: [
-            if (user == null)
+            if (widget.user == null)
               const CircleAvatar(
                 radius: 30,
                 backgroundImage: NetworkImage(kplaceholderImage),
               ),
-            if (user != null) UploadableProfileImage(user!),
+            if (widget.user != null) UploadableProfileImage(widget.user!),
             const SizedBox(width: 16),
-            if (user != null)
-              Text(user?.displayName ?? '(Profile not completed)',
+            if (widget.user != null)
+              Text(widget.user?.displayName ?? '(Profile not completed)',
                   style: Theme.of(context).textTheme.bodyLarge)
             else
               Text('You\'re not signed in.',
                   style: Theme.of(context).textTheme.bodyLarge),
-            if (user != null) DisplayNameEditor(user: user!)
+            if (widget.user != null) DisplayNameEditor(user: widget.user!)
           ],
         ),
-        if (user == null)
+        if (widget.user == null)
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
@@ -69,10 +80,50 @@ class ProfileData extends StatelessWidget {
               'Sign in to save your favorites and participate in the community!',
             ),
           ),
+        if (widget.user != null)
+          StreamBuilder(
+              stream: FirebaseFirestore.instance.collection('users').doc(userUid).snapshots(),
+              builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Text('Retrieving data...');
+                  }
+
+                return Container(
+                  decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(8))),
+                  margin: const EdgeInsets.only(left: 8, right: 8, top: 16, bottom: 16),
+                  padding: const EdgeInsets.only(top: 8, bottom: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Money Saved'),
+                            Text('${snapshot.data!['money_saved'] ?? ''}',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 28)
+                            ),
+                          ])
+                      ]),
+                      Row(children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Food Items Saved'),
+                            Text('${snapshot.data!['food_item_saved'] ?? ''}', 
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 28)
+                            ),
+                        ])
+                      ]),
+                    ],
+                  ),
+                );
+              }),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (user == null)
+            if (widget.user == null)
               ElevatedButton(
                 onPressed: () {
                   context.router.push(const SignInRoute());

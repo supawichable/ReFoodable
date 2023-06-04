@@ -45,9 +45,12 @@ class FirebaseListener {
       if (user == null) {
         return;
       }
+      final userData = await _firestore.users.doc(user.uid).get();
       await _firestore.users.doc(user.uid).set(UserPublic(
             displayName: user.displayName,
             photoURL: user.photoURL,
+            moneySaved: userData['money_saved'],
+            foodItemSaved: userData['food_item_saved']
           ));
     });
   }
