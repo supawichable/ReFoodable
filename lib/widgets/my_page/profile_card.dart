@@ -48,18 +48,6 @@ class _ProfileDataState extends State<ProfileData> {
   double? moneySaved;
   int? foodItemSaved;
 
-  Future _getAmountSaved(String? userUid) async {
-    try {
-      final ref = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userUid)
-          .get();
-      return [ref['money_saved'], ref['food_item_saved']];
-    } catch (e) {
-      return [null, null];
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     String? userUid = widget.user?.uid;
@@ -96,6 +84,10 @@ class _ProfileDataState extends State<ProfileData> {
           StreamBuilder(
               stream: FirebaseFirestore.instance.collection('users').doc(userUid).snapshots(),
               builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Text('Retrieving data...');
+                  }
+
                 return Container(
                   decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(8))),
                   margin: const EdgeInsets.only(left: 8, right: 8, top: 16, bottom: 16),
@@ -109,7 +101,7 @@ class _ProfileDataState extends State<ProfileData> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Money Saved'),
-                            Text('${snapshot.data!['money_saved'] ?? "Retrieving data..."}',
+                            Text('${snapshot.data!['money_saved'] ?? ''}',
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 28)
                             ),
                           ])
