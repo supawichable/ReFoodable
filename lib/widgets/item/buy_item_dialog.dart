@@ -23,31 +23,23 @@ class _BuyItemDialogState extends State<BuyItemDialog> {
   }
 
   Future _addAmountSaved(double priceDiff) async {
-    try {
-      final userData = await ref.get();
-      final num moneySaved = userData['money_saved'] ?? 0;
-      final num foodItemSaved = userData['food_item_saved'] ?? 0;
-      await ref.update({
-        'money_saved': moneySaved + priceDiff,
-        'food_item_saved': foodItemSaved + 1
-      });
-    } catch (e) {
-      print("ERRORR: $e");
-    }
+    final userData = await ref.get();
+    final num moneySaved = userData['money_saved'] ?? 0;
+    final num foodItemSaved = userData['food_item_saved'] ?? 0;
+    await ref.update({
+      'money_saved': moneySaved + priceDiff,
+      'food_item_saved': foodItemSaved + 1
+    });
   }
 
   Future _undoAmountSaved(double priceDiff) async {
-    try {
-      final userData = await ref.get();
-      final num moneySaved = userData['money_saved'] ?? 0;
-      final num foodItemSaved = userData['food_item_saved'] ?? 0;
-      await ref.update({
-        'money_saved': moneySaved - priceDiff,
-        'food_item_saved': foodItemSaved - 1
-      });
-    } catch (e) {
-      print("ERRORR: $e");
-    }
+    final userData = await ref.get();
+    final num moneySaved = userData['money_saved'] ?? 0;
+    final num foodItemSaved = userData['food_item_saved'] ?? 0;
+    await ref.update({
+      'money_saved': moneySaved - priceDiff,
+      'food_item_saved': foodItemSaved - 1
+    });
   }
 
   @override
