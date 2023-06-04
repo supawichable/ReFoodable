@@ -5,8 +5,8 @@ class UserPublic with _$UserPublic {
   const factory UserPublic({
     String? displayName,
     String? photoURL,
-    @Default(0) double moneySaved,
-    @Default(0) int foodItemSaved,
+    @Default(0) double? moneySaved,
+    @Default(0) int? foodItemSaved,
   }) = _UserPublic;
 
   factory UserPublic.fromJson(Map<String, dynamic> json) =>
