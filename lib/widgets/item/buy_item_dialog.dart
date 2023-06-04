@@ -89,6 +89,7 @@ class _BuyItemDialogState extends State<BuyItemDialog> {
               if (FirebaseAuth.instance.currentUser != null && savedAmount != null) {
                 _undoAmountSaved(savedAmount);
               }
+              Navigator.pop(context);
             },
             child: const Text('Undo')
         )
