@@ -13,6 +13,7 @@ class BuyItemDialog extends StatefulWidget {
 }
 
 class _BuyItemDialogState extends State<BuyItemDialog> {
+  final ref = FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid);
 
   double? _getSavedAmount(price) {
     if (price?.amount != null && price?.compareAtPrice != null) {
@@ -21,15 +22,28 @@ class _BuyItemDialogState extends State<BuyItemDialog> {
     return null;
   }
 
-  Future _updateAmountSaved(String? userUid, double priceDiff) async {
+  Future _addAmountSaved(double priceDiff) async {
     try {
-      final ref = FirebaseFirestore.instance.collection('users').doc(userUid);
       final userData = await ref.get();
       final num moneySaved = userData['money_saved'] ?? 0;
       final num foodItemSaved = userData['food_item_saved'] ?? 0;
       await ref.update({
         'money_saved': moneySaved + priceDiff,
         'food_item_saved': foodItemSaved + 1
+      });
+    } catch (e) {
+      print("ERRORR: $e");
+    }
+  }
+
+  Future _undoAmountSaved(double priceDiff) async {
+    try {
+      final userData = await ref.get();
+      final num moneySaved = userData['money_saved'] ?? 0;
+      final num foodItemSaved = userData['food_item_saved'] ?? 0;
+      await ref.update({
+        'money_saved': moneySaved - priceDiff,
+        'food_item_saved': foodItemSaved - 1
       });
     } catch (e) {
       print("ERRORR: $e");
@@ -43,7 +57,7 @@ class _BuyItemDialogState extends State<BuyItemDialog> {
     double? savedAmount = _getSavedAmount(price);
 
     if (FirebaseAuth.instance.currentUser != null && savedAmount != null) {
-      _updateAmountSaved(FirebaseAuth.instance.currentUser!.uid, savedAmount);
+      _addAmountSaved(savedAmount);
     }
 
     return AlertDialog(
@@ -72,9 +86,12 @@ class _BuyItemDialogState extends State<BuyItemDialog> {
       actions: [
         TextButton(
             onPressed: () {
-              print("TAPPED UNDO");
+              if (FirebaseAuth.instance.currentUser != null && savedAmount != null) {
+                _undoAmountSaved(savedAmount);
+              }
             },
-            child: Text("Undo"))
+            child: const Text('Undo')
+        )
       ],
     );
   }
