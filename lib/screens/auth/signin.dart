@@ -399,11 +399,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
               .updatePhotoURL('$placeholderUrlbase$seed');
         }
 
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .set({'money_saved': 0, 'food_item_saved': 0}, SetOptions(merge: true));
-
         if (mounted) {
           context.router.replace(const HomeRoute());
         }

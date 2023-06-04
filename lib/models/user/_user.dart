@@ -10,6 +10,8 @@ part 'public.dart';
 class FirestoreUserPublic {
   final String id;
   final UserPublic userPublic;
+  int foodItemSaved = 0;
+  double moneySaved = 0;
 
-  FirestoreUserPublic(this.id, this.userPublic);
+  FirestoreUserPublic(this.id, this.userPublic, this.foodItemSaved, this.moneySaved);
 }

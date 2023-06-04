@@ -127,11 +127,13 @@ class ItemCard extends HookConsumerWidget {
                     snapshot.reference.parent.id == ApiPath.myItems
                         ? const SizedBox.shrink()
                         : GestureDetector(
-                            onTap: () => showDialog(
+                            onTap: () => {
+                              showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return BuyItemDialog(item: item);
-                                }),
+                              }),
+                            },
                             child: Text('Buy this',
                                 style: Theme.of(context)
                                     .textTheme
