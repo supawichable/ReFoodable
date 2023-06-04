@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/models/item/_item.dart';
 
@@ -11,13 +13,37 @@ class BuyItemDialog extends StatefulWidget {
 }
 
 class _BuyItemDialogState extends State<BuyItemDialog> {
+
+  double? _getSavedAmount(price) {
+    if (price?.amount != null && price?.compareAtPrice != null) {
+      return price!.compareAtPrice! - price.amount!;
+    }
+    return null;
+  }
+
+  Future _updateAmountSaved(String? userUid, double priceDiff) async {
+    try {
+      final ref = FirebaseFirestore.instance.collection('users').doc(userUid);
+      final userData = await ref.get();
+      final num moneySaved = userData['money_saved'] ?? 0;
+      final num foodItemSaved = userData['food_item_saved'] ?? 0;
+      await ref.update({
+        'money_saved': moneySaved + priceDiff,
+        'food_item_saved': foodItemSaved + 1
+      });
+    } catch (e) {
+      print("ERRORR: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Price? price = widget.item.price;
     String name = widget.item.name ?? '(Untitled)';
-    double? savedAmount;
-    if (price?.amount != null && price?.compareAtPrice != null) {
-      savedAmount = price!.compareAtPrice! - price.amount!;
+    double? savedAmount = _getSavedAmount(price);
+
+    if (FirebaseAuth.instance.currentUser != null && savedAmount != null) {
+      _updateAmountSaved(FirebaseAuth.instance.currentUser!.uid, savedAmount);
     }
 
     return AlertDialog(

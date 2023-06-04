@@ -93,8 +93,8 @@ class _ProfileDataState extends State<ProfileData> {
             ),
           ),
         if (widget.user != null)
-          FutureBuilder(
-              future: _getAmountSaved(userUid),
+          StreamBuilder(
+              stream: FirebaseFirestore.instance.collection('users').doc(userUid).snapshots(),
               builder: (context, snapshot) {
                 return Container(
                   decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(8))),
@@ -109,7 +109,7 @@ class _ProfileDataState extends State<ProfileData> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Money Saved'),
-                            Text('${snapshot.data[0] ?? "Retrieving data..."}',
+                            Text('${snapshot.data!['money_saved'] ?? "Retrieving data..."}',
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 28)
                             ),
                           ])
@@ -119,7 +119,7 @@ class _ProfileDataState extends State<ProfileData> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Food Items Saved'),
-                            Text('${snapshot.data[1] ?? ''}', 
+                            Text('${snapshot.data!['food_item_saved'] ?? ''}', 
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 28)
                             ),
                         ])

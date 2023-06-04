@@ -1,6 +1,7 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gdsctokyo/extension/firebase_extension.dart';
@@ -126,22 +127,26 @@ class ItemCard extends HookConsumerWidget {
                             )),
                     snapshot.reference.parent.id == ApiPath.myItems
                         ? const SizedBox.shrink()
-                        : GestureDetector(
-                            onTap: () => {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return BuyItemDialog(item: item);
-                              }),
-                            },
-                            child: Text('Buy this',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.apply(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    )),
+                        : Container(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: GestureDetector(
+                              onTap: () => {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return BuyItemDialog(item: item);
+                                    }),
+                              },
+                              child: Text('Buy this',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.apply(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      )),
+                            ),
                           )
                   ],
                 ),
